@@ -47,16 +47,16 @@ MonoBehaviour:
   m_GameObject: {fileID: 3970047827416056278}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: dae022887e3729b41b13bd8270996047, type: 3}
+  m_Script: {fileID: 11500000, guid: 91b6487154229a740b3363ed6e9021a9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   moveSpeed: 5
   mouseSensitivity: 2
   fireRate: 0.1
-  shootDistance: 100
+  shootDistance: 1000
   hitLayers:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 1
 --- !u!114 &-2932833669219571
 MonoBehaviour:
   m_ObjectHideFlags: 0
