@@ -70,3 +70,9 @@ crashlytics-build.properties
 # Temporary auto-generated Android Assets
 /[Aa]ssets/[Ss]treamingAssets/aa.meta
 /[Aa]ssets/[Ss]treamingAssets/aa/*
+
+# 유니티 라이브러리 폴더
+Library/
+
+# 유니티 Artifacts 폴더
+Artifacts/
