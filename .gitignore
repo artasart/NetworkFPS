@@ -76,3 +76,6 @@ Library/
 
 # 유니티 Artifacts 폴더
 Artifacts/
+
+# 유니티 로그 폴더
+Logs/
