@@ -28,7 +28,6 @@ public class FPSController : MonoBehaviour
 
 		hitLayers = LayerMask.GetMask("Default");
 
-		// Cinemachine FreeLook 컴포넌트 가져오기
 		freeLookCamera = GetComponentInChildren<CinemachineFreeLook>();
 
 		GameClientManager.Instance.Client.packetHandler.AddHandler(S_ATTACKED);
@@ -53,6 +52,7 @@ public class FPSController : MonoBehaviour
 		if (Input.GetMouseButtonDown(0) && Time.time > nextFireTime)
 		{
 			Shoot();
+
 			nextFireTime = Time.time + fireRate;
 		}
 
@@ -64,35 +64,56 @@ public class FPSController : MonoBehaviour
 
 	void Shoot()
 	{
-		Ray ray = Camera.main.ScreenPointToRay(new Vector3(Screen.width / 2, Screen.height / 2, 0));
+		Ray ray = new Ray(ShootPos.position, ShootPos.forward); // 이 예제에서는 오브젝트의 위치와 정면 방향을 사용합니다.
 
 		RaycastHit hitInfo;
 
-		if (Physics.Raycast(ray, out hitInfo, shootDistance, hitLayers))
+		if (Physics.Raycast(ray, out hitInfo, 1000, hitLayers))
 		{
+			// 기타 처리
+			Vector3 rayOrigin = ShootPos.position; // 출발 위치
+			Vector3 rayDirection = (hitInfo.point - rayOrigin).normalized; // 방향 벡터
+
 			Protocol.C_SHOT enter = new()
 			{
-				Position = NetworkUtils.UnityVector3ToProtocolVector3(this.ShootPos.position),
-				Direction = NetworkUtils.UnityVector3ToProtocolVector3((hitInfo.point - this.ShootPos.position).normalized),
+				Position = NetworkUtils.UnityVector3ToProtocolVector3(rayOrigin),
+				Direction = NetworkUtils.UnityVector3ToProtocolVector3(rayDirection),
 			};
 
 			GameClientManager.Instance.Client.Send(PacketManager.MakeSendBuffer(enter));
 
-			DebugManager.Log("뭔가에 발사!! : " + ShootPos.position + " " + (hitInfo.point - ShootPos.position).normalized);
+			DebugManager.Log("뭔가에 발사!! : " + rayOrigin + " " + rayDirection);
 		}
 
 		else
 		{
+			// 기타 처리
+
 			Protocol.C_SHOT enter = new()
 			{
-				Position = NetworkUtils.UnityVector3ToProtocolVector3(this.ShootPos.position),
-				Direction = NetworkUtils.UnityVector3ToProtocolVector3((this.ShootPos.forward).normalized),
+				Position = NetworkUtils.UnityVector3ToProtocolVector3(ShootPos.position),
+				Direction = NetworkUtils.UnityVector3ToProtocolVector3(ShootPos.forward.normalized),
 			};
 
 			GameClientManager.Instance.Client.Send(PacketManager.MakeSendBuffer(enter));
 
-			DebugManager.Log("하늘에 발사!! : " + ShootPos.position + " " + (ShootPos.position).normalized);
+			DebugManager.Log("하늘에 발사!! : " + ShootPos.position + " " + ShootPos.forward.normalized);
 		}
+	}
+
+	private void OnDrawGizmos()
+	{
+		// 기즈모 색상 설정
+		Gizmos.color = Color.red;
+
+		// 레이 캐스트를 시작하는 위치
+		Vector3 rayOrigin = ShootPos.position;
+
+		// 레이 캐스트의 방향
+		Vector3 rayDirection = ShootPos.forward;
+
+		// 레이 캐스트를 시각적으로 표시
+		Gizmos.DrawRay(rayOrigin, rayDirection * 1000f);
 	}
 
 	void UpdateCameraInput()
