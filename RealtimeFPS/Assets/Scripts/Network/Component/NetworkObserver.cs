@@ -11,17 +11,13 @@ public class NetworkObserver : NetworkComponent
     {
         base.client = client;
 
-        base.client.packetHandler.AddHandler(this.OnOwnerChanged);
-
         this.objectId = id;
         this.isMine = isMine;
         this.isPlayer = isPlayer;
 
         if (isPlayer)
         {
-            networkComponents.Add(GetComponent<NetworkTransform>());
-            //networkComponents.Add(GetComponent<NetworkTransform>());
-            //networkComponents.Add(GetComponent<NetworkAnimator>());
+            networkComponents.Add(GetComponent<NetworkTransform_FPS_DeadReckoning>());
 
             //transform.GetComponentInChildren<TMP_Text>().text = ownerId;
 
@@ -44,15 +40,5 @@ public class NetworkObserver : NetworkComponent
             item.isMine = isMine;
             item.isPlayer = isPlayer;
         }
-    }
-
-    private void OnOwnerChanged( Protocol.S_SET_GAME_OBJECT_OWNER pkt )
-    {
-        if (pkt.GameObjectId != objectId)
-        {
-            return;
-        }
-
-        isMine = pkt.OwnerId == client.ClientId;
     }
 }

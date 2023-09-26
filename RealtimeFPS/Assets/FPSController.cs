@@ -103,6 +103,9 @@ public class FPSController : MonoBehaviour
 
 	private void OnDrawGizmos()
 	{
+		if (ShootPos == null)
+            return;
+
 		// 기즈모 색상 설정
 		Gizmos.color = Color.red;
 

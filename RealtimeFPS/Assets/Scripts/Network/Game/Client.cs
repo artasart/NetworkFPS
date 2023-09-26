@@ -18,7 +18,6 @@ public class Client : Connection
         packetHandler.AddHandler(OnRemoveGameObject);
         packetHandler.AddHandler(OnDisconnected);
         packetHandler.AddHandler(DisplayPing);
-        packetHandler.AddHandler(OnOwnerChanged);
     }
 
     ~Client()
@@ -86,8 +85,6 @@ public class Client : Connection
 			UnityEngine.Object.FindObjectOfType<EffectPool>().Spawn(EffectType.Effect_Thunder, position, Quaternion.identity);
 
 			gameObjects.Add(gameObject.PlayerId.ToString(), player);
-
-            DebugManager.Log("S_ ADD GAMEOBJECT");
         }
     }
 
@@ -103,18 +100,6 @@ public class Client : Connection
             UnityEngine.Object.Destroy(gameObjects[gameObjectId.ToString()]);
 
             _ = gameObjects.Remove(gameObjectId.ToString());
-        }
-    }
-
-    public void OnOwnerChanged(S_SET_GAME_OBJECT_OWNER pkt)
-    {
-        if(pkt.OwnerId == ClientId && !myGameObjectId.Contains(pkt.GameObjectId))
-        {
-            myGameObjectId.Add(pkt.GameObjectId);
-        }
-        else if(pkt.OwnerId != ClientId && myGameObjectId.Contains(pkt.GameObjectId))
-        {
-            myGameObjectId.Remove(pkt.GameObjectId);
         }
     }
 
