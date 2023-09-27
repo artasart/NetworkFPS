@@ -41,15 +41,11 @@ public class Client : Connection
         }
 
         {
-            C_INSTANTIATE_FPS_PLAYER packet = new();
-
-			packet.Transform = new()
-			{
-				Position = NetworkUtils.UnityVector3ToProtocolVector3(UnityEngine.Vector3.zero),
-				Rotation = NetworkUtils.UnityVector3ToProtocolVector3(UnityEngine.Vector3.zero),
-				Velocity = NetworkUtils.UnityVector3ToProtocolVector3(UnityEngine.Vector3.zero),
-				AngularVelocity = NetworkUtils.UnityVector3ToProtocolVector3(UnityEngine.Vector3.zero),
-			};
+            C_INSTANTIATE_FPS_PLAYER packet = new()
+            { 
+                Position = NetworkUtils.UnityVector3ToProtocolVector3(UnityEngine.Vector3.zero),
+                Rotation = NetworkUtils.UnityVector3ToProtocolVector3(UnityEngine.Vector3.zero),
+            };
 
 			Send(PacketManager.MakeSendBuffer(packet));
 
@@ -66,8 +62,8 @@ public class Client : Connection
     {
         foreach (S_ADD_FPS_PLAYER.Types.GameObjectInfo gameObject in _packet.GameObjects)
         {
-            UnityEngine.Vector3 position = new(gameObject.Transform.Position.X, gameObject.Transform.Position.Y, gameObject.Transform.Position.Z);
-            UnityEngine.Quaternion rotation = Quaternion.Euler(gameObject.Transform.Rotation.X, gameObject.Transform.Rotation.Y, gameObject.Transform.Rotation.Z);
+            UnityEngine.Vector3 position = new(gameObject.Position.X, gameObject.Position.Y, gameObject.Position.Z);
+            UnityEngine.Quaternion rotation = Quaternion.Euler(gameObject.Rotation.X, gameObject.Rotation.Y, gameObject.Rotation.Z);
 
             GameObject prefab = Resources.Load<GameObject>("Prefab/FPSMan");
 

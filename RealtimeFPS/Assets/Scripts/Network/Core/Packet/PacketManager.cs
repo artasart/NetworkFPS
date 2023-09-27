@@ -40,10 +40,12 @@ namespace Framework.Network
         PKT_S_SET_ANIMATION = 114,
         PKT_C_INSTANTIATE_FPS_PLAYER = 200,
         PKT_S_ADD_FPS_PLAYER = 201,
-        PKT_C_SET_FPS_TRANSFORM = 202,
-        PKT_S_SET_FPS_TRANSFORM = 203,
-        PKT_C_SHOT = 204,
-        PKT_S_ATTACKED = 205,
+        PKT_C_SET_FPS_POSITION = 202,
+        PKT_S_SET_FPS_POSITION = 203,
+        PKT_C_SET_FPS_ROTATION = 204,
+        PKT_S_SET_FPS_ROTATION = 205,
+        PKT_C_SHOT = 206,
+        PKT_S_ATTACKED = 207,
     }
 
     public static class PacketManager
@@ -69,7 +71,8 @@ namespace Framework.Network
             onRecv.Add((ushort)MsgId.PKT_S_SET_TRANSFORM, MakePacket<S_SET_TRANSFORM>);
             onRecv.Add((ushort)MsgId.PKT_S_SET_ANIMATION, MakePacket<S_SET_ANIMATION>);
             onRecv.Add((ushort)MsgId.PKT_S_ADD_FPS_PLAYER, MakePacket<S_ADD_FPS_PLAYER>);
-            onRecv.Add((ushort)MsgId.PKT_S_SET_FPS_TRANSFORM, MakePacket<S_SET_FPS_TRANSFORM>);
+            onRecv.Add((ushort)MsgId.PKT_S_SET_FPS_POSITION, MakePacket<S_SET_FPS_POSITION>);
+            onRecv.Add((ushort)MsgId.PKT_S_SET_FPS_ROTATION, MakePacket<S_SET_FPS_ROTATION>);
             onRecv.Add((ushort)MsgId.PKT_S_ATTACKED, MakePacket<S_ATTACKED>);
         }
 
@@ -123,8 +126,9 @@ namespace Framework.Network
         public static ArraySegment<byte> MakeSendBuffer( Protocol.C_SET_TRANSFORM pkt ) { return MakeSendBuffer(pkt, 111); }
         public static ArraySegment<byte> MakeSendBuffer( Protocol.C_SET_ANIMATION pkt ) { return MakeSendBuffer(pkt, 113); }
         public static ArraySegment<byte> MakeSendBuffer( Protocol.C_INSTANTIATE_FPS_PLAYER pkt ) { return MakeSendBuffer(pkt, 200); }
-        public static ArraySegment<byte> MakeSendBuffer( Protocol.C_SET_FPS_TRANSFORM pkt ) { return MakeSendBuffer(pkt, 202); }
-        public static ArraySegment<byte> MakeSendBuffer( Protocol.C_SHOT pkt ) { return MakeSendBuffer(pkt, 204); }
+        public static ArraySegment<byte> MakeSendBuffer( Protocol.C_SET_FPS_POSITION pkt ) { return MakeSendBuffer(pkt, 202); }
+        public static ArraySegment<byte> MakeSendBuffer( Protocol.C_SET_FPS_ROTATION pkt ) { return MakeSendBuffer(pkt, 204); }
+        public static ArraySegment<byte> MakeSendBuffer( Protocol.C_SHOT pkt ) { return MakeSendBuffer(pkt, 206); }
 
         private static ArraySegment<byte> MakeSendBuffer( IMessage pkt, ushort pktId )
         {
