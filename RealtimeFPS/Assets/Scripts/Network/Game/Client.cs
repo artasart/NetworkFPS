@@ -57,6 +57,8 @@ public class Client : Connection
     public void OnInstantiateGameObject( S_INSTANTIATE_GAME_OBJECT pkt )
     {
         playerId.Add(pkt.GameObjectId);
+
+        DebugManager.ClearLog(playerId.ToArray());
     }
 
     public void OnAddGameObject(S_ADD_FPS_PLAYER _packet )
