@@ -23,8 +23,7 @@ public class NetworkObserver : NetworkComponent
 
             if (!isMine)
             {
-                Destroy(GetComponent<PlayerController>());
-                Destroy(GetComponentInChildren<CameraShake>().gameObject);
+
             }
         }
 

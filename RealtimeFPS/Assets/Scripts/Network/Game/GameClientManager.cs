@@ -38,7 +38,12 @@ public class GameClientManager : MonoBehaviour
     private readonly string localAddress = "192.168.0.104";
     private readonly int localPort = 7777;
 
-    private void Start()
+	private void OnDestroy()
+	{
+        Disconnect();
+	}
+
+	private void Start()
     {
         GameManager.UI.StackPanel<Panel_Network>();
     }

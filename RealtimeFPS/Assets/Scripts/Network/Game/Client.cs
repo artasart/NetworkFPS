@@ -49,16 +49,12 @@ public class Client : Connection
             };
 
 			Send(PacketManager.MakeSendBuffer(packet));
-
-            DebugManager.Log("Instantiate");
         }
     }
 
     public void OnInstantiateGameObject( S_INSTANTIATE_GAME_OBJECT pkt )
     {
         playerId.Add(pkt.GameObjectId);
-
-        DebugManager.ClearLog(playerId.ToArray());
     }
 
     public void OnAddGameObject(S_ADD_FPS_PLAYER _packet )
@@ -66,13 +62,31 @@ public class Client : Connection
         foreach (S_ADD_FPS_PLAYER.Types.GameObjectInfo gameObject in _packet.GameObjects)
         {
             UnityEngine.Vector3 position = new(gameObject.Position.X, gameObject.Position.Y, gameObject.Position.Z);
-            UnityEngine.Quaternion rotation = Quaternion.Euler(gameObject.Rotation.X, gameObject.Rotation.Y, gameObject.Rotation.Z);
 
-            GameObject prefab = Resources.Load<GameObject>("Prefab/FPSMan");
+			DebugManager.Log(gameObject.Rotation.X + " " + gameObject.Rotation.Y + " " + gameObject.Rotation.Z);
 
-            GameObject player = UnityEngine.Object.Instantiate(prefab, position, rotation);
+			Quaternion rotation = Quaternion.Euler(gameObject.Rotation.X, gameObject.Rotation.Y, gameObject.Rotation.Z);
 
-			player.GetComponent<NetworkObserver>().SetNetworkObject(
+            DebugManager.Log(gameObject.Rotation.X + " " + gameObject.Rotation.Y + " " + gameObject.Rotation.Z);
+
+
+            var prefabName = string.Empty;
+
+			if(gameObject.PlayerId == GetPlayerId())
+            {
+                prefabName = "Prefab/FPSMan";
+			}
+
+            else
+            {
+				prefabName = "Prefab/FPSManOther";
+			}
+
+			GameObject prefab = Resources.Load<GameObject>(prefabName);
+
+			GameObject player = UnityEngine.Object.Instantiate(prefab, position, rotation);
+
+			player.GetComponentInChildren<NetworkObserver>().SetNetworkObject(
 				this
 				, gameObject.PlayerId
 				, gameObject.OwnerId == ClientId
@@ -96,9 +110,9 @@ public class Client : Connection
                 continue;
             }
 
-            UnityEngine.Object.Destroy(gameObjects[gameObjectId.ToString()]);
+            UnityEngine.Object.DestroyImmediate(gameObjects[gameObjectId.ToString()]);
 
-            _ = gameObjects.Remove(gameObjectId.ToString());
+            gameObjects.Remove(gameObjectId.ToString());
         }
     }
 
