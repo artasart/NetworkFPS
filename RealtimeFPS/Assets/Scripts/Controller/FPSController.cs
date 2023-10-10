@@ -97,7 +97,7 @@ public class FPSController : MonoBehaviour
 
 	private void Fire()
 	{
-		Debug.Log("Shooot");
+		Debug.Log("Shoot");
 
 		Vector3 rayOrigin = shootPos.position;
 		Vector3 rayDirection = (Physics.Raycast(shootPos.position, shootPos.forward, out RaycastHit hitInfo, 1000, hitLayers))

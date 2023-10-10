@@ -39,6 +39,8 @@ namespace FrameWork.Network
 			}
 			else
 			{
+                DebugManager.ClearLog("Add");
+
 				client.packetHandler.AddHandler(Handle_S_SET_FPS_POSITION);
                 client.packetHandler.AddHandler(Handle_S_SET_FPS_ROTATION);
 
@@ -159,8 +161,6 @@ namespace FrameWork.Network
 
         private void Handle_S_SET_FPS_POSITION( S_SET_TRANSFORM packet )
         {
-			Debug.Log("Test");
-
 			if (packet.GameObjectId != objectId)
             {
                 return;
