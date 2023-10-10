@@ -44,4 +44,7 @@ public static class Define
 
 	public const int GAMEOBJECT_TYPE_PLAYER = 1;
 	public const int GAMEOBJECT_TYPE_ETC = 99;
+
+
+	public const string DAMAGEUI = "DAMAGEUI";
 }

@@ -1,17 +1,18 @@
 ﻿using Framework.Network;
 using Protocol;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class Client : Connection
 {
-    public string ClientId { get; set; }
+	public string ClientId { get; set; }
 
-    private readonly Dictionary<string, GameObject> gameObjects = new();
-    private HashSet<int> myGameObjectId = new();
+	private readonly Dictionary<string, GameObject> gameObjects = new();
+	private HashSet<int> playerId = new();
 
-    public Client()
-    {
+	public Client()
+	{
         packetHandler.AddHandler(OnEnter);
         packetHandler.AddHandler(OnInstantiateGameObject);
         packetHandler.AddHandler(OnAddGameObject);
@@ -55,7 +56,9 @@ public class Client : Connection
 
     public void OnInstantiateGameObject( S_INSTANTIATE_GAME_OBJECT pkt )
     {
-        myGameObjectId.Add(pkt.GameObjectId);
+        playerId.Add(pkt.GameObjectId);
+
+        DebugManager.ClearLog(playerId.ToArray());
     }
 
     public void OnAddGameObject(S_ADD_FPS_PLAYER _packet )
@@ -113,4 +116,21 @@ public class Client : Connection
     {
         //Panel_NetworkInfo.Instance.SetPing((int)pingAverage);
     }
+
+    public int GetPlayerId()
+    {
+		return ConvertIntArrayToStringAndBack();
+	}
+
+	private int ConvertIntArrayToStringAndBack()
+	{
+		string combinedString = string.Join("", playerId.ToArray().Select(x => x.ToString()));
+
+		if (int.TryParse(combinedString, out int result))
+		{
+			return result;
+		}
+
+		else return 0;
+	}
 }
