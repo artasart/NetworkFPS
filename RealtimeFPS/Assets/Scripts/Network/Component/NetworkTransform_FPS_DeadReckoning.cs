@@ -28,18 +28,18 @@ namespace FrameWork.Network
         {
             controller = GetComponent<CharacterController>();
 
-            velocity = new();
+			velocity = new();
 
-            if (isMine)
-            {
-                calculateVelocity = Timing.RunCoroutine(CalculeateVelocity(), nameof(CalculeateVelocity));
+			if (isMine)
+			{
+				calculateVelocity = Timing.RunCoroutine(CalculeateVelocity(), nameof(CalculeateVelocity) + this.GetHashCode());
 
-                Timing.RunCoroutine(UpdatePosition(), nameof(UpdatePosition));
-                Timing.RunCoroutine(UpdateRotation(), nameof(UpdateRotation));
-            }
-            else
-            {
-                client.packetHandler.AddHandler(Handle_S_SET_FPS_POSITION);
+				Timing.RunCoroutine(UpdatePosition(), nameof(UpdatePosition) + this.GetHashCode());
+				Timing.RunCoroutine(UpdateRotation(), nameof(UpdateRotation) + this.GetHashCode());
+			}
+			else
+			{
+				client.packetHandler.AddHandler(Handle_S_SET_FPS_POSITION);
                 client.packetHandler.AddHandler(Handle_S_SET_FPS_ROTATION);
 
                 remoteUpdatePosition = Timing.RunCoroutine(RemoteUpdatePosition());
@@ -51,18 +51,20 @@ namespace FrameWork.Network
             base.OnDestroy();
 
             if (isMine)
-            {
-                Timing.KillCoroutines(nameof(CalculeateVelocity));
-                Timing.KillCoroutines(nameof(UpdatePosition));
-                Timing.KillCoroutines(nameof(UpdateRotation));
-            }
-            else
-            {
-                client.packetHandler.RemoveHandler(Handle_S_SET_FPS_POSITION);
+			{
+				Timing.KillCoroutines(nameof(CalculeateVelocity) + this.GetHashCode());
+				Timing.KillCoroutines(nameof(UpdatePosition) + this.GetHashCode());
+				Timing.KillCoroutines(nameof(UpdateRotation) + this.GetHashCode());
+			}
+			else
+			{
+				client.packetHandler.RemoveHandler(Handle_S_SET_FPS_POSITION);
                 client.packetHandler.RemoveHandler(Handle_S_SET_FPS_ROTATION);
 
                 Timing.KillCoroutines(remoteUpdatePosition);
             }
+
+            Timing.KillCoroutines(remoteUpdatePosition);
         }
 
         private IEnumerator<float> CalculeateVelocity()
@@ -157,7 +159,9 @@ namespace FrameWork.Network
 
         private void Handle_S_SET_FPS_POSITION( S_SET_TRANSFORM packet )
         {
-            if (packet.GameObjectId != objectId)
+			Debug.Log("Test");
+
+			if (packet.GameObjectId != objectId)
             {
                 return;
             }
