@@ -3,8 +3,6 @@ using MEC;
 using Protocol;
 using System;
 using System.Collections.Generic;
-using Unity.Mathematics;
-using UnityEditor.PackageManager;
 using UnityEngine;
 using Vector3 = UnityEngine.Vector3;
 
@@ -16,11 +14,11 @@ namespace FrameWork.Network
         private readonly float hardsnapThreshold = 3f;
 
         private Vector3 velocity;
+        private Vector3 angularVelocity;
 
-        private CoroutineHandle updatePosition;
-        private CoroutineHandle CalculateVelocity;
-
-        private CoroutineHandle updateRotation;
+        private CoroutineHandle updateTransform;
+        private CoroutineHandle updateVelocity;
+        private CoroutineHandle updateAngularVelocity;
 
         private CoroutineHandle remoteUpdatePosition;
         private CoroutineHandle remoteUpdateRotation;
@@ -32,18 +30,19 @@ namespace FrameWork.Network
             controller = GetComponent<CharacterController>();
 
             velocity = new();
+            angularVelocity = new();
 
             if (isMine)
             {
-                CalculateVelocity = Timing.RunCoroutine(CalculeateVelocity());
-                updatePosition = Timing.RunCoroutine(UpdatePosition());
-                updateRotation = Timing.RunCoroutine(UpdateRotation());
+                updateTransform = Timing.RunCoroutine(UpdateTransform());
+                updateVelocity = Timing.RunCoroutine(UpdateVelocity());
+                updateAngularVelocity = Timing.RunCoroutine(UpdateAngularVelocity());
             }
             else
             {
-                client.packetHandler.AddHandler(Handle_S_SET_FPS_POSITION);
-                client.packetHandler.AddHandler(Handle_S_SET_FPS_ROTATION);
+                client.packetHandler.AddHandler(S_SET_TRANSFORM);
                 remoteUpdatePosition = Timing.RunCoroutine(RemoteUpdatePosition());
+                remoteUpdateRotation = Timing.RunCoroutine(RemoteUpdateRotation());
             }
         }
 
@@ -53,18 +52,19 @@ namespace FrameWork.Network
 
             if (isMine)
             {
-                _ = Timing.KillCoroutines(updatePosition);
-                _ = Timing.KillCoroutines(CalculateVelocity);
+                _ = Timing.KillCoroutines(updateTransform);
+                _ = Timing.KillCoroutines(updateVelocity);
+                _ = Timing.KillCoroutines(updateAngularVelocity);
             }
             else
             {
-                client.packetHandler.RemoveHandler(Handle_S_SET_FPS_POSITION);
-                client.packetHandler.RemoveHandler(Handle_S_SET_FPS_ROTATION);
+                client.packetHandler.RemoveHandler(S_SET_TRANSFORM);
                 _ = Timing.KillCoroutines(remoteUpdatePosition);
+                _ = Timing.KillCoroutines(remoteUpdateRotation);
             }
         }
 
-        private IEnumerator<float> CalculeateVelocity()
+        private IEnumerator<float> UpdateVelocity()
         {
             Vector3 prevPos = transform.position;
             Vector3 currentPos;
@@ -82,9 +82,36 @@ namespace FrameWork.Network
             }
         }
 
-        private IEnumerator<float> UpdatePosition()
+        private IEnumerator<float> UpdateAngularVelocity()
+        {
+            Quaternion prevRot = transform.rotation;
+            Quaternion currentRot;
+            float prevDeltaTime = Time.deltaTime;
+
+            while (true)
+            {
+                currentRot = transform.rotation;
+
+                Quaternion deltaRotation = currentRot * Quaternion.Inverse(prevRot);
+                deltaRotation.ToAngleAxis(out float angle, out Vector3 axis);
+                if (angle > 180)
+                {
+                    angle -= 360;
+                }
+
+                angularVelocity = angle * Mathf.Deg2Rad * axis.normalized / (prevDeltaTime * 1000);
+
+                prevRot = currentRot;
+                prevDeltaTime = Time.deltaTime;
+
+                yield return Timing.WaitForOneFrame;
+            }
+        }
+
+        private IEnumerator<float> UpdateTransform()
         {
             Vector3 prevVelocity = velocity;
+            Vector3 prevAngularVelocity = angularVelocity;
 
             float delTime = 0;
 
@@ -95,19 +122,11 @@ namespace FrameWork.Network
                 {
                     delTime -= interval;
 
-                    if (prevVelocity != velocity)
+                    if (prevVelocity != velocity || prevAngularVelocity != angularVelocity)
                     {
-                        C_SET_FPS_POSITION packet = new()
-                        {
-                            PlayerId = objectId,
-                            Timestamp = client.calcuatedServerTime,
-                            Position = NetworkUtils.UnityVector3ToProtocolVector3(transform.position),
-                            Velocity = NetworkUtils.UnityVector3ToProtocolVector3(velocity)
-                        };
-
-                        client.Send(PacketManager.MakeSendBuffer(packet));
-
+                        C_SET_FPS_TRANSFORM();
                         prevVelocity = velocity;
+                        prevAngularVelocity = angularVelocity;
                     }
                 }
 
@@ -115,34 +134,24 @@ namespace FrameWork.Network
             }
         }
 
-        private IEnumerator<float> UpdateRotation()
+        private void C_SET_FPS_TRANSFORM()
         {
-            quaternion prevRotation = transform.rotation;
-            float delTime = 0;
-
-            while (true)
+            Protocol.FPS_Transform fps_transform = new()
             {
-                delTime += Time.deltaTime;
-                if (delTime > interval)
-                {
-                    delTime -= interval;
+                Position = NetworkUtils.UnityVector3ToProtocolVector3(transform.position),
+                Velocity = NetworkUtils.UnityVector3ToProtocolVector3(velocity),
+                Rotation = NetworkUtils.UnityVector3ToProtocolVector3(transform.eulerAngles),
+                AngularVelocity = NetworkUtils.UnityVector3ToProtocolVector3(angularVelocity)
+            };
 
-                    if (prevRotation != transform.rotation)
-                    {
-                        C_SET_FPS_ROTATION packet = new()
-                        {
-                            PlayerId = objectId,
-                            Rotation = NetworkUtils.UnityVector3ToProtocolVector3(transform.eulerAngles)
-                        };
+            C_SET_FPS_TRANSFORM packet = new()
+            {
+                PlayerId = objectId,
+                Timestamp = client.calcuatedServerTime,
+                Transform = fps_transform
+            };
 
-                        client.Send(PacketManager.MakeSendBuffer(packet));
-
-                        prevRotation = transform.rotation;
-                    }
-                }
-
-                yield return Timing.WaitForOneFrame;
-            }
+            client.Send(PacketManager.MakeSendBuffer(packet));
         }
 
         private IEnumerator<float> RemoteUpdatePosition()
@@ -154,7 +163,16 @@ namespace FrameWork.Network
             }
         }
 
-        private void Handle_S_SET_FPS_POSITION( S_SET_TRANSFORM packet )
+        private IEnumerator<float> RemoteUpdateRotation()
+        {
+            while (true)
+            {
+                transform.rotation *= Quaternion.AngleAxis(angularVelocity.magnitude * Time.deltaTime * 1000 * Mathf.Rad2Deg, angularVelocity.normalized);
+                yield return Timing.WaitForOneFrame;
+            }
+        }
+
+        private void S_SET_TRANSFORM( S_SET_TRANSFORM packet )
         {
             if (packet.GameObjectId != objectId)
             {
@@ -167,7 +185,18 @@ namespace FrameWork.Network
             velocity = NetworkUtils.ProtocolVector3ToUnityVector3(packet.Velocity);
             Vector3 predictedPosition;
 
+            Quaternion packetRotation = NetworkUtils.ProtocolVector3ToUnityQuaternion(packet.Rotation);
+            angularVelocity = NetworkUtils.ProtocolVector3ToUnityVector3(packet.AngularVelocity);
+            Quaternion predictedRotation;
+
             timeGap = client.calcuatedServerTime - packet.Timestamp;
+
+            predictedRotation = packetRotation * Quaternion.AngleAxis(angularVelocity.magnitude * timeGap * Mathf.Rad2Deg, angularVelocity.normalized);
+
+            if (2.0f * Mathf.Acos(Mathf.Clamp((transform.rotation * Quaternion.Inverse(predictedRotation)).w, -1.0f, 1.0f)) * Mathf.Rad2Deg > 3.0f)
+            {
+                transform.rotation = predictedRotation;
+            }
 
             predictedPosition = packetPosition + (velocity * timeGap);
 
@@ -207,39 +236,6 @@ namespace FrameWork.Network
             } while (delaTime <= totalTime);
 
             remoteUpdatePosition = Timing.RunCoroutine(RemoteUpdatePosition());
-        }
-
-        void Handle_S_SET_FPS_ROTATION( Protocol.S_SET_FPS_ROTATION packet)
-        {
-            if (packet.PlayerId != objectId)
-            {
-                return;
-            }
-
-            if (remoteUpdateRotation.IsRunning)
-            {
-                _ = Timing.KillCoroutines(remoteUpdateRotation);
-            }
-
-            remoteUpdateRotation = Timing.RunCoroutine(
-                RemoteUpdateRotation(
-                        NetworkUtils.ProtocolVector3ToUnityQuaternion(packet.Rotation)
-                    )
-                );
-        }
-
-        private IEnumerator<float> RemoteUpdateRotation( Quaternion endRotation )
-        {
-            float delTime = 0.0f;
-
-            Quaternion startRotation = transform.rotation;
-
-            while (delTime < interval)
-            {
-                delTime += Time.deltaTime;
-                transform.rotation = Quaternion.Lerp(startRotation, endRotation, delTime / interval);
-                yield return Timing.WaitForOneFrame;
-            }
         }
     }
 }
