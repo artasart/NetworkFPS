@@ -13,6 +13,11 @@ public enum DebugColor
     none,
     UI,
     Scene,
+    FireBase,
+    Login,
+    Realtime,
+    Web,
+    WebSocket,
 }
 
 public class DebugManager

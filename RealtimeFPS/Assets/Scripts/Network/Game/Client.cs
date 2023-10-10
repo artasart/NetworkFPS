@@ -1,17 +1,18 @@
 ﻿using Framework.Network;
 using Protocol;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class Client : Connection
 {
-    public string ClientId { get; set; }
+	public string ClientId { get; set; }
 
-    private readonly Dictionary<string, GameObject> gameObjects = new();
-    private HashSet<int> myGameObjectId = new();
+	private readonly Dictionary<string, GameObject> gameObjects = new();
+	private HashSet<int> playerId = new();
 
-    public Client()
-    {
+	public Client()
+	{
         packetHandler.AddHandler(OnEnter);
         packetHandler.AddHandler(OnInstantiateGameObject);
         packetHandler.AddHandler(OnAddGameObject);
@@ -41,15 +42,11 @@ public class Client : Connection
         }
 
         {
-            C_INSTANTIATE_FPS_PLAYER packet = new();
-
-			packet.Transform = new()
-			{
-				Position = NetworkUtils.UnityVector3ToProtocolVector3(UnityEngine.Vector3.zero),
-				Rotation = NetworkUtils.UnityVector3ToProtocolVector3(UnityEngine.Vector3.zero),
-				Velocity = NetworkUtils.UnityVector3ToProtocolVector3(UnityEngine.Vector3.zero),
-				AngularVelocity = NetworkUtils.UnityVector3ToProtocolVector3(UnityEngine.Vector3.zero),
-			};
+            C_INSTANTIATE_FPS_PLAYER packet = new()
+            { 
+                Position = NetworkUtils.UnityVector3ToProtocolVector3(UnityEngine.Vector3.zero),
+                Rotation = NetworkUtils.UnityVector3ToProtocolVector3(UnityEngine.Vector3.zero),
+            };
 
 			Send(PacketManager.MakeSendBuffer(packet));
 
@@ -59,15 +56,17 @@ public class Client : Connection
 
     public void OnInstantiateGameObject( S_INSTANTIATE_GAME_OBJECT pkt )
     {
-        myGameObjectId.Add(pkt.GameObjectId);
+        playerId.Add(pkt.GameObjectId);
+
+        DebugManager.ClearLog(playerId.ToArray());
     }
 
     public void OnAddGameObject(S_ADD_FPS_PLAYER _packet )
     {
         foreach (S_ADD_FPS_PLAYER.Types.GameObjectInfo gameObject in _packet.GameObjects)
         {
-            UnityEngine.Vector3 position = new(gameObject.Transform.Position.X, gameObject.Transform.Position.Y, gameObject.Transform.Position.Z);
-            UnityEngine.Quaternion rotation = Quaternion.Euler(gameObject.Transform.Rotation.X, gameObject.Transform.Rotation.Y, gameObject.Transform.Rotation.Z);
+            UnityEngine.Vector3 position = new(gameObject.Position.X, gameObject.Position.Y, gameObject.Position.Z);
+            UnityEngine.Quaternion rotation = Quaternion.Euler(gameObject.Rotation.X, gameObject.Rotation.Y, gameObject.Rotation.Z);
 
             GameObject prefab = Resources.Load<GameObject>("Prefab/FPSMan");
 
@@ -117,4 +116,21 @@ public class Client : Connection
     {
         //Panel_NetworkInfo.Instance.SetPing((int)pingAverage);
     }
+
+    public int GetPlayerId()
+    {
+		return ConvertIntArrayToStringAndBack();
+	}
+
+	private int ConvertIntArrayToStringAndBack()
+	{
+		string combinedString = string.Join("", playerId.ToArray().Select(x => x.ToString()));
+
+		if (int.TryParse(combinedString, out int result))
+		{
+			return result;
+		}
+
+		else return 0;
+	}
 }

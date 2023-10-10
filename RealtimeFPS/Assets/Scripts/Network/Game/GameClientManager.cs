@@ -107,7 +107,7 @@ public class GameClientManager : MonoBehaviour
             Client.Send(PacketManager.MakeSendBuffer(enter));
 
             GameManager.UI.PopPanel();
-            GameManager.UI.StackPanel<Panel_Hint>();
+            GameManager.UI.StackPanel<Panel_HUD>();
         }
     }
 
