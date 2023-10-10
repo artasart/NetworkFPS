@@ -8,11 +8,6 @@ public class Panel_Network : Panel_Base
 {
     private Button btn_Connect;
 
-	private void OnDestroy()
-	{
-        GameClientManager.Instance.Disconnect();
-	}
-
 	protected override void Awake()
     {
         base.Awake();

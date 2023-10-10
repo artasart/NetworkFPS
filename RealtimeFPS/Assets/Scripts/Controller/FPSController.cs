@@ -4,197 +4,169 @@ using Framework.Network;
 
 public class FPSController : MonoBehaviour
 {
-	public float moveSpeed = 5f;
-	public float mouseSensitivity = 2f;
-	//public GameObject bulletPrefab;
-	//public Transform bulletSpawnPoint;
-	public float fireRate = 0.1f;
+    [Header("Movement")]
+    public float moveSpeed = 5f;
 
-	private float nextFireTime = 0f;
-	private Transform cameraParent;
-	private float verticalLookRotation = 0f;
+    [Header("Mouse Settings")]
+    public float mouseSensitivity = 2f;
 
-	Transform ShootPos;
+    [Header("Shooting")]
+    public float fireRate = 0.1f;
+    public float shootDistance = 1000f;
+    public LayerMask hitLayers;
 
-	// Cinemachine FreeLook 컴포넌트를 참조하기 위한 변수
-	public CinemachineFreeLook freeLookCamera;
+    [Header("Ammunition")]
+    public int maxBulletCount = 30;
 
+    private float nextFireTime = 0f;
+    private Transform cameraParent;
+    private float verticalLookRotation = 0f;
+    private Transform ShootPos;
+    private ParticleSystem particle_Muzzle;
 
-	ParticleSystem particle_Muzzle;
-	
-	void Start()
-	{
-		Cursor.lockState = CursorLockMode.Locked;
-		cameraParent = this.transform.Search("CameraParent");
+    private int bulletCount;
 
-		ShootPos = this.transform.Search(nameof(ShootPos));
+    public CinemachineFreeLook freeLookCamera;
 
-		hitLayers = LayerMask.GetMask("Default");
+    bool isCameraLock = false;
 
-		freeLookCamera = GetComponentInChildren<CinemachineFreeLook>();
+    private void Start()
+    {
+        Cursor.lockState = CursorLockMode.Locked;
 
+        cameraParent = transform.Search("CameraParent");
+        ShootPos = transform.Search(nameof(ShootPos));
+        hitLayers = LayerMask.GetMask("Default");
+        freeLookCamera = GetComponentInChildren<CinemachineFreeLook>();
+        bulletCount = maxBulletCount;
+        particle_Muzzle = FindObjectOfType<ParticleSystem>();
 
-		bulletCount = maxBulletCount;
+        GameClientManager.Instance.Client.packetHandler.AddHandler(S_ATTACKED);
+    }
 
+    private void Update()
+    {
+        if (isCameraLock) return;
 
-		particle_Muzzle = FindObjectOfType<ParticleSystem>();
+        HandleMovementInput();
+        HandleMouseInput();
+        HandleShootingInput();
+        HandleCameraInput();
+        HandleReloadInput();
+    }
 
+    private void HandleMovementInput()
+    {
+        Vector3 moveDirection = new Vector3(Input.GetAxis("Horizontal"), 0f, Input.GetAxis("Vertical")).normalized;
+        transform.Translate(moveDirection * moveSpeed * Time.deltaTime);
+    }
 
-		GameClientManager.Instance.Client.packetHandler.AddHandler(S_ATTACKED);
-	}
+    private void HandleMouseInput()
+    {
+        float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity;
+        float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity;
 
-	void Update()
-	{
-		if (isCameraLock) return;
+        verticalLookRotation -= mouseY;
+        verticalLookRotation = Mathf.Clamp(verticalLookRotation, -90f, 90f);
 
-		Vector3 moveDirection = new Vector3(Input.GetAxis("Horizontal"), 0f, Input.GetAxis("Vertical")).normalized;
-		transform.Translate(moveDirection * moveSpeed * Time.deltaTime);
+        cameraParent.localEulerAngles = new Vector3(verticalLookRotation, 0f, 0f);
+        transform.rotation *= Quaternion.Euler(Vector3.up * mouseX);
+    }
 
-		float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity;
-		float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity;
+    private void HandleShootingInput()
+    {
+        if (Input.GetMouseButton(0) && Time.time > nextFireTime)
+        {
+            if (bulletCount <= 0)
+            {
+                DebugManager.ClearLog("재장전이 필요합니다.");
+                return;
+            }
 
-		verticalLookRotation -= mouseY;
-		verticalLookRotation = Mathf.Clamp(verticalLookRotation, -90f, 90f);
-		cameraParent.localEulerAngles = new Vector3(verticalLookRotation, 0f, 0f);
-		transform.rotation *= Quaternion.Euler(Vector3.up * mouseX);
+            Shoot();
 
-		// 연사 가능한 경우에만 발사
-		if (Input.GetMouseButton(0) && Time.time > nextFireTime)
-		{
-			if (bulletCount <= 0)
-			{
-				DebugManager.ClearLog("재장전이 필요합니다.");
-				return;
-			}
+            nextFireTime = Time.time + fireRate;
+        }
+    }
 
-			Shoot();
-			nextFireTime = Time.time + fireRate;
-		}
+    private void HandleReloadInput()
+    {
+        if (Input.GetKeyDown(KeyCode.R))
+        {
+            Reload();
+        }
+    }
 
-		UpdateCameraInput();
+    private void Shoot()
+    {
+        Ray ray = new Ray(ShootPos.position, ShootPos.forward);
+        RaycastHit hitInfo;
 
-		if (Input.GetKeyDown(KeyCode.R))
-		{
-			Reload();
-		}
-	}
+        Vector3 rayOrigin = ray.origin;
+        Vector3 rayDirection = ray.direction;
 
+        if (Physics.Raycast(ray, out hitInfo, shootDistance, hitLayers))
+        {
+            Protocol.C_SHOT enter = new Protocol.C_SHOT
+            {
+                Position = NetworkUtils.UnityVector3ToProtocolVector3(rayOrigin),
+                Direction = NetworkUtils.UnityVector3ToProtocolVector3(rayDirection)
+            };
 
+            GameClientManager.Instance.Client.Send(PacketManager.MakeSendBuffer(enter));
+        }
 
+        else
+        {
+            Protocol.C_SHOT enter = new Protocol.C_SHOT
+            {
+                Position = NetworkUtils.UnityVector3ToProtocolVector3(ShootPos.position),
+                Direction = NetworkUtils.UnityVector3ToProtocolVector3(ShootPos.forward.normalized)
+            };
 
+            GameClientManager.Instance.Client.Send(PacketManager.MakeSendBuffer(enter));
+        }
 
+        particle_Muzzle.Play();
 
-	public float shootDistance = 1000f;
-	public LayerMask hitLayers;
+        GameManager.UI.FetchPanel<Panel_HUD>().UpdateBulletCount(--bulletCount);
+    }
 
-	public int bulletCount = 30;
-	public int maxBulletCount = 30;
+    private void Reload()
+    {
+        bulletCount = maxBulletCount;
 
-	private void Reload()
-	{
-		DebugManager.ClearLog("Reload");
+        GameManager.UI.FetchPanel<Panel_HUD>().UpdateBulletCount(maxBulletCount);
+    }
 
-		bulletCount = maxBulletCount;
+    private void HandleCameraInput()
+    {
+        float mouseX = Input.GetAxis("Mouse X");
+        float mouseY = Input.GetAxis("Mouse Y");
 
-		GameManager.UI.FetchPanel<Panel_HUD>().UpdateBulletCount(maxBulletCount);
-	}
+        freeLookCamera.m_XAxis.Value += mouseX * freeLookCamera.m_XAxis.m_MaxSpeed;
+        freeLookCamera.m_YAxis.Value += mouseY * freeLookCamera.m_YAxis.m_MaxSpeed;
+    }
 
-	void Shoot()
-	{
-		Debug.Log("Shooot");
+    private void S_ATTACKED(Protocol.S_ATTACKED packet)
+    {
+        Debug.Log(packet.Playerid + " is attacked..! : " + packet.Damage);
 
-		Ray ray = new Ray(ShootPos.position, ShootPos.forward); // 이 예제에서는 오브젝트의 위치와 정면 방향을 사용합니다.
+        if (packet.Playerid == GameClientManager.Instance.Client.GetPlayerId())
+        {
+            GameManager.UI.FetchPanel<Panel_HUD>().UpdateHealth(packet.Hp);
 
-		RaycastHit hitInfo;
+            Debug.Log("It was me.");
 
-		if (Physics.Raycast(ray, out hitInfo, 1000, hitLayers))
-		{
-			// 기타 처리
-			Vector3 rayOrigin = ShootPos.position; // 출발 위치
-			Vector3 rayDirection = (hitInfo.point - rayOrigin).normalized; // 방향 벡터
+            if (packet.Hp <= 0)
+            {
+                Debug.Log("I am Dead..!");
+            }
+        }
+    }
 
-			Protocol.C_SHOT enter = new()
-			{
-				Position = NetworkUtils.UnityVector3ToProtocolVector3(rayOrigin),
-				Direction = NetworkUtils.UnityVector3ToProtocolVector3(rayDirection),
-			};
-
-			GameClientManager.Instance.Client.Send(PacketManager.MakeSendBuffer(enter));
-
-			//DebugManager.Log("뭔가에 발사!! : " + rayOrigin + " " + rayDirection);
-		}
-
-		else
-		{
-			// 기타 처리
-
-			Protocol.C_SHOT enter = new()
-			{
-				Position = NetworkUtils.UnityVector3ToProtocolVector3(ShootPos.position),
-				Direction = NetworkUtils.UnityVector3ToProtocolVector3(ShootPos.forward.normalized),
-			};
-
-			GameClientManager.Instance.Client.Send(PacketManager.MakeSendBuffer(enter));
-
-			//DebugManager.Log("하늘에 발사!! : " + ShootPos.position + " " + ShootPos.forward.normalized);
-		}
-
-		particle_Muzzle.Play();
-
-		GameManager.UI.FetchPanel<Panel_HUD>().UpdateBulletCount(bulletCount);
-	}
-
-	private void OnDrawGizmos()
-	{
-		if (ShootPos == null)
-            return;
-
-		// 기즈모 색상 설정
-		Gizmos.color = Color.red;
-
-		// 레이 캐스트를 시작하는 위치
-		Vector3 rayOrigin = ShootPos.position;
-
-		// 레이 캐스트의 방향
-		Vector3 rayDirection = ShootPos.forward;
-
-		// 레이 캐스트를 시각적으로 표시
-		Gizmos.DrawRay(rayOrigin, rayDirection * 1000f);
-	}
-
-	void UpdateCameraInput()
-	{
-		float mouseX = Input.GetAxis("Mouse X");
-		float mouseY = Input.GetAxis("Mouse Y");
-
-		freeLookCamera.m_XAxis.Value += mouseX * freeLookCamera.m_XAxis.m_MaxSpeed;
-		freeLookCamera.m_YAxis.Value += mouseY * freeLookCamera.m_YAxis.m_MaxSpeed;
-	}
-
-	private void S_ATTACKED(Protocol.S_ATTACKED packet)
-	{
-		Debug.Log(packet.Playerid + " is attacked..! : " + packet.Damage);
-
-		Debug.Log("Mine : " + GameClientManager.Instance.Client.GetPlayerId());
-
-		if (packet.Playerid == GameClientManager.Instance.Client.GetPlayerId())
-		{
-			Debug.Log("It was me.");
-
-			GameManager.UI.FetchPanel<Panel_HUD>().UpdateHealth(packet.Hp);
-
-			if (packet.Hp <= 0)
-			{
-				Debug.Log("I am Dead..!");
-			}
-		}
-	}
-	  
-
-	bool isCameraLock = false;
-
-	public void LockCameraInput(bool _lock)
-	{
-		isCameraLock = _lock;
-	}
+    public void LockCameraInput(bool _lock)
+    {
+        isCameraLock = _lock;
+    }
 }
