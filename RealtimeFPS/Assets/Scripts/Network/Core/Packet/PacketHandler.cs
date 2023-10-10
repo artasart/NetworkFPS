@@ -267,7 +267,7 @@ namespace Framework.Network
         }
         private void _Handle_S_SET_FPS_POSITION( IMessage message )
         {
-            S_SET_FPS_POSITION_Handler?.Invoke((Protocol.S_SET_FPS_POSITION)message);
+                S_SET_FPS_POSITION_Handler?.Invoke((Protocol.S_SET_FPS_POSITION)message);
         }
         public void AddHandler( Action<Protocol.S_SET_FPS_ROTATION> handler )
         {
