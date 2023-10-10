@@ -7,8 +7,8 @@ using UnityEngine.UI;
 
 public class UI_Base : MonoBehaviour
 {
-	Dictionary<string, GameObject> childUI = new Dictionary<string, GameObject>();
-	[HideInInspector] public bool isInstant = false;
+	public Dictionary<string, GameObject> childUI = new Dictionary<string, GameObject>();
+
 
 
 	#region Initialize
@@ -18,27 +18,15 @@ public class UI_Base : MonoBehaviour
 		FindAllChildUI();
 	}
 
-	private void FindAllChildUI() => SearchUI(this.transform);
+	public void FindAllChildUI() => SearchUI(this.transform);
 
 	private void SearchUI(Transform _parent)
 	{
 		foreach (Transform child in _parent)
 		{
-			var tab = child.GetComponent<Tab_Base>();
-			var item = child.gameObject.GetComponent<Item_Base>();
-
-			if (tab != null || item != null)
-			{
-				childUI[child.name] = child.gameObject;
-			}
-
-			else
-			{
-				childUI[child.name] = child.gameObject;
-
-				SearchUI(child);
-			}
-		}
+            childUI[child.name] = child.gameObject;
+            SearchUI(child);
+        }
 	}
 
 	#endregion
@@ -76,33 +64,6 @@ public class UI_Base : MonoBehaviour
 			button.onClick.AddListener(() => _action?.Invoke());
 
 			return button;
-		}
-
-		else { Debug.Log($"WARNING : {_hierarchyName} is not in this hierarchy."); return null; }
-	}
-
-	protected Image GetUI_Image(string _hierarchyName, Sprite _sprite)
-	{
-		if (childUI.ContainsKey(_hierarchyName))
-		{
-			var image = childUI[_hierarchyName].GetComponent<Image>();
-			
-			image.sprite = _sprite;
-
-			return image;
-		}
-
-		else { Debug.Log($"WARNING : {_hierarchyName} is not in this hierarchy."); return null; }
-	}
-
-	protected Toggle GetUI_Toggle(string _hierarchyName, bool _isToggleOn)
-	{
-		if (childUI.ContainsKey(_hierarchyName))
-		{
-			var toggle = childUI[_hierarchyName].GetComponent<Toggle>();
-			toggle.isOn = _isToggleOn;
-
-			return toggle;
 		}
 
 		else { Debug.Log($"WARNING : {_hierarchyName} is not in this hierarchy."); return null; }
@@ -153,78 +114,7 @@ public class UI_Base : MonoBehaviour
 		else { Debug.Log($"WARNING : {_hierarchyName} is not in this hierarchy."); return null; }
 	}
 
-	protected ScrollRect GetUI_ScrollRect(string _hierarchyName, Action<Vector2> _action = null)
-	{
-		if (childUI.ContainsKey(_hierarchyName))
-		{
-			var scrollRect = childUI[_hierarchyName].GetComponent<ScrollRect>();
-
-			scrollRect.onValueChanged.AddListener((position) => _action?.Invoke(position));
-
-			return scrollRect;
-		}
-
-		else { Debug.Log($"WARNING : {_hierarchyName} is not in this hierarchy."); return null; }
-	}
-
 	#endregion
-
-
-
-	#region Utils
-
-	protected void ChangeTab(string _hierarchyName)
-	{
-		CloseTabAll();
-
-		childUI[_hierarchyName].SetActive(true);
-	}
-
-	protected void CloseTab(string _hierarchyName)
-	{
-		childUI[_hierarchyName].SetActive(false);
-	}
-
-	protected void ChangeTab<T>() where T : Component
-	{
-		CloseTabAll();
-
-		if (childUI.ContainsKey(typeof(T).Name))
-		{
-			childUI[typeof(T).Name].SetActive(true);
-		}
-
-		else Debug.Log($"WARNING: {typeof(T).Name} not found.");
-	}
-
-	protected void CloseTab<T>() where T : Component
-	{
-		if (childUI.ContainsKey(typeof(T).Name))
-		{
-			childUI[typeof(T).Name].SetActive(false);
-		}
-
-		else Debug.Log($"WARNING: {typeof(T).Name} not found.");
-	}
-
-	protected void CloseTabAll()
-	{
-		childUI.Values
-			.Where(uiObject => uiObject.GetComponent<Tab_Base>() != null)
-			.ToList()
-			.ForEach(tabObject => tabObject.SetActive(false));
-	}
-
 
 	protected void PlaySound() => GameManager.Sound.PlaySound("Click_2");
-
-	protected void Display()
-	{
-		foreach (var item in childUI)
-		{
-			Debug.Log($"Key: {item.Key}, Value: {item.Value}");
-		}
-	}
-
-	#endregion
 }

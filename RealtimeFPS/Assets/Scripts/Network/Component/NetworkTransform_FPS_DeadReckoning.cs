@@ -18,7 +18,9 @@ namespace FrameWork.Network
         private Vector3 velocity;
 
         private CoroutineHandle updatePosition;
-        private CoroutineHandle calculateVelocity;
+        private CoroutineHandle CalculateVelocity;
+
+        private CoroutineHandle updateRotation;
 
         private CoroutineHandle remoteUpdatePosition;
         private CoroutineHandle remoteUpdateRotation;
@@ -33,16 +35,14 @@ namespace FrameWork.Network
 
             if (isMine)
             {
-                calculateVelocity = Timing.RunCoroutine(CalculeateVelocity(), nameof(CalculeateVelocity));
-
-                Timing.RunCoroutine(UpdatePosition(), nameof(UpdatePosition));
-                Timing.RunCoroutine(UpdateRotation(), nameof(UpdateRotation));
+                CalculateVelocity = Timing.RunCoroutine(CalculeateVelocity());
+                updatePosition = Timing.RunCoroutine(UpdatePosition());
+                updateRotation = Timing.RunCoroutine(UpdateRotation());
             }
             else
             {
                 client.packetHandler.AddHandler(Handle_S_SET_FPS_POSITION);
                 client.packetHandler.AddHandler(Handle_S_SET_FPS_ROTATION);
-
                 remoteUpdatePosition = Timing.RunCoroutine(RemoteUpdatePosition());
             }
         }
@@ -53,16 +53,14 @@ namespace FrameWork.Network
 
             if (isMine)
             {
-                Timing.KillCoroutines(nameof(CalculeateVelocity));
-                Timing.KillCoroutines(nameof(UpdatePosition));
-                Timing.KillCoroutines(nameof(UpdateRotation));
+                _ = Timing.KillCoroutines(updatePosition);
+                _ = Timing.KillCoroutines(CalculateVelocity);
             }
             else
             {
                 client.packetHandler.RemoveHandler(Handle_S_SET_FPS_POSITION);
                 client.packetHandler.RemoveHandler(Handle_S_SET_FPS_ROTATION);
-
-                Timing.KillCoroutines(remoteUpdatePosition);
+                _ = Timing.KillCoroutines(remoteUpdatePosition);
             }
         }
 

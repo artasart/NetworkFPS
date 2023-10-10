@@ -363,6 +363,7 @@ public class GameUIManager : SingletonManager<GameUIManager>
 		yield return Timing.WaitForOneFrame;
 	}
 
+
 	public bool IsPanelOpen<T>() where T : Component
 	{
 		if(openPanels.Contains(typeof(T).ToString()))
@@ -372,6 +373,5 @@ public class GameUIManager : SingletonManager<GameUIManager>
 
 		return false;
 	}
-
 	#endregion
 }

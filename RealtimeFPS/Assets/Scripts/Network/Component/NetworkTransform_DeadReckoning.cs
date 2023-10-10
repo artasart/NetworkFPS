@@ -38,7 +38,6 @@ namespace FrameWork.Network
                 updateVelocity = Timing.RunCoroutine(UpdateVelocity());
                 updateAngularVelocity = Timing.RunCoroutine(UpdateAngularVelocity());
             }
-
             else
             {
                 client.packetHandler.AddHandler(S_SET_TRANSFORM);
