@@ -41,7 +41,7 @@ public class FPSController : MonoBehaviour
 		Cursor.lockState = CursorLockMode.Locked;
 		bulletCount = maxBulletCount;
 
-		GameClientManager.Instance.Client.packetHandler.AddHandler(S_ATTACKED);
+		//GameClientManager.Instance.Client.packetHandler.AddHandler(S_ATTACKED);
 	}
 
 	private void Update()
@@ -133,23 +133,23 @@ public class FPSController : MonoBehaviour
 		freeLookCamera.m_YAxis.Value += mouseY * freeLookCamera.m_YAxis.m_MaxSpeed;
 	}
 
-	private void S_ATTACKED(Protocol.S_ATTACKED packet)
-	{
-		Debug.Log(packet.Playerid + " is attacked..! : " + packet.Damage);
-		Debug.Log("Mine : " + GameClientManager.Instance.Client.GetPlayerId());
+	//private void S_ATTACKED(Protocol.S_ATTACKED packet)
+	//{
+	//	Debug.Log(packet.Playerid + " is attacked..! : " + packet.Damage);
+	//	Debug.Log("Mine : " + GameClientManager.Instance.Client.GetPlayerId());
 
-		if (packet.Playerid == GameClientManager.Instance.Client.GetPlayerId())
-		{
-			Debug.Log("It was me.");
+	//	if (packet.Playerid == GameClientManager.Instance.Client.GetPlayerId())
+	//	{
+	//		Debug.Log("It was me.");
 
-			GameManager.UI.FetchPanel<Panel_HUD>().UpdateHealth(packet.Hp);
+	//		GameManager.UI.FetchPanel<Panel_HUD>().UpdateHealth(packet.Hp);
 
-			if (packet.Hp <= 0)
-			{
-				Debug.Log("I am Dead..!");
-			}
-		}
-	}
+	//		if (packet.Hp <= 0)
+	//		{
+	//			Debug.Log("I am Dead..!");
+	//		}
+	//	}
+	//}
 
 	public void LockCameraInput(bool _lock)
 	{

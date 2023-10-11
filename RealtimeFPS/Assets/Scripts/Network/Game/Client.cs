@@ -26,7 +26,6 @@ public class Client : Connection
         Debug.Log("Client Destructor");
     }
 
-
     public void OnEnter( S_ENTER pkt )
     {
         if (pkt.Result != "SUCCESS")
@@ -63,12 +62,7 @@ public class Client : Connection
         {
             UnityEngine.Vector3 position = new(gameObject.Position.X, gameObject.Position.Y, gameObject.Position.Z);
 
-			DebugManager.Log(gameObject.Rotation.X + " " + gameObject.Rotation.Y + " " + gameObject.Rotation.Z);
-
-			Quaternion rotation = Quaternion.Euler(gameObject.Rotation.X, gameObject.Rotation.Y, gameObject.Rotation.Z);
-
-            DebugManager.Log(gameObject.Rotation.X + " " + gameObject.Rotation.Y + " " + gameObject.Rotation.Z);
-
+            Quaternion rotation = Quaternion.Euler(gameObject.Rotation.X, gameObject.Rotation.Y, gameObject.Rotation.Z);
 
             var prefabName = string.Empty;
 
@@ -85,6 +79,8 @@ public class Client : Connection
 			GameObject prefab = Resources.Load<GameObject>(prefabName);
 
 			GameObject player = UnityEngine.Object.Instantiate(prefab, position, rotation);
+
+            Debug.Log("AddGameObject: " + gameObject.PlayerId + " " + gameObject.OwnerId);
 
 			player.GetComponentInChildren<NetworkObserver>().SetNetworkObject(
 				this

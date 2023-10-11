@@ -9,7 +9,7 @@ public class NetworkObserver : NetworkComponent
 
     public void SetNetworkObject( Client client, int id, bool isMine, bool isPlayer, string ownerId )
     {
-        base.client = client;
+        this.client = client;
 
         this.objectId = id;
         this.isMine = isMine;
@@ -18,13 +18,7 @@ public class NetworkObserver : NetworkComponent
         if (isPlayer)
         {
             networkComponents.Add(GetComponent<NetworkTransform_FPS_DeadReckoning>());
-
-            //transform.GetComponentInChildren<TMP_Text>().text = ownerId;
-
-            if (!isMine)
-            {
-
-            }
+            networkComponents.Add(GetComponent<NetworkFPSPlayer>());
         }
 
         else
@@ -34,7 +28,7 @@ public class NetworkObserver : NetworkComponent
 
         foreach (NetworkComponent item in networkComponents)
         {
-            item.client = base.client;
+            item.client = this.client;
             item.objectId = id;
             item.isMine = isMine;
             item.isPlayer = isPlayer;

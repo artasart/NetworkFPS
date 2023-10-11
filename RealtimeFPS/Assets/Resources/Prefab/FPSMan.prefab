@@ -2465,6 +2465,7 @@ GameObject:
   - component: {fileID: 2698275795811498563}
   - component: {fileID: -2932833669219571}
   - component: {fileID: 7401821160927710083}
+  - component: {fileID: -4540853041317830117}
   m_Layer: 0
   m_Name: FPSMan
   m_TagString: Untagged
@@ -2556,6 +2557,21 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: dfcfead17f564ab48a22f0ed82f15536, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  objectId: -1
+  isMine: 0
+  isPlayer: 0
+--- !u!114 &-4540853041317830117
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3970047827416056278}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 702327daa98beee48acc9dfedec5479b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   objectId: -1
