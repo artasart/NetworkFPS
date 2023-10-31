@@ -31,9 +31,6 @@ public class GameClientManager : MonoBehaviour
 
     public Client Client { get; private set; }
 
-    public Dictionary<string, DummyClient> Dummies { get; private set; } = new();
-    public int DummyId = 0;
-
     private readonly bool isLocal = false;
     
     private readonly string localAddress = "192.168.0.104";
@@ -132,47 +129,5 @@ public class GameClientManager : MonoBehaviour
 
         Client.Send(PacketManager.MakeSendBuffer(new C_LEAVE()));
         Client = null;
-    }
-
-    public async void AddDummy( int dummyNumber, string connectionId )
-    {
-        IPEndPoint endPoint = await GetAddress();
-        if (endPoint == null)
-        {
-            Debug.Log("GetAddress Fail!");
-            return;
-        }
-
-        for (int i = 0; i < dummyNumber; i++)
-        {
-            DummyClient dummy = (DummyClient)ConnectionManager.GetConnection<DummyClient>();
-
-            bool success = await ConnectionManager.Connect(endPoint, dummy);
-            if (success)
-            {
-                string dummyId = DummyId++.ToString();
-
-                Dummies.Add(dummyId, dummy);
-
-                dummy.ClientId = connectionId + "_Dummy_" + dummyId;
-
-                C_ENTER enter = new()
-                {
-                    ClientId = dummy.ClientId
-                };
-                dummy.Send(PacketManager.MakeSendBuffer(enter));
-            }
-        }
-    }
-
-    public void RemoveDummy()
-    {
-        foreach (KeyValuePair<string, DummyClient> dummy in Dummies)
-        {
-            dummy.Value.Send(PacketManager.MakeSendBuffer(new C_LEAVE()));
-            dummy.Value.Close();
-        }
-
-        Dummies.Clear();
     }
 }
