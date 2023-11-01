@@ -116,7 +116,7 @@ public class GameUIManager : SingletonManager<GameUIManager>
 		return panels[typeof(T).ToString()].GetComponent<T>();
 	}
 
-	public void StackPanel<T>(bool _instant = false) where T : Component
+    public void StackPanel<T>(bool _instant = false) where T : Component
 	{
 		string panelName = typeof(T).ToString();
 
@@ -124,7 +124,11 @@ public class GameUIManager : SingletonManager<GameUIManager>
 
 		if(panels.ContainsKey(panelName))
 		{
-			openPanels.Push(panelName);
+			if(openPanels.Count > 0)
+                panels[openPanels.Peek()].GetComponent<Panel_Base>().OnHide();
+            panels[panelName].GetComponent<Panel_Base>().OnTop();
+
+            openPanels.Push(panelName);
 
 			panels[panelName].transform.SetAsLastSibling();
 
@@ -136,6 +140,8 @@ public class GameUIManager : SingletonManager<GameUIManager>
 			}
 
 			else ShowPanel(panels[panelName], true);
+
+
 
 			DebugManager.Log($"Push: {panelName}", DebugColor.UI);
 		}
@@ -149,7 +155,7 @@ public class GameUIManager : SingletonManager<GameUIManager>
 
 		var panelName = openPanels.Pop();
 
-		if (_instant)
+        if (_instant)
 		{
 			panels[panelName].SetActive(false);
 			panels[panelName].GetComponent<CanvasGroup>().alpha = 0f;
@@ -158,7 +164,10 @@ public class GameUIManager : SingletonManager<GameUIManager>
 
 		else ShowPanel(panels[panelName], false);
 
-		DebugManager.Log($"Pop: {panelName}", DebugColor.UI);
+        if (openPanels.Count > 0)
+            panels[openPanels.Peek()].GetComponent<Panel_Base>().OnTop();
+
+        DebugManager.Log($"Pop: {panelName}", DebugColor.UI);
 	}
 
 	public void PopPanelAll(bool _instant = false)

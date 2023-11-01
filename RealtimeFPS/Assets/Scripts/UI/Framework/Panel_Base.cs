@@ -27,7 +27,6 @@ public class Panel_Base : UI_Base
 		Timing.RunCoroutine(Co_Show(_show, _lerpSpeed, _isInstant), nameof(Co_Show) + this.GetHashCode());
 	}
 
-
 	private IEnumerator<float> Co_Show(bool _isShow, float _lerpSpeed = 1f, bool _isInstant = false)
 	{
 		var canvasGroup = this.GetComponent<CanvasGroup>();
@@ -48,4 +47,8 @@ public class Panel_Base : UI_Base
 
 		if (_isShow) canvasGroup.blocksRaycasts = true;
 	}
+
+    virtual public void OnTop() { }
+
+    virtual public void OnHide() { }
 }
