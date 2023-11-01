@@ -5,10 +5,22 @@ using Framework.Network;
 public class FPSController : MonoBehaviour
 {
 	[Header("Movement Settings")]
-	public float moveSpeed = 5f;
-	public float mouseSensitivity = 2f;
+    public float walkSpeed = 5.0f;
+    public float dashSpeed = 10.0f;
+    public float jumpHeight = 2.0f;
+    public float gravityValue = -9.81f;
+    public float mouseSensitivity = 2f;
 
-	[Header("Shooting Settings")]
+    private CharacterController controller;
+    private Vector3 playerVelocity;
+    private bool isGrounded;
+    private float playerSpeed;
+    private bool isDashing;
+
+    public LayerMask groundLayer;
+    public float groundCheckDistance = 0.16f;
+
+    [Header("Shooting Settings")]
 	public float fireRate = 0.1f;
 	public float shootDistance = 1000f;
 	public LayerMask hitLayers;
@@ -27,14 +39,18 @@ public class FPSController : MonoBehaviour
 	private float nextFireTime = 0f;
 	private bool isCameraLocked = false;
 
-	private void Awake()
+    [Range(0, 1)] public float airControlPercent;
+
+    private void Awake()
 	{
 		cameraParent = this.transform.Search("CameraParent");
 		shootPos = this.transform.Search("ShootPos");
 		freeLookCamera = GetComponentInChildren<CinemachineFreeLook>();
 		particleMuzzle = FindObjectOfType<ParticleSystem>();
 		hitLayers = LayerMask.GetMask("Default");
-	}
+
+        controller = GetComponent<CharacterController>();
+    }
 
 	private void Start()
 	{
@@ -46,20 +62,59 @@ public class FPSController : MonoBehaviour
 	{
 		if (isCameraLocked) return;
 
-		HandleMovement();
+        HandleMovement();
 		HandleMouseLook();
 		HandleShooting();
 		HandleCameraInput();
 		HandleReload();
 	}
 
-	private void HandleMovement()
+    private void HandleMovement()
 	{
-		Vector3 moveDirection = new Vector3(Input.GetAxis("Horizontal"), 0f, Input.GetAxis("Vertical")).normalized;
-		transform.Translate(moveDirection * moveSpeed * Time.deltaTime);
-	}
+        isGrounded = CheckIfGrounded();
+        if (isGrounded && playerVelocity.y < 0)
+        {
+            playerVelocity.y = 0f;
+        }
 
-	private void HandleMouseLook()
+        Vector3 move = new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical"));
+        move = transform.TransformDirection(move);
+
+        if (Input.GetButtonDown("Jump") && isGrounded)
+        {
+			print("JUMP!!");
+            playerVelocity.y += Mathf.Sqrt(jumpHeight * -3.0f * gravityValue);
+        }
+		else if(Input.GetButtonDown("Jump") && !isGrounded)
+		{
+			print("Jump pressed, but not grounded");
+		}
+
+        if (Input.GetKeyDown(KeyCode.LeftShift))
+			isDashing = true;
+        else if (Input.GetKeyUp(KeyCode.LeftShift))
+			isDashing = false;
+
+        playerSpeed = isDashing ? dashSpeed : walkSpeed;
+        controller.Move(move * Time.deltaTime * playerSpeed);
+
+
+        playerVelocity.y += gravityValue * Time.deltaTime;
+        controller.Move(playerVelocity * Time.deltaTime);
+    }
+
+    private bool CheckIfGrounded()
+    {
+        // 캐릭터의 바닥 중심점에서 아래로 Ray를 쏴서 지면에 닿는지 확인합니다.
+        RaycastHit hit;
+        if (Physics.Raycast(transform.position, -Vector3.up, out hit, groundCheckDistance, groundLayer))
+        {
+            return true;
+        }
+        return false;
+    }
+
+    private void HandleMouseLook()
 	{
 		float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity;
 		float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity;
