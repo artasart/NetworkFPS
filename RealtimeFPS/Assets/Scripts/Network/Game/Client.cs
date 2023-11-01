@@ -1,7 +1,6 @@
 ﻿using Framework.Network;
 using Protocol;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 
 public class Client : Connection
@@ -9,7 +8,7 @@ public class Client : Connection
 	public string ClientId { get; set; }
 
 	private readonly Dictionary<string, GameObject> gameObjects = new();
-	private HashSet<int> playerId = new();
+	private int myPlayerId;
 
 	public Client()
 	{
@@ -19,6 +18,7 @@ public class Client : Connection
         packetHandler.AddHandler(OnRemoveGameObject);
         packetHandler.AddHandler(OnDisconnected);
         packetHandler.AddHandler(DisplayPing);
+        packetHandler.AddHandler(OnAttacked);
     }
 
     ~Client()
@@ -53,7 +53,7 @@ public class Client : Connection
 
     public void OnInstantiateGameObject( S_INSTANTIATE_GAME_OBJECT pkt )
     {
-        playerId.Add(pkt.GameObjectId);
+        myPlayerId = pkt.GameObjectId;
     }
 
     public void OnAddGameObject(S_ADD_FPS_PLAYER _packet )
@@ -66,11 +66,10 @@ public class Client : Connection
 
             var prefabName = string.Empty;
 
-			if(gameObject.PlayerId == GetPlayerId())
+			if(gameObject.PlayerId == myPlayerId)
             {
                 prefabName = "Prefab/FPSMan";
 			}
-
             else
             {
 				prefabName = "Prefab/FPSManOther";
@@ -127,20 +126,9 @@ public class Client : Connection
         //Panel_NetworkInfo.Instance.SetPing((int)pingAverage);
     }
 
-    public int GetPlayerId()
+    private void OnAttacked( Protocol.S_ATTACKED pkt )
     {
-		return ConvertIntArrayToStringAndBack();
-	}
-
-	private int ConvertIntArrayToStringAndBack()
-	{
-		string combinedString = string.Join("", playerId.ToArray().Select(x => x.ToString()));
-
-		if (int.TryParse(combinedString, out int result))
-		{
-			return result;
-		}
-
-		else return 0;
-	}
+        if (pkt.Playerid == myPlayerId)
+            GameManager.UI.FetchPanel<Panel_HUD>().UpdateHealth(pkt.Hp);
+    }
 }
