@@ -6,7 +6,7 @@ public class ScreenController : MonoBehaviour
 
 	private void Awake()
 	{
-		Screen.SetResolution(1280, 720, false);
+		Screen.SetResolution(960, 540, false);
 	}
 
 	private void Update()
