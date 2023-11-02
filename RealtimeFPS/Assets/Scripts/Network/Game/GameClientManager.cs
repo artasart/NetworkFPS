@@ -47,11 +47,6 @@ public class GameClientManager : MonoBehaviour
         Disconnect();
 	}
 
-	private void Start()
-    {
-        GameManager.UI.StackPanel<Panel_Network>();
-    }
-
     public async Task<IPEndPoint> GetAddress()
     {
         if (isLocal)
@@ -115,8 +110,11 @@ public class GameClientManager : MonoBehaviour
 
             Client.Send(PacketManager.MakeSendBuffer(enter));
 
-            GameManager.UI.PopPanel();
-            GameManager.UI.StackPanel<Panel_HUD>();
+            GameManager.UI.FetchPanel<Panel_Network>().SetConnetButtonState(false);
+            GameManager.UI.FetchPanel<Panel_Network>().SetDisconnectButtonState(true);
+
+            GameManager.UI.ClosePanel<Panel_Network>();
+            GameManager.UI.OpenPanel<Panel_HUD>();
         }
     }
 
@@ -129,5 +127,8 @@ public class GameClientManager : MonoBehaviour
 
         Client.Send(PacketManager.MakeSendBuffer(new C_LEAVE()));
         Client = null;
+
+        GameManager.UI.FetchPanel<Panel_Network>().SetDisconnectButtonState(false);
+        GameManager.UI.FetchPanel<Panel_Network>().SetConnetButtonState(true);
     }
 }

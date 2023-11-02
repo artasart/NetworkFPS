@@ -118,6 +118,7 @@ public class Client : Connection
             UnityEngine.Object.Destroy(gameObject.Value);
         }
 
+        GameManager.UI.FetchPanel<Panel_HUD>().Clear();
         gameObjects.Clear();
     }
 

@@ -2526,7 +2526,7 @@ MonoBehaviour:
   mouseSensitivity: 2
   groundLayer:
     serializedVersion: 2
-    m_Bits: 64
+    m_Bits: 1
   groundCheckDistance: 0.16
   fireRate: 0.1
   shootDistance: 1000

@@ -9,10 +9,16 @@ public class GameUIManager : SingletonManager<GameUIManager>
 {
 	#region Members
 
-	[NonReorderable] Dictionary<string, GameObject> panels = new Dictionary<string, GameObject>();
+	class Panel
+	{
+		public GameObject GameObject;
+		public bool IsOpen;
+	}
+
+	[NonReorderable] Dictionary<string, Panel> panels = new Dictionary<string, Panel>();
 	[NonReorderable] Dictionary<string, GameObject> popups = new Dictionary<string, GameObject>();
 
-	Stack<string> openPanels = new Stack<string>();
+    Dictionary<string, string> openPanels = new Dictionary<string, string>();
 	Stack<string> openPopups = new Stack<string>();
 
 	GameObject group_MasterCanvas;
@@ -24,8 +30,6 @@ public class GameUIManager : SingletonManager<GameUIManager>
 	public Canvas MasterCanvas { get => group_MasterCanvas.GetComponent<Canvas>(); }
 
 	#endregion
-
-
 
 	#region Initialize
 
@@ -40,7 +44,7 @@ public class GameUIManager : SingletonManager<GameUIManager>
 		isInitialized = true;
 	}
 
-	private void CacheUI(GameObject _parent, Dictionary<string, GameObject> _objects)
+	private void CacheUI(GameObject _parent, Dictionary<string, Panel> _objects )
 	{
 		for (int i = 0; i < _parent.transform.childCount; i++)
 		{
@@ -58,50 +62,31 @@ public class GameUIManager : SingletonManager<GameUIManager>
 			child.gameObject.GetComponent<CanvasGroup>().blocksRaycasts = false;
 			child.gameObject.SetActive(false);
 
-			_objects[name] = child.gameObject;
+			_objects[name] = new Panel()
+            {
+                GameObject = child.gameObject,
+                IsOpen = false
+            };
 		}
 	}
 
-	//private void Update()
+	//public void Restart()
 	//{
-	//	if (Input.GetKeyDown(KeyCode.Escape))
-	//	{
-	//		Back();
-	//	}
+	//	if (!isInitialized) return;
+
+	//	panels.Clear();
+	//	popups.Clear();
+	//	openPanels.Clear();
+	//	openPopups.Clear();
+
+	//	group_MasterCanvas = GameObject.Find("go_Canvas");
+
+	//	group_Panel = GameObject.Find(nameof(group_Panel));
+	//	group_Popup = GameObject.Find(nameof(group_Popup));
+
+	//	CacheUI(group_Panel, panels);
+	//	CacheUI(group_Popup, popups);
 	//}
-
-	public void Back()
-	{
-		GameManager.Sound.PlaySound("Click_1");
-
-		if (openPopups.Count > 0)
-		{
-			PopPopup(true);
-		}
-
-		else if (openPanels.Count > 0)
-		{
-			PopPanel();
-		}
-	}
-
-	public void Restart()
-	{
-		if (!isInitialized) return;
-
-		panels.Clear();
-		popups.Clear();
-		openPanels.Clear();
-		openPopups.Clear();
-
-		group_MasterCanvas = GameObject.Find("go_Canvas");
-
-		group_Panel = GameObject.Find(nameof(group_Panel));
-		group_Popup = GameObject.Find(nameof(group_Popup));
-
-		CacheUI(group_Panel, panels);
-		CacheUI(group_Popup, popups);
-	}
 
 	#endregion
 
@@ -111,83 +96,130 @@ public class GameUIManager : SingletonManager<GameUIManager>
 
 	public T FetchPanel<T>() where T : Component
 	{
-		if (!panels.ContainsKey(typeof(T).ToString())) return null;
+        if (!panels.ContainsKey(typeof(T).ToString())) return null;
 
-		return panels[typeof(T).ToString()].GetComponent<T>();
+        return panels[typeof(T).ToString()].GameObject.GetComponent<T>();
 	}
 
-    public void StackPanel<T>(bool _instant = false) where T : Component
+	public void OpenPanel<T>() where T : Component
 	{
-		string panelName = typeof(T).ToString();
+        string panelName = typeof(T).ToString();
 
-		if (openPanels.Contains(panelName)) return;
+        if (panels.TryGetValue(panelName, out Panel panel))
+        {
+            if (panel.IsOpen)
+                return;
 
-		if(panels.ContainsKey(panelName))
-		{
-			if(openPanels.Count > 0)
-                panels[openPanels.Peek()].GetComponent<Panel_Base>().OnHide();
-            panels[panelName].GetComponent<Panel_Base>().OnTop();
+            panel.GameObject.GetComponent<Panel_Base>().OnOpen();
+            panel.IsOpen = true;
+            ShowPanel(panels[panelName].GameObject, true);
+        }
+    }
 
-            openPanels.Push(panelName);
-
-			panels[panelName].transform.SetAsLastSibling();
-
-			if (_instant)
-			{
-				panels[panelName].SetActive(true);
-				panels[panelName].GetComponent<CanvasGroup>().alpha = 1f;
-				panels[panelName].GetComponent<CanvasGroup>().blocksRaycasts = true;
-			}
-
-			else ShowPanel(panels[panelName], true);
-
-
-
-			DebugManager.Log($"Push: {panelName}", DebugColor.UI);
-		}
-
-		else DebugManager.Log($"{panelName} does not exist in this scene.", DebugColor.UI);
-	}
-
-	public void PopPanel(bool _instant = false)
+	public void ClosePanel<T>() where T : Component
 	{
-		if (openPanels.Count <= 0) return;
+        string panelName = typeof(T).ToString();
 
-		var panelName = openPanels.Pop();
+        if (panels.TryGetValue(panelName, out Panel panel))
+        {
+            if (!panel.IsOpen)
+                return;
 
-        if (_instant)
-		{
-			panels[panelName].SetActive(false);
-			panels[panelName].GetComponent<CanvasGroup>().alpha = 0f;
-			panels[panelName].GetComponent<CanvasGroup>().blocksRaycasts = false;
-		}
+            panel.GameObject.GetComponent<Panel_Base>().OnClose();
+            panel.IsOpen = false;
+            ShowPanel(panels[panelName].GameObject, false);
+        }
+    }
 
-		else ShowPanel(panels[panelName], false);
-
-        if (openPanels.Count > 0)
-            panels[openPanels.Peek()].GetComponent<Panel_Base>().OnTop();
-
-        DebugManager.Log($"Pop: {panelName}", DebugColor.UI);
-	}
-
-	public void PopPanelAll(bool _instant = false)
+	public void TogglePanel<T>() where T : Component
 	{
-		while (openPanels.Count > 0)
-		{
-			var panelName = openPanels.Pop();
+        string panelName = typeof(T).ToString();
 
-			if (_instant)
-			{
-				panels[panelName].SetActive(false);
-				panels[panelName].GetComponent<CanvasGroup>().alpha = 0f;
-				panels[panelName].GetComponent<CanvasGroup>().blocksRaycasts = false;
-			}
+        if (panels.TryGetValue(panelName, out Panel panel))
+        {
+            panel.IsOpen = !panel.IsOpen;
 
-			else ShowPanel(panels[panelName], false);
+            if (panel.IsOpen)
+                panel.GameObject.GetComponent<Panel_Base>().OnOpen();
+            else
+                panel.GameObject.GetComponent<Panel_Base>().OnClose();
 
-			DebugManager.Log($"Pop: {panelName}", DebugColor.UI);
-		}
-	}
+            ShowPanel(panels[panelName].GameObject, panel.IsOpen);
+        }
+    }
+
+ //   public void StackPanel<T>(bool _instant = false) where T : Component
+	//{
+	//	string panelName = typeof(T).ToString();
+
+	//	if (openPanels.Contains(panelName)) return;
+
+	//	if(panels.ContainsKey(panelName))
+	//	{
+	//		if(openPanels.Count > 0)
+ //               panels[openPanels.Peek()].GetComponent<Panel_Base>().OnHide();
+ //           panels[panelName].GetComponent<Panel_Base>().OnTop();
+
+ //           openPanels.Push(panelName);
+
+	//		panels[panelName].transform.SetAsLastSibling();
+
+	//		if (_instant)
+	//		{
+	//			panels[panelName].SetActive(true);
+	//			panels[panelName].GetComponent<CanvasGroup>().alpha = 1f;
+	//			panels[panelName].GetComponent<CanvasGroup>().blocksRaycasts = true;
+	//		}
+
+	//		else ShowPanel(panels[panelName], true);
+
+
+
+	//		DebugManager.Log($"Push: {panelName}", DebugColor.UI);
+	//	}
+
+	//	else DebugManager.Log($"{panelName} does not exist in this scene.", DebugColor.UI);
+	//}
+
+	//public void PopPanel(bool _instant = false)
+	//{
+	//	if (openPanels.Count <= 0) return;
+
+	//	var panelName = openPanels.Pop();
+
+ //       if (_instant)
+	//	{
+	//		panels[panelName].SetActive(false);
+	//		panels[panelName].GetComponent<CanvasGroup>().alpha = 0f;
+	//		panels[panelName].GetComponent<CanvasGroup>().blocksRaycasts = false;
+	//	}
+
+	//	else ShowPanel(panels[panelName], false);
+
+ //       if (openPanels.Count > 0)
+ //           panels[openPanels.Peek()].GetComponent<Panel_Base>().OnTop();
+
+ //       DebugManager.Log($"Pop: {panelName}", DebugColor.UI);
+	//}
+
+	//public void PopPanelAll(bool _instant = false)
+	//{
+	//	while (openPanels.Count > 0)
+	//	{
+	//		var panelName = openPanels.Pop();
+
+	//		if (_instant)
+	//		{
+	//			panels[panelName].SetActive(false);
+	//			panels[panelName].GetComponent<CanvasGroup>().alpha = 0f;
+	//			panels[panelName].GetComponent<CanvasGroup>().blocksRaycasts = false;
+	//		}
+
+	//		else ShowPanel(panels[panelName], false);
+
+	//		DebugManager.Log($"Pop: {panelName}", DebugColor.UI);
+	//	}
+	//}
 
 
 
@@ -372,15 +404,15 @@ public class GameUIManager : SingletonManager<GameUIManager>
 		yield return Timing.WaitForOneFrame;
 	}
 
-	public bool IsPanelOpen<T>() where T : Component
-	{
-		if(openPanels.Contains(typeof(T).ToString()))
-		{
-			return true;
-		}
+	//public bool IsPanelOpen<T>() where T : Component
+	//{
+	//	if(openPanels.Contains(typeof(T).ToString()))
+	//	{
+	//		return true;
+	//	}
 
-		return false;
-	}
+	//	return false;
+	//}
 
 	#endregion
 }

@@ -9,24 +9,15 @@ public class PanelManager : MonoBehaviour
 
     private void Start()
     {
-        GameManager.UI.StackPanel<Panel_Network>();
+        GameManager.UI.OpenPanel<Panel_Network>();
     }
 
     void Update()
     {
         if (Input.GetKeyDown(KeyCode.Tab))
         {
-            isTab = !isTab;
-
-            if (isTab)
-            {
-                GameManager.UI.StackPanel<Panel_Network>();
-            }
-            else
-            {
-                GameManager.UI.PopPanel();
-                GameManager.UI.StackPanel<Panel_HUD>();
-            }
+            GameManager.UI.TogglePanel<Panel_Network>();
+            GameManager.UI.TogglePanel<Panel_HUD>();
         }
     }
 }

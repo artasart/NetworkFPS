@@ -16,7 +16,9 @@ public class Panel_Network : Panel_Base
         base.Awake();
 
         btn_Connect = GetUI_Button(nameof(btn_Connect), OnClick_Connect);
-        btn_Connect = GetUI_Button(nameof(btn_Disconnect), OnClick_Disconnect);
+        btn_Disconnect = GetUI_Button(nameof(btn_Disconnect), OnClick_Disconnect);
+
+        SetDisconnectButtonState(false);
 
         inputField_ClientId = transform.Search(nameof(inputField_ClientId)).GetComponent<TMP_InputField>();
         inputField_ClientId.placeholder.GetComponent<TMP_Text>().text = Util.GenerateRandomString(5);
@@ -34,12 +36,22 @@ public class Panel_Network : Panel_Base
         GameClientManager.Instance.Connect(clientId);
     }
 
+    public void SetConnetButtonState(bool state)
+    {
+        btn_Connect.interactable = state;
+    }
+
     private void OnClick_Disconnect()
     {
         GameClientManager.Instance.Disconnect();
     }
 
-    override public void OnTop()
+    public void SetDisconnectButtonState(bool state)
+    {
+        btn_Disconnect.interactable = state;
+    }
+
+    override public void OnOpen()
     {
     }
 }

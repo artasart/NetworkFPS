@@ -56,12 +56,13 @@ public class FPSController : MonoBehaviour
 	{
 		Cursor.lockState = CursorLockMode.Locked;
 		bulletCount = maxBulletCount;
+
+		GameManager.UI.FetchPanel<Panel_HUD>().UpdateBulletCount(maxBulletCount, maxBulletCount);
+		GameManager.UI.FetchPanel<Panel_HUD>().UpdateHealth(100);
 	}
 
 	private void Update()
 	{
-		if (isCameraLocked) return;
-
         HandleMovement();
 		HandleMouseLook();
 		HandleShooting();
@@ -77,8 +78,12 @@ public class FPSController : MonoBehaviour
             playerVelocity.y = 0f;
         }
 
-        Vector3 move = new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical"));
-        move = transform.TransformDirection(move);
+		Vector3 move;
+	    if (!isCameraLocked)
+            move = new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical"));
+		else
+			move = Vector3.zero;
+		move = transform.TransformDirection(move);
 
         if (Input.GetButtonDown("Jump") && isGrounded)
         {
@@ -116,7 +121,9 @@ public class FPSController : MonoBehaviour
 
     private void HandleMouseLook()
 	{
-		float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity;
+        if (isCameraLocked) return;
+
+        float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity;
 		float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity;
 
 		verticalLookRotation -= mouseY;
@@ -127,7 +134,9 @@ public class FPSController : MonoBehaviour
 
 	private void HandleShooting()
 	{
-		if (Input.GetMouseButton(0) && Time.time > nextFireTime)
+        if (isCameraLocked) return;
+
+        if (Input.GetMouseButton(0) && Time.time > nextFireTime)
 		{
 			if (bulletCount <= 0)
 			{
@@ -142,7 +151,9 @@ public class FPSController : MonoBehaviour
 
 	private void HandleReload()
 	{
-		if (Input.GetKeyDown(KeyCode.R))
+        if (isCameraLocked) return;
+
+        if (Input.GetKeyDown(KeyCode.R))
 		{
 			Reload();
 		}
@@ -167,19 +178,21 @@ public class FPSController : MonoBehaviour
 
 		particleMuzzle.Play();
 
-		GameManager.UI.FetchPanel<Panel_HUD>().UpdateBulletCount(--bulletCount);
+		GameManager.UI.FetchPanel<Panel_HUD>().UpdateBulletCount(--bulletCount, maxBulletCount);
 	}
 
 	private void Reload()
 	{
 		DebugManager.ClearLog("Reload");
 		bulletCount = maxBulletCount;
-		GameManager.UI.FetchPanel<Panel_HUD>().UpdateBulletCount(maxBulletCount);
+		GameManager.UI.FetchPanel<Panel_HUD>().UpdateBulletCount(maxBulletCount, maxBulletCount);
 	}
 
 	private void HandleCameraInput()
 	{
-		float mouseX = Input.GetAxis("Mouse X");
+        if (isCameraLocked) return;
+
+        float mouseX = Input.GetAxis("Mouse X");
 		float mouseY = Input.GetAxis("Mouse Y");
 
 		freeLookCamera.m_XAxis.Value += mouseX * freeLookCamera.m_XAxis.m_MaxSpeed;

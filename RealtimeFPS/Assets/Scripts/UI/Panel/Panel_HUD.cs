@@ -12,30 +12,34 @@ public class Panel_HUD : Panel_Base
     {
         base.Awake();
 
-        txtmp_BulletCount = GetUI_TMPText(nameof(txtmp_BulletCount), "30 / 30");
-        txtmp_Health = GetUI_TMPText(nameof(txtmp_Health), "HP : 100");
+        txtmp_BulletCount = transform.Search("txtmp_BulletCount").GetComponent<TMP_Text>();
+        txtmp_Health = transform.Search("txtmp_Health").GetComponent<TMP_Text>();
     }
 
-    public void UpdateBulletCount(int _bullet)
+    public void Clear()
     {
-        var maxBullet = FindObjectOfType<FPSController>().maxBulletCount;
+        txtmp_BulletCount.text = "";
+        txtmp_Health.text = "";
+    }
 
-        txtmp_BulletCount.text = _bullet.ToString() + " / " + maxBullet;
+    public void UpdateBulletCount(int currentBullet, int maxBullet)
+    {
+        txtmp_BulletCount.text = $"{currentBullet} / {maxBullet}";
     }
 
     public void UpdateHealth(int _health)
     {
-        txtmp_Health.text = "HP : " + _health.ToString();
+        txtmp_Health.text = $"HP : {_health}";
     }
 
-    public override void OnTop()
+    public override void OnOpen()
     {
         Show(true);
         Cursor.lockState = CursorLockMode.Locked;
         FindObjectOfType<FPSController>()?.LockCameraInput(false);
     }
 
-    public override void OnHide()
+    public override void OnClose()
     {
         Show(false);
         Cursor.lockState = CursorLockMode.None;

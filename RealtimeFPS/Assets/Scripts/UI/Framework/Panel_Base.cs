@@ -48,7 +48,7 @@ public class Panel_Base : UI_Base
 		if (_isShow) canvasGroup.blocksRaycasts = true;
 	}
 
-    virtual public void OnTop() { }
+    virtual public void OnOpen() { }
 
-    virtual public void OnHide() { }
+    virtual public void OnClose() { }
 }
