@@ -1,5 +1,6 @@
 // Designed by KINEMATION, 2023
 
+using Kinemation.FPSFramework.Runtime.Attributes;
 using Kinemation.FPSFramework.Runtime.Core.Components;
 using Kinemation.FPSFramework.Runtime.Core.Types;
 using UnityEngine;
@@ -44,7 +45,7 @@ namespace Kinemation.FPSFramework.Runtime.Layers
         
         public override void OnAnimUpdate()
         {
-            if (Mathf.Approximately(Time.deltaTime, 0f))
+            if (Mathf.Approximately(Time.deltaTime, 0f) || GetGunAsset() == null)
             {
                 return;
             }

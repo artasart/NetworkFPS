@@ -1,5 +1,6 @@
 // Designed by KINEMATION, 2023
 
+using Kinemation.FPSFramework.Runtime.Attributes;
 using Kinemation.FPSFramework.Runtime.Core.Components;
 using Kinemation.FPSFramework.Runtime.Core.Types;
 using UnityEngine;
@@ -23,9 +24,7 @@ namespace Kinemation.FPSFramework.Runtime.Layers
         private float smoothReadyAlpha;
         private float readyPoseAlpha;
 
-        [Header("Curve-Based Animation")] 
-        [SerializeField] private float rotationScale = 1f;
-        [SerializeField] private float translationScale = 1f;
+        [Header("Curve-Based Animation")]
         [SerializeField] private float smoothSpeed = 1f;
 
         // Curve-based animation
@@ -69,14 +68,16 @@ namespace Kinemation.FPSFramework.Runtime.Layers
             curveData.y = animator.GetFloat(RotY);
             curveData.z = animator.GetFloat(RotZ);
 
-            curveAnimation.rotation = Quaternion.Euler(curveData * rotationScale).normalized;
+            curveAnimation.rotation = Quaternion.Euler(curveData).normalized;
             
             curveData.x = animator.GetFloat(LocX);
             curveData.y = animator.GetFloat(LocY);
             curveData.z = animator.GetFloat(LocZ);
-            curveData *= translationScale;
 
             curveAnimation.position = curveData;
+            
+            GetMasterIK().Move(GetRootBone(), curveAnimation.position);
+            GetMasterIK().Rotate(GetRootBone().rotation, curveAnimation.rotation);
         }
 
         public override void OnAnimUpdate()
@@ -115,8 +116,6 @@ namespace Kinemation.FPSFramework.Runtime.Layers
             CoreToolkitLib.RotateInBoneSpace(GetRootBone().rotation, GetPelvis(), sprintLean, 1f);
 
             UpdateCurveAnimation();
-            CoreToolkitLib.RotateInBoneSpace(GetRootBone().rotation, master, curveAnimation.rotation, locoAlpha);
-            CoreToolkitLib.MoveInBoneSpace(GetRootBone(), master, curveAnimation.position, locoAlpha);
 
             smoothLoco = CoreToolkitLib.Glerp(smoothLoco,
                 new LocRot(GetRigData().weaponBoneAdditive, false), smoothSpeed);

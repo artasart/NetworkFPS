@@ -63,6 +63,7 @@ namespace Kinemation.FPSFramework.Editor.Core
             animGraphEditor = CreateEditor(owner.animGraph);
             previewClip = animGraphEditor.serializedObject.FindProperty("previewClip");
             loopPreview = animGraphEditor.serializedObject.FindProperty("loopPreview");
+            
             upperBodyMask = animGraphEditor.serializedObject.FindProperty("upperBodyMask");
 
             handIkWeight = serializedObject.FindProperty("handIkWeight");
@@ -124,7 +125,7 @@ namespace Kinemation.FPSFramework.Editor.Core
         {
             animGraphEditor.serializedObject.Update();
             EditorGUILayout.PropertyField(upperBodyMask);
-            
+
             if (upperBodyMask.objectReferenceValue == null)
             {
                 EditorGUILayout.HelpBox("Avatar Mask is null!", MessageType.Warning);
@@ -145,7 +146,7 @@ namespace Kinemation.FPSFramework.Editor.Core
                     }
                 }
             }
-            
+
             animGraphEditor.serializedObject.ApplyModifiedProperties();
         }
 

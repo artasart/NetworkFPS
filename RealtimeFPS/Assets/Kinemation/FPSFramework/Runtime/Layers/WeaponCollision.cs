@@ -56,6 +56,8 @@ namespace Kinemation.FPSFramework.Runtime.Layers
         
         public override void OnAnimUpdate()
         {
+            if (GetGunAsset() == null) return;
+            
             Trace();
             smoothPose = CoreToolkitLib.Glerp(smoothPose, offsetPose, 10f);
             

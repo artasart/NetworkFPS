@@ -1,8 +1,6 @@
 // Designed by KINEMATION, 2023
 
-using System.IO;
 using System.Reflection;
-using Kinemation.FPSFramework.Runtime.Core.Types;
 using Kinemation.FPSFramework.Runtime.FPSAnimator;
 using UnityEditor;
 using UnityEngine;

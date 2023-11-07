@@ -1,8 +1,9 @@
 // Designed by KINEMATION, 2023
 
-using UnityEngine;
 using Kinemation.FPSFramework.Runtime.Core.Types;
 using Kinemation.FPSFramework.Runtime.Recoil;
+
+using UnityEngine;
 
 namespace Kinemation.FPSFramework.Runtime.FPSAnimator
 {
@@ -10,15 +11,10 @@ namespace Kinemation.FPSFramework.Runtime.FPSAnimator
     {
         public WeaponAnimAsset weaponAsset;
         public WeaponTransformData weaponTransformData;
-        
-        public AimOffsetTable aimOffsetTable;
-        public RecoilAnimData recoilData;
-    
+
         public FireMode fireMode = FireMode.Semi;
         public float fireRate = 600f;
         public int burstAmount = 0;
-        public AnimSequence overlayPose;
-        public LocRot weaponBone = LocRot.identity;
 
         // Returns the aim point by default
         public virtual Transform GetAimPoint()
@@ -59,8 +55,8 @@ namespace Kinemation.FPSFramework.Runtime.FPSAnimator
 
         public void SavePose()
         {
-            weaponBone.position = transform.localPosition;
-            weaponBone.rotation = transform.localRotation;
+            //weaponBone.position = transform.localPosition;
+            //weaponBone.rotation = transform.localRotation;
         }
 #endif
     }

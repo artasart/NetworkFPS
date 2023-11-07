@@ -1,13 +1,15 @@
 // Designed by KINEMATION, 2023
 
+using Kinemation.FPSFramework.Runtime.Attributes;
+using Kinemation.FPSFramework.Runtime.Core.Components;
+using Kinemation.FPSFramework.Runtime.Core.Types;
+
 using System;
 using System.Collections.Generic;
+
 using UnityEngine;
 using UnityEngine.Serialization;
 
-using Kinemation.FPSFramework.Runtime.Core.Components;
-using Kinemation.FPSFramework.Runtime.Core.Types;
-using Matrix4x4 = UnityEngine.Matrix4x4;
 using Quaternion = UnityEngine.Quaternion;
 using Vector2 = UnityEngine.Vector2;
 using Vector3 = UnityEngine.Vector3;
@@ -84,7 +86,7 @@ namespace Kinemation.FPSFramework.Runtime.Layers
         [SerializeField, Range(0f, 1f)] protected float pelvisLayerAlpha = 1f;
         [SerializeField] protected float pelvisLerpSpeed;
         protected float interpPelvis;
-
+        
         [Header("Offsets")] 
         [SerializeField] protected Vector3 pelvisOffset;
         
@@ -335,9 +337,6 @@ namespace Kinemation.FPSFramework.Runtime.Layers
             interpPelvis = CoreToolkitLib.Glerp(interpPelvis, pelvisLayerAlpha * smoothLayerAlpha,
                 pelvisLerpSpeed);
 
-            Vector3 pelvisFinal = Vector3.Lerp(Vector3.zero, pelvisOffset, interpPelvis);
-            CoreToolkitLib.MoveInBoneSpace(GetRootBone(), core.ikRigData.pelvis, pelvisFinal, 1f);
-            
             if (!_isEditor)
             {
                 aimUp = GetCharData().totalAimInput.y;
@@ -364,6 +363,9 @@ namespace Kinemation.FPSFramework.Runtime.Layers
         
         private void RotateSpine()
         {
+            CoreToolkitLib.MoveInBoneSpace(GetRootBone(), GetPelvis(), 
+                pelvisOffset * interpPelvis, 1f);
+            
             float alpha = smoothLayerAlpha * (1f - GetCurveValue(CurveLib.Curve_MaskLookLayer));
             float aimOffsetAlpha = core.animGraph.GetPoseProgress();
 
@@ -614,8 +616,6 @@ namespace Kinemation.FPSFramework.Runtime.Layers
         }
         
 #if UNITY_EDITOR
-        
-        
         public AimOffsetTable SaveTable()
         {
             Transform[] bones = null;

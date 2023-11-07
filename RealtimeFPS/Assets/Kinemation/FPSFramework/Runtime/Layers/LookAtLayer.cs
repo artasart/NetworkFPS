@@ -2,10 +2,10 @@
 
 using System;
 using System.Collections.Generic;
+using Kinemation.FPSFramework.Runtime.Attributes;
 using Kinemation.FPSFramework.Runtime.Core.Components;
 using Kinemation.FPSFramework.Runtime.Core.Types;
 using UnityEngine;
-using UnityEngine.SearchService;
 
 namespace Kinemation.FPSFramework.Runtime.Layers
 {

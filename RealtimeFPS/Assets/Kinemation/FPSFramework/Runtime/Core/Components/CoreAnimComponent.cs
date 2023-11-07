@@ -1,12 +1,18 @@
 // Designed by KINEMATION, 2023
 
+using Kinemation.FPSFramework.Runtime.Attributes;
+using Kinemation.FPSFramework.Runtime.Core.Types;
+
 using System;
 using System.Collections.Generic;
-using UnityEditor;
+using Kinemation.FPSFramework.Runtime.Core.Playables;
 using UnityEngine;
 using UnityEngine.Serialization;
-using Kinemation.FPSFramework.Runtime.Core.Types;
 using UnityEngine.Events;
+
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 namespace Kinemation.FPSFramework.Runtime.Core.Components
 {
@@ -45,22 +51,22 @@ namespace Kinemation.FPSFramework.Runtime.Core.Components
             hintObj.transform.rotation = hintTarget.rotation;
         }
 
-        public void Rotate(Quaternion parent, Quaternion rotation, float alpha)
+        public void Rotate(Quaternion parent, Quaternion rotation, float alpha = 1f)
         {
             CoreToolkitLib.RotateInBoneSpace(parent, obj.transform, rotation, alpha);
         }
 
-        public void Rotate(Quaternion rotation, float alpha)
+        public void Rotate(Quaternion rotation, float alpha = 1f)
         {
             CoreToolkitLib.RotateInBoneSpace(obj.transform.rotation, obj.transform, rotation, alpha);
         }
 
-        public void Move(Transform parent, Vector3 offset, float alpha)
+        public void Move(Transform parent, Vector3 offset, float alpha = 1f)
         {
             CoreToolkitLib.MoveInBoneSpace(parent, obj.transform, offset, alpha);
         }
 
-        public void Move(Vector3 offset, float alpha)
+        public void Move(Vector3 offset, float alpha = 1f)
         {
             CoreToolkitLib.MoveInBoneSpace(obj.transform, obj.transform, offset, alpha);
         }
@@ -155,214 +161,7 @@ namespace Kinemation.FPSFramework.Runtime.Core.Components
             leftFoot.Retarget();
         }
     }
-
-    [Serializable]
-    public abstract class AnimLayer : MonoBehaviour
-    {
-        [Header("Layer Blending")] 
-        [SerializeField, AnimCurveName(true)] protected string curveName;
-
-        [SerializeField, Range(0f, 1f)] protected float layerAlpha = 1f;
-        [SerializeField] protected float lerpSpeed;
-        [Range(0f, 1f)] public float elbowsWeight = 0f;
-        protected float smoothLayerAlpha;
-        
-        [Header("Misc")] 
-        [SerializeField] protected bool drawDebugInfo = true;
-        [SerializeField] public bool runInEditor;
-        protected CoreAnimComponent core;
-
-        public void SetLayerAlpha(float weight)
-        {
-            layerAlpha = Mathf.Clamp01(weight);
-        }
-
-        public float GetLayerAlpha()
-        {
-            return smoothLayerAlpha;
-        }
-
-        // Called in Start()
-        public virtual void OnAnimStart()
-        {
-        }
-        
-        // Called before the main anim update cycle
-        public virtual void OnPreAnimUpdate()
-        {
-            float target = !string.IsNullOrEmpty(curveName) ? GetAnimator().GetFloat(curveName) : layerAlpha;
-            smoothLayerAlpha = CoreToolkitLib.GlerpLayer(smoothLayerAlpha, Mathf.Clamp01(target), lerpSpeed);
-        }
-        
-        // Main anim update
-        public virtual void OnAnimUpdate()
-        {
-        }
-        
-        // Called after the IK is applied
-        public virtual void OnPostIK()
-        {
-        }
-
-        // Called when an overlay pose is sampled
-        public virtual void OnPoseSampled()
-        {
-        }
-
-        protected virtual void Awake()
-        {
-        }
-
-        public void OnEnable()
-        {
-            core = GetComponent<CoreAnimComponent>();
-        }
-        
-        protected WeaponAnimAsset GetGunAsset()
-        {
-            return core.weaponAsset;
-        }
-
-        protected CharAnimData GetCharData()
-        {
-            return core.characterData;
-        }
-
-        protected Transform GetMasterPivot()
-        {
-            return core.ikRigData.masterDynamic.obj.transform;
-        }
-
-        protected Transform GetRootBone()
-        {
-            return core.ikRigData.rootBone;
-        }
-
-        protected Transform GetPelvis()
-        {
-            return core.ikRigData.pelvis;
-        }
-
-        protected DynamicBone GetMasterIK()
-        {
-            return core.ikRigData.masterDynamic;
-        }
-
-        protected DynamicBone GetRightHandIK()
-        {
-            return core.ikRigData.rightHand;
-        }
-
-        protected DynamicBone GetLeftHandIK()
-        {
-            return core.ikRigData.leftHand;
-        }
-        
-        protected Transform GetRightHand()
-        {
-            return core.ikRigData.rightHand.obj.transform;
-        }
-
-        protected Transform GetLeftHand()
-        {
-            return core.ikRigData.leftHand.obj.transform;
-        }
-
-        protected Transform GetRightFoot()
-        {
-            return core.ikRigData.rightFoot.obj.transform;
-        }
-
-        protected Transform GetLeftFoot()
-        {
-            return core.ikRigData.leftFoot.obj.transform;
-        }
-
-        protected Animator GetAnimator()
-        {
-            return core.ikRigData.animator;
-        }
-
-        protected DynamicRigData GetRigData()
-        {
-            return core.ikRigData;
-        }
-
-        protected float GetCurveValue(string curve)
-        {
-            return core.animGraph.GetCurveValue(curve);
-        }
-
-        // Offsets master pivot only, without affecting the child IK bones
-        // Useful if weapon has multiple pivots
-        protected void OffsetMasterPivot(LocRot offset, float alpha = 1f)
-        {
-            LocRot rightHandTip = new LocRot(GetRightHand());
-            LocRot leftHandTip = new LocRot(GetLeftHand());
-
-            LocRot rightElbow = new LocRot(GetRightHandIK().hintTarget);
-            LocRot leftElbow = new LocRot(GetLeftHandIK().hintTarget);
-
-            GetMasterIK().Move(GetMasterPivot(), offset.position, alpha);
-            GetMasterIK().Rotate(GetMasterPivot().rotation, offset.rotation, alpha);
-
-            GetRightHand().position = rightHandTip.position;
-            GetRightHand().rotation = rightHandTip.rotation;
-
-            GetLeftHand().position = leftHandTip.position;
-            GetLeftHand().rotation = leftHandTip.rotation;
-
-            GetRightHandIK().hintTarget.position = rightElbow.position;
-            GetRightHandIK().hintTarget.rotation = rightElbow.rotation;
-            
-            GetLeftHandIK().hintTarget.position = leftElbow.position;
-            GetLeftHandIK().hintTarget.rotation = leftElbow.rotation;
-        }
-        
-        protected void OffsetMasterPivot(Vector3 offset, float alpha = 1f)
-        {
-            LocRot rightHandTip = new LocRot(GetRightHand());
-            LocRot leftHandTip = new LocRot(GetLeftHand());
-
-            LocRot rightElbow = new LocRot(GetRightHandIK().hintTarget);
-            LocRot leftElbow = new LocRot(GetLeftHandIK().hintTarget);
-
-            GetMasterIK().Move(GetMasterPivot(), offset, alpha);
-
-            GetRightHand().position = rightHandTip.position;
-            GetRightHand().rotation = rightHandTip.rotation;
-
-            GetLeftHand().position = leftHandTip.position;
-            GetLeftHand().rotation = leftHandTip.rotation;
-
-            GetRightHandIK().hintTarget.position = rightElbow.position;
-            GetRightHandIK().hintTarget.rotation = rightElbow.rotation;
-            
-            GetLeftHandIK().hintTarget.position = leftElbow.position;
-            GetLeftHandIK().hintTarget.rotation = leftElbow.rotation;
-        }
-
-        protected Transform GetPivotPoint()
-        {
-            return core.weaponTransformData.pivotPoint;
-        }
-        
-        protected Transform GetAimPoint()
-        {
-            return core.weaponTransformData.aimPoint;
-        }
-
-        protected WeaponTransformData GetTransforms()
-        {
-            return core.weaponTransformData;
-        }
-
-        protected Vector3 GetPivotOffset()
-        {
-            return GetPivotPoint() != null ? GetPivotPoint().localPosition : Vector3.zero;
-        }
-    }
-
+    
     [ExecuteInEditMode, AddComponentMenu("FPS Animator")]
     public class CoreAnimComponent : MonoBehaviour
     {
@@ -391,7 +190,8 @@ namespace Kinemation.FPSFramework.Runtime.Core.Components
         // Global IK weight for feet
         [SerializeField, Range(0f, 1f)] private float legIkWeight = 1f;
         
-        private Quaternion pelvisPoseMS;
+        private Quaternion pelvisPoseMS = Quaternion.identity;
+        private Quaternion pelvisPoseMSCache = Quaternion.identity;
         
         // Static weapon bone pose in mesh space
         private LocRot weaponBonePose;
@@ -470,6 +270,7 @@ namespace Kinemation.FPSFramework.Runtime.Core.Components
                     localPosition = Vector3.zero
                 }
             };
+            
             ikRigData.weaponBoneAdditive = additiveBone.transform;
         }
 
@@ -479,25 +280,34 @@ namespace Kinemation.FPSFramework.Runtime.Core.Components
             animGraph.UpdateGraphWeights();
         }
 
-        private void UpdateWeaponBone()
+        private void UpdateSpineStabilization()
         {
+            if (weaponAsset == null) return;
+            
             var spineRoot = ikRigData.spineRoot;
             var rootRot = ikRigData.rootBone.rotation;
+            var pelvisRot = Quaternion.Slerp(pelvisPoseMSCache, pelvisPoseMS, animGraph.GetPoseProgress());
+            
+            // Apply hips stabilization.
+            // We perform this by rotating the root spine bone based on the cached static hip rotation.
             
             Quaternion hipsRotCached = ikRigData.pelvis.rotation;
-            ikRigData.pelvis.rotation = rootRot * pelvisPoseMS;
+            ikRigData.pelvis.rotation = rootRot * pelvisRot;
             
             var spineRot = spineRoot.rotation;
             ikRigData.pelvis.rotation = hipsRotCached;
             
             spineRoot.rotation = Quaternion.Slerp(spineRoot.rotation, spineRot, animGraph.graphWeight);
             CoreToolkitLib.RotateInBoneSpace(rootRot, spineRoot, animGraph.GetSpineOffset(), 1f);
+        }
 
+        private void UpdateWeaponBone()
+        {
             // Parented to the right or left hand
             if (ikRigData.weaponBoneWeight > 0f)
             {
                 LocRot basePose = weaponBonePose.FromSpace(ikRigData.rootBone);
-                LocRot combinedPose = weaponBoneSpinePose.FromSpace(spineRoot);
+                LocRot combinedPose = weaponBoneSpinePose.FromSpace(ikRigData.spineRoot);
 
                 combinedPose.position -= basePose.position;
                 combinedPose.rotation = Quaternion.Inverse(basePose.rotation) * combinedPose.rotation;
@@ -528,10 +338,12 @@ namespace Kinemation.FPSFramework.Runtime.Core.Components
             }
 #endif
             onPreUpdate.Invoke();
+            PreUpdateLayers();
             
             ikRigData.Retarget();
+            UpdateSpineStabilization();
             UpdateWeaponBone();
-            PreUpdateLayers();
+
             UpdateLayers();
             ApplyIK();
             PostUpdateLayers();
@@ -643,8 +455,9 @@ namespace Kinemation.FPSFramework.Runtime.Core.Components
         public void OnPoseSampled()
         {
             ikRigData.RetargetHandBones();
+            pelvisPoseMSCache = pelvisPoseMS;
             pelvisPoseMS = ikRigData.GetPelvisMS();
-            
+
             weaponBonePose = new LocRot(ikRigData.weaponBone, false);
             weaponBoneSpinePose = new LocRot(ikRigData.weaponBone).ToSpace(ikRigData.spineRoot);
             
@@ -658,7 +471,7 @@ namespace Kinemation.FPSFramework.Runtime.Core.Components
                 layer.OnPoseSampled();
             }
         }
-
+        
         public void OnGunEquipped(WeaponAnimAsset asset, WeaponTransformData data)
         {
             weaponAsset = asset;

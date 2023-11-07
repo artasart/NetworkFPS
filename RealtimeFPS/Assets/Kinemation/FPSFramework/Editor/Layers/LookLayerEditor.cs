@@ -1,6 +1,7 @@
 // Designed by KINEMATION, 2023
 
 using Kinemation.FPSFramework.Runtime.Layers;
+
 using UnityEditor;
 using UnityEngine;
 
@@ -29,6 +30,7 @@ namespace Kinemation.FPSFramework.Editor.Layers
         private SerializedProperty aimUp;
         private SerializedProperty aimRight;
         private SerializedProperty smoothAim;
+        private SerializedProperty clampAngleSmoothing;
         
         private SerializedProperty leanDirection;
         private SerializedProperty leanAmount;
@@ -64,6 +66,7 @@ namespace Kinemation.FPSFramework.Editor.Layers
             aimUp = serializedObject.FindProperty("aimUp");
             aimRight = serializedObject.FindProperty("aimRight");
             smoothAim = serializedObject.FindProperty("smoothAim");
+            clampAngleSmoothing = serializedObject.FindProperty("clampAngleSmoothing");
 
             leanDirection = serializedObject.FindProperty("leanDirection");
             leanAmount = serializedObject.FindProperty("leanAmount");
@@ -135,7 +138,7 @@ namespace Kinemation.FPSFramework.Editor.Layers
             EditorGUILayout.PropertyField(aimUp);
             EditorGUILayout.PropertyField(aimRight);
             EditorGUILayout.PropertyField(smoothAim);
-
+           
             EditorGUILayout.EndVertical();
         }
         

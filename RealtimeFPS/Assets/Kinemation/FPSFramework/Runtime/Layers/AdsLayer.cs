@@ -1,5 +1,6 @@
 // Designed by KINEMATION, 2023
 
+using Kinemation.FPSFramework.Runtime.Attributes;
 using Kinemation.FPSFramework.Runtime.Core.Components;
 using Kinemation.FPSFramework.Runtime.Core.Types;
 using UnityEngine;
@@ -9,17 +10,9 @@ namespace Kinemation.FPSFramework.Runtime.Layers
     public class AdsLayer : AnimLayer
     {
         [Header("SightsAligner")] [SerializeField]
-        private EaseMode adsEaseMode = new EaseMode(new[]
-        {
-            new Keyframe(0f, 0f),
-            new Keyframe(1f, 0f)
-        });
+        private EaseMode adsEaseMode = new EaseMode(EEaseFunc.Sine);
 
-        [SerializeField] private EaseMode pointAimEaseMode = new EaseMode(new[]
-        {
-            new Keyframe(0f, 0f),
-            new Keyframe(1f, 0f)
-        });
+        [SerializeField] private EaseMode pointAimEaseMode = new EaseMode(EEaseFunc.Sine);
         
         [SerializeField] [Bone] protected bool usePivotAdjustment = false;
         [SerializeField] [Bone] protected Transform aimTarget;
@@ -67,6 +60,8 @@ namespace Kinemation.FPSFramework.Runtime.Layers
 
         public override void OnAnimUpdate()
         {
+            if (GetGunAsset() == null || GetAimPoint() == null) return;
+            
             Vector3 baseLoc = GetMasterPivot().position;
             Quaternion baseRot = GetMasterPivot().rotation;
 

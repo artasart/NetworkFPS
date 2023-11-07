@@ -35,6 +35,7 @@ namespace Kinemation.FPSFramework.Runtime.Camera
         public Transform rootBone;
         public bool isAiming = false;
         public bool useViewLimits = false;
+        public bool useCameraAnimation = true;
         
         private UnityEngine.Camera _mainCamera;
 
@@ -64,6 +65,11 @@ namespace Kinemation.FPSFramework.Runtime.Camera
         
         private void UpdateShake()
         {
+            if (useCameraAnimation)
+            {
+                transform.rotation *= _animation;
+            }
+
             if (!_shake.shakeCurve.IsValid())
             {
                 return;
@@ -78,7 +84,7 @@ namespace Kinemation.FPSFramework.Runtime.Camera
             _out.y = CoreToolkitLib.Glerp(_out.y, curveValue.y * _target.y, _shake.smoothSpeed);
             _out.z = CoreToolkitLib.Glerp(_out.z, curveValue.z * _target.z, _shake.smoothSpeed);
 
-            Quaternion rot = Quaternion.Euler(_out) * _animation;
+            Quaternion rot = Quaternion.Euler(_out);
             transform.rotation *= rot;
         }
 

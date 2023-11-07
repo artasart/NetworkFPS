@@ -1,11 +1,13 @@
 // Designed by KINEMATION, 2023
 
-using UnityEngine;
 using Kinemation.FPSFramework.Runtime.Camera;
 using Kinemation.FPSFramework.Runtime.Core.Components;
+using Kinemation.FPSFramework.Runtime.Core.Playables;
 using Kinemation.FPSFramework.Runtime.Core.Types;
 using Kinemation.FPSFramework.Runtime.Layers;
 using Kinemation.FPSFramework.Runtime.Recoil;
+
+using UnityEngine;
 using UnityEngine.Events;
 
 namespace Kinemation.FPSFramework.Runtime.FPSAnimator
@@ -61,16 +63,24 @@ namespace Kinemation.FPSFramework.Runtime.FPSAnimator
         // Call this when equipping a new weapon
         protected void InitWeapon(FPSAnimWeapon weapon)
         {
-            recoilComponent.Init(weapon.recoilData, weapon.fireRate, weapon.fireMode);
+            recoilComponent.Init(weapon.weaponAsset.recoilData, weapon.fireRate, weapon.fireMode);
             fpsAnimator.OnGunEquipped(weapon.weaponAsset, weapon.weaponTransformData);
             
-            fpsAnimator.ikRigData.weaponTransform = weapon.weaponBone;
-            internalLookLayer.SetAimOffsetTable(weapon.aimOffsetTable);
+            fpsAnimator.ikRigData.weaponTransform = weapon.weaponAsset.weaponBone;
+            internalLookLayer.SetAimOffsetTable(weapon.weaponAsset.aimOffsetTable);
+
+            var pose = weapon.weaponAsset.overlayPose;
+
+            if (pose == null)
+            {
+                Debug.LogError("FPSAnimController: OverlayPose is null! Make sure to assign it in the weapon prefab.");
+                return;
+            }
 
             fpsAnimator.OnPrePoseSampled();
-            PlayPose(weapon.overlayPose);
+            PlayPose(weapon.weaponAsset.overlayPose);
             fpsAnimator.OnPoseSampled();
-
+            
             if (fpsCamera != null)
             {
                 fpsCamera.cameraData = weapon.weaponAsset.adsData.cameraData;
@@ -91,8 +101,12 @@ namespace Kinemation.FPSFramework.Runtime.FPSAnimator
                 queuedAnimEvents.Invoke();
                 queuedAnimEvents = null;
             }
+
+            if (recoilComponent != null)
+            {
+                charAnimData.recoilAnim = new LocRot(recoilComponent.OutLoc, Quaternion.Euler(recoilComponent.OutRot));
+            }
             
-            charAnimData.recoilAnim = new LocRot(recoilComponent.OutLoc, Quaternion.Euler(recoilComponent.OutRot));
             fpsAnimator.SetCharData(charAnimData);
             
             fpsAnimator.animGraph.UpdateGraph();
@@ -143,14 +157,8 @@ namespace Kinemation.FPSFramework.Runtime.FPSAnimator
         protected void PlayAnimation(AnimSequence motion, float startTime = 0f)
         {
             if (motion == null) return;
-
-            var animTime = new AnimTime()
-            {
-                blendTime = motion.blendTime,
-                startTime = startTime
-            };
             
-            fpsAnimator.animGraph.PlayAnimation(motion.clip, animTime, motion.spineRotation, motion.curves.ToArray());
+            fpsAnimator.animGraph.PlayAnimation(motion, startTime);
         }
         
         protected void StopAnimation(float blendTime = 0f)
