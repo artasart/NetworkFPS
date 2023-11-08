@@ -2,7 +2,7 @@ using UnityEngine;
 using Cinemachine;
 using Framework.Network;
 
-public class FPSController : MonoBehaviour
+public class FPSController_backup : MonoBehaviour
 {
 	[Header("Movement Settings")]
     public float walkSpeed = 5.0f;

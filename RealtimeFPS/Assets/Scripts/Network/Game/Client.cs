@@ -1,6 +1,10 @@
-﻿using Framework.Network;
+﻿using Demo.Scripts.Runtime;
+using Framework.Network;
+using FrameWork.Network;
 using Protocol;
 using System.Collections.Generic;
+using System.Threading;
+using Unity.VisualScripting.FullSerializer;
 using UnityEngine;
 
 public class Client : Connection
@@ -60,37 +64,28 @@ public class Client : Connection
     {
         foreach (S_ADD_FPS_PLAYER.Types.GameObjectInfo gameObject in _packet.GameObjects)
         {
-            UnityEngine.Vector3 position = new(gameObject.Position.X, gameObject.Position.Y, gameObject.Position.Z);
+            bool isMine = gameObject.PlayerId == myPlayerId;
 
+            UnityEngine.Vector3 position = new(gameObject.Position.X, gameObject.Position.Y, gameObject.Position.Z);
             Quaternion rotation = Quaternion.Euler(gameObject.Rotation.X, gameObject.Rotation.Y, gameObject.Rotation.Z);
 
-            var prefabName = string.Empty;
+			GameObject prefab = Resources.Load<GameObject>("Demo/Prefabs/Generic/PlayerCharacter");
 
-			if(gameObject.PlayerId == myPlayerId)
+            GameObject player = UnityEngine.Object.Instantiate(prefab, position, rotation);
+
+            if (!isMine)
             {
-                prefabName = "Prefab/FPSMan";
-			}
-            else
-            {
-				prefabName = "Prefab/FPSManOther";
-			}
+                UnityEngine.Object.Destroy(player.transform.Search("FPCameraHolder").gameObject);
+                UnityEngine.Object.Destroy(player.transform.Search("FPCameraSocket").gameObject);
+            }
 
-			GameObject prefab = Resources.Load<GameObject>(prefabName);
-
-			GameObject player = UnityEngine.Object.Instantiate(prefab, position, rotation);
+            player.GetComponent<NetworkObject>().Client = this;
+            player.GetComponent<NetworkObject>().id = gameObject.PlayerId;
+            player.GetComponent<NetworkObject>().isMine = isMine;
 
             Debug.Log("AddGameObject: " + gameObject.PlayerId + " " + gameObject.OwnerId);
 
-			player.GetComponentInChildren<NetworkObserver>().SetNetworkObject(
-				this
-				, gameObject.PlayerId
-				, gameObject.OwnerId == ClientId
-                , true
-				, gameObject.OwnerId);
-
 			player.name = gameObject.PlayerId.ToString();
-
-			UnityEngine.Object.FindObjectOfType<EffectPool>().Spawn(EffectType.Effect_Thunder, position, Quaternion.identity);
 
 			gameObjects.Add(gameObject.PlayerId.ToString(), player);
         }

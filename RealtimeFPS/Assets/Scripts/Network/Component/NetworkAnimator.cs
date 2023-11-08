@@ -8,8 +8,10 @@ using UnityEngine;
 
 namespace FrameWork.Network
 {
-    public class NetworkAnimator : NetworkComponent
+    public class NetworkAnimator : MonoBehaviour
     {
+        private NetworkObject networkObject;
+
         private readonly float interval = 0.05f;
         private readonly int totalStep = 3;
         private Animator animator;
@@ -18,29 +20,29 @@ namespace FrameWork.Network
 
         protected void Start()
         {
+            networkObject = GetComponent<NetworkObject>();
+
             animator = GetComponentInChildren<Animator>();
 
             stopwatch = new Stopwatch();
 
-            if (isMine)
+            if (networkObject.isMine)
             {
                 updateAnimation = Timing.RunCoroutine(UpdateAnimation());
             }
             else
             {
-                client.packetHandler.AddHandler(S_SET_ANIMATION);
+                networkObject.Client.packetHandler.AddHandler(S_SET_ANIMATION);
             }
         }
 
-        protected override void OnDestroy()
+        public void OnDestroy()
         {
-            base.OnDestroy();
-
             _ = Timing.KillCoroutines(updateAnimation);
 
-            if (!isMine)
+            if (!networkObject.isMine)
             {
-                client.packetHandler.RemoveHandler(S_SET_ANIMATION);
+                networkObject.Client.packetHandler.RemoveHandler(S_SET_ANIMATION);
             }
         }
 
@@ -74,7 +76,7 @@ namespace FrameWork.Network
         {
             C_SET_ANIMATION packet = new()
             {
-                GameObjectId = objectId
+                GameObjectId = networkObject.id
             };
 
             AnimationParameter movement = new()
@@ -100,7 +102,7 @@ namespace FrameWork.Network
 
         private void S_SET_ANIMATION( S_SET_ANIMATION _packet )
         {
-            if (_packet.GameObjectId != objectId)
+            if (_packet.GameObjectId != networkObject.id)
             {
                 return;
             }

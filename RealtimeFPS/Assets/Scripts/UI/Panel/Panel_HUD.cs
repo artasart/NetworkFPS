@@ -36,13 +36,13 @@ public class Panel_HUD : Panel_Base
     {
         Show(true);
         Cursor.lockState = CursorLockMode.Locked;
-        FindObjectOfType<FPSController>()?.LockCameraInput(false);
+        FindObjectOfType<FPSController_backup>()?.LockCameraInput(false);
     }
 
     public override void OnClose()
     {
         Show(false);
         Cursor.lockState = CursorLockMode.None;
-        FindObjectOfType<FPSController>()?.LockCameraInput(true);
+        FindObjectOfType<FPSController_backup>()?.LockCameraInput(true);
     }
 }

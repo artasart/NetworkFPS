@@ -31,7 +31,7 @@ public class GameClientManager : MonoBehaviour
 
     public Client Client { get; private set; }
 
-    private readonly bool isLocal = false;
+    private readonly bool isLocal = true;
     
     private readonly string localAddress = "192.168.0.104";
     private readonly int localPort = 7777;

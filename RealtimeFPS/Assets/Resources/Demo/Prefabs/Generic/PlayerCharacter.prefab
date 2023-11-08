@@ -329,6 +329,7 @@ GameObject:
   - component: {fileID: 3421492662529600049}
   - component: {fileID: 8763217000795876037}
   - component: {fileID: 2341622009127824810}
+  - component: {fileID: 2907439088110603489}
   m_Layer: 4
   m_Name: Camera
   m_TagString: Untagged
@@ -479,6 +480,39 @@ MonoBehaviour:
   m_BeforeTransparentBundles: []
   m_BeforeStackBundles: []
   m_AfterStackBundles: []
+--- !u!114 &2907439088110603489
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7576703267731592514}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a79441f348de89743a2939f4d699eac1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_RenderShadows: 1
+  m_RequiresDepthTextureOption: 2
+  m_RequiresOpaqueTextureOption: 2
+  m_CameraType: 0
+  m_Cameras: []
+  m_RendererIndex: -1
+  m_VolumeLayerMask:
+    serializedVersion: 2
+    m_Bits: 1
+  m_VolumeTrigger: {fileID: 0}
+  m_VolumeFrameworkUpdateModeOption: 2
+  m_RenderPostProcessing: 0
+  m_Antialiasing: 0
+  m_AntialiasingQuality: 2
+  m_StopNaN: 0
+  m_Dithering: 0
+  m_ClearDepth: 1
+  m_AllowXRRendering: 1
+  m_RequiresDepthTexture: 0
+  m_RequiresColorTexture: 0
+  m_Version: 2
 --- !u!1 &7886750404957804970
 GameObject:
   m_ObjectHideFlags: 0
@@ -555,8 +589,10 @@ GameObject:
   m_Component:
   - component: {fileID: 2147469839844913066}
   - component: {fileID: 4153466704391728986}
-  - component: {fileID: 1481196064775287564}
   - component: {fileID: 655120612}
+  - component: {fileID: 1481196064775287564}
+  - component: {fileID: 903365461888707354}
+  - component: {fileID: 3062651179113338948}
   m_Layer: 0
   m_Name: PlayerCharacter
   m_TagString: Untagged
@@ -646,24 +682,6 @@ MonoBehaviour:
   - {fileID: 7933449597942678629}
   shake: {fileID: 11400000, guid: ce574d2150fc1f540a612314d3d6662e, type: 2}
   weaponBone: {fileID: 5997014216381296179}
---- !u!143 &1481196064775287564
-CharacterController:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8314422345246962827}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Height: 1.55
-  m_Radius: 0.29
-  m_SlopeLimit: 45
-  m_StepOffset: 0.15
-  m_SkinWidth: 0.12
-  m_MinMoveDistance: 0.001
-  m_Center: {x: 0, y: 0.9, z: 0.08}
 --- !u!114 &655120612
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -708,6 +726,50 @@ MonoBehaviour:
   onSlideEnded:
     m_PersistentCalls:
       m_Calls: []
+--- !u!143 &1481196064775287564
+CharacterController:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8314422345246962827}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Height: 1.55
+  m_Radius: 0.29
+  m_SlopeLimit: 45
+  m_StepOffset: 0.15
+  m_SkinWidth: 0.12
+  m_MinMoveDistance: 0.001
+  m_Center: {x: 0, y: 0.9, z: 0.08}
+--- !u!114 &903365461888707354
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8314422345246962827}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 640165367281ed34f87c861be4f9dae4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  id: -1
+  isMine: 0
+--- !u!114 &3062651179113338948
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8314422345246962827}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dfcfead17f564ab48a22f0ed82f15536, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &8424496636742518228
 GameObject:
   m_ObjectHideFlags: 0

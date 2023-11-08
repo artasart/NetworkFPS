@@ -1,17 +1,19 @@
 using FrameWork.Network;
+using UnityEngine;
 
-public class NetworkFPSPlayer : NetworkComponent
+public class NetworkFPSPlayer : MonoBehaviour
 {
+	NetworkObject networkObject;
+
     void Start()
     {
-        client.packetHandler.AddHandler(OnAttacked);
+		networkObject = GetComponent<NetworkObject>();
+
+        networkObject.Client.packetHandler.AddHandler(OnAttacked);
     }
 
 	private void OnAttacked(Protocol.S_ATTACKED pkt)
 	{
-		if (pkt.Playerid == objectId)
-		{
-			//피격 애니메이션 재생
-		}
+
 	}
 }

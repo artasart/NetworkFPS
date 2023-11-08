@@ -9,8 +9,10 @@ using Vector3 = UnityEngine.Vector3;
 
 namespace FrameWork.Network
 {
-	public class NetworkTransform_FPS_DeadReckoning : NetworkComponent
+	public class NetworkTransform_FPS_DeadReckoning : MonoBehaviour
 	{
+		NetworkObject networkObject;
+
 		private readonly float interval = 0.05f;
 		private readonly float hardsnapThreshold = 3f;
 
@@ -26,11 +28,13 @@ namespace FrameWork.Network
 
 		protected void Start()
 		{
+			networkObject = GetComponent<NetworkObject>();
+
 			controller = GetComponent<CharacterController>();
 
 			velocity = new();
 
-			if (isMine)
+			if (networkObject.isMine)
 			{
 				calculateVelocity = Timing.RunCoroutine(CalculeateVelocity(), nameof(CalculeateVelocity) + this.GetHashCode());
 
@@ -39,20 +43,16 @@ namespace FrameWork.Network
 			}
 			else
 			{
-				DebugManager.ClearLog("Add");
-
-				client.packetHandler.AddHandler(Handle_S_SET_FPS_POSITION);
-				client.packetHandler.AddHandler(Handle_S_SET_FPS_ROTATION);
+				networkObject.Client.packetHandler.AddHandler(Handle_S_SET_FPS_POSITION);
+				networkObject.Client.packetHandler.AddHandler(Handle_S_SET_FPS_ROTATION);
 
 				remoteUpdatePosition = Timing.RunCoroutine(RemoteUpdatePosition());
 			}
 		}
 
-		protected override void OnDestroy()
+		protected void OnDestroy()
 		{
-			base.OnDestroy();
-
-			if (isMine)
+			if (networkObject.isMine)
 			{
 				Timing.KillCoroutines(nameof(CalculeateVelocity) + this.GetHashCode());
 				Timing.KillCoroutines(nameof(UpdatePosition) + this.GetHashCode());
@@ -60,8 +60,8 @@ namespace FrameWork.Network
 			}
 			else
 			{
-				client.packetHandler.RemoveHandler(Handle_S_SET_FPS_POSITION);
-				client.packetHandler.RemoveHandler(Handle_S_SET_FPS_ROTATION);
+				networkObject.Client.packetHandler.RemoveHandler(Handle_S_SET_FPS_POSITION);
+				networkObject.Client.packetHandler.RemoveHandler(Handle_S_SET_FPS_ROTATION);
 
 				Timing.KillCoroutines(remoteUpdatePosition);
 			}
@@ -104,13 +104,13 @@ namespace FrameWork.Network
 					{
 						C_SET_FPS_POSITION packet = new()
 						{
-							PlayerId = objectId,
-							Timestamp = client.calcuatedServerTime,
+							PlayerId = networkObject.id,
+							Timestamp = networkObject.Client.calcuatedServerTime,
 							Position = NetworkUtils.UnityVector3ToProtocolVector3(transform.position),
 							Velocity = NetworkUtils.UnityVector3ToProtocolVector3(velocity)
 						};
 
-						client.Send(PacketManager.MakeSendBuffer(packet));
+						networkObject.Client.Send(PacketManager.MakeSendBuffer(packet));
 
 						prevVelocity = velocity;
 					}
@@ -136,11 +136,11 @@ namespace FrameWork.Network
 					{
 						C_SET_FPS_ROTATION packet = new()
 						{
-							PlayerId = objectId,
+							PlayerId = networkObject.id,
 							Rotation = NetworkUtils.UnityVector3ToProtocolVector3(transform.eulerAngles)
 						};
 
-						client.Send(PacketManager.MakeSendBuffer(packet));
+						networkObject.Client.Send(PacketManager.MakeSendBuffer(packet));
 
 						prevRotation = transform.rotation;
 					}
@@ -161,7 +161,7 @@ namespace FrameWork.Network
 
 		private void Handle_S_SET_FPS_POSITION(S_SET_FPS_POSITION packet)
 		{
-			if (packet.PlayerId != objectId)
+			if (packet.PlayerId != networkObject.id)
 			{
 				return;
 			}
@@ -172,7 +172,7 @@ namespace FrameWork.Network
 			velocity = NetworkUtils.ProtocolVector3ToUnityVector3(packet.Velocity);
 			Vector3 predictedPosition;
 
-			timeGap = client.calcuatedServerTime - packet.Timestamp;
+			timeGap = networkObject.Client.calcuatedServerTime - packet.Timestamp;
 
 			predictedPosition = packetPosition + (velocity * timeGap);
 
@@ -185,7 +185,7 @@ namespace FrameWork.Network
 
 			else
 			{
-				timeGap = client.calcuatedServerTime - packet.Timestamp + (interval * 1000);
+				timeGap = networkObject.Client.calcuatedServerTime - packet.Timestamp + (interval * 1000);
 
 				predictedPosition = packetPosition + (velocity * timeGap);
 
@@ -216,7 +216,7 @@ namespace FrameWork.Network
 
 		void Handle_S_SET_FPS_ROTATION(Protocol.S_SET_FPS_ROTATION packet)
 		{
-			if (packet.PlayerId != objectId)
+			if (packet.PlayerId != networkObject.id)
 			{
 				return;
 			}

@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using Quaternion = UnityEngine.Quaternion;
 using Vector2 = UnityEngine.Vector2;
 using Vector3 = UnityEngine.Vector3;
+using FrameWork.Network;
 
 namespace Demo.Scripts.Runtime
 {
@@ -95,6 +96,8 @@ namespace Demo.Scripts.Runtime
         private static readonly int Equip = Animator.StringToHash("Equip");
         private static readonly int UnEquip = Animator.StringToHash("Unequip");
 
+        private NetworkObject networkObject;
+
         private void InitLayers()
         {
             InitAnimController();
@@ -134,6 +137,8 @@ namespace Demo.Scripts.Runtime
 
             InitLayers();
             EquipWeapon();
+
+            networkObject = GetComponent<NetworkObject>();
         }
         
         private void StartWeaponChange()
@@ -622,18 +627,17 @@ namespace Demo.Scripts.Runtime
 
         private void Update()
         {
+            if (!networkObject.isMine)
+                return;
+
             Time.timeScale = timeScale;
-            if (Input.GetKeyDown(KeyCode.Escape))
-            {
-                Application.Quit(0);
-            }
-            
+
             UpdateActionInput();
             UpdateLookInput();
             UpdateFiring();
 
             charAnimData.moveInput = movementComponent.AnimatorVelocity;
-            
+
             UpdateTimer();
             UpdateAnimController();
         }
@@ -642,6 +646,9 @@ namespace Demo.Scripts.Runtime
 
         public void UpdateCameraRotation()
         {
+            if (!networkObject.isMine)
+                return;
+
             Vector2 finalInput = new Vector2(_playerInput.x, _playerInput.y);
             (Quaternion, Vector3) cameraTransform =
                 (transform.rotation * Quaternion.Euler(finalInput.y, finalInput.x, 0f),
