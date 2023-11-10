@@ -96,8 +96,6 @@ namespace Demo.Scripts.Runtime
         private static readonly int Equip = Animator.StringToHash("Equip");
         private static readonly int UnEquip = Animator.StringToHash("Unequip");
 
-        private NetworkObject networkObject;
-
         private void InitLayers()
         {
             InitAnimController();
@@ -137,8 +135,6 @@ namespace Demo.Scripts.Runtime
 
             InitLayers();
             EquipWeapon();
-
-            networkObject = GetComponent<NetworkObject>();
         }
         
         private void StartWeaponChange()
@@ -378,7 +374,7 @@ namespace Demo.Scripts.Runtime
                 FPSAnimLib.ExpDecayAlpha(10f, Time.deltaTime));
             
             animator.SetLayerWeight(3, smoothCurveAlpha);
-            
+
             if (Input.GetKeyDown(KeyCode.R))
             {
                 TryReload();
@@ -627,9 +623,6 @@ namespace Demo.Scripts.Runtime
 
         private void Update()
         {
-            if (!networkObject.isMine)
-                return;
-
             Time.timeScale = timeScale;
 
             UpdateActionInput();
@@ -646,9 +639,6 @@ namespace Demo.Scripts.Runtime
 
         public void UpdateCameraRotation()
         {
-            if (!networkObject.isMine)
-                return;
-
             Vector2 finalInput = new Vector2(_playerInput.x, _playerInput.y);
             (Quaternion, Vector3) cameraTransform =
                 (transform.rotation * Quaternion.Euler(finalInput.y, finalInput.x, 0f),

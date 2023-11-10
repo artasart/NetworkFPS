@@ -128,7 +128,7 @@ namespace Kinemation.FPSFramework.Runtime.Camera
 
         private void Start()
         {
-            _mainCamera = GetComponent<UnityEngine.Camera>();
+            _mainCamera = FindObjectOfType<UnityEngine.Camera>();
             if (_mainCamera != null)
             {
                 _fov = _mainCamera.fieldOfView;

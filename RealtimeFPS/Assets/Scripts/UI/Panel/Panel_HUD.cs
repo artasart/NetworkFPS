@@ -16,11 +16,11 @@ public class Panel_HUD : Panel_Base
         txtmp_Health = transform.Search("txtmp_Health").GetComponent<TMP_Text>();
     }
 
-    public void Clear()
-    {
-        txtmp_BulletCount.text = "";
-        txtmp_Health.text = "";
-    }
+    //public void Clear()
+    //{
+    //    txtmp_BulletCount.text = "";
+    //    txtmp_Health.text = "";
+    //}
 
     public void UpdateBulletCount(int currentBullet, int maxBullet)
     {

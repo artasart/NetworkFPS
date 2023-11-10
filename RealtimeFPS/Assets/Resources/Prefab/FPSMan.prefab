@@ -2462,10 +2462,9 @@ GameObject:
   m_Component:
   - component: {fileID: 2909680356876970767}
   - component: {fileID: 7738275903941821557}
-  - component: {fileID: 2698275795811498563}
-  - component: {fileID: -2932833669219571}
+  - component: {fileID: 5245076707056407761}
   - component: {fileID: 7401821160927710083}
-  - component: {fileID: -4540853041317830117}
+  - component: {fileID: 5814369330337112956}
   m_Layer: 0
   m_Name: FPSMan
   m_TagString: Untagged
@@ -2507,7 +2506,7 @@ CharacterController:
   m_SkinWidth: 0.08
   m_MinMoveDistance: 0.001
   m_Center: {x: 0, y: 0.92, z: 0}
---- !u!114 &2698275795811498563
+--- !u!114 &5245076707056407761
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -2516,45 +2515,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 3970047827416056278}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 91b6487154229a740b3363ed6e9021a9, type: 3}
+  m_Script: {fileID: 11500000, guid: 640165367281ed34f87c861be4f9dae4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  walkSpeed: 5
-  dashSpeed: 10
-  jumpHeight: 2
-  gravityValue: -9.81
-  mouseSensitivity: 2
-  groundLayer:
-    serializedVersion: 2
-    m_Bits: 1
-  groundCheckDistance: 0.16
-  fireRate: 0.1
-  shootDistance: 1000
-  hitLayers:
-    serializedVersion: 2
-    m_Bits: 1
-  maxBulletCount: 30
-  cameraParent: {fileID: 0}
-  shootPos: {fileID: 0}
-  freeLookCamera: {fileID: 0}
-  particleMuzzle: {fileID: 0}
-  airControlPercent: 0
---- !u!114 &-2932833669219571
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3970047827416056278}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c92f38ceefc83ff41bf45b41514974bf, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  objectId: -1
+  id: -1
   isMine: 0
-  isPlayer: 0
-  networkComponents: []
 --- !u!114 &7401821160927710083
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2567,10 +2532,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dfcfead17f564ab48a22f0ed82f15536, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  objectId: -1
-  isMine: 0
-  isPlayer: 0
---- !u!114 &-4540853041317830117
+--- !u!114 &5814369330337112956
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -2579,12 +2541,29 @@ MonoBehaviour:
   m_GameObject: {fileID: 3970047827416056278}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 702327daa98beee48acc9dfedec5479b, type: 3}
+  m_Script: {fileID: 11500000, guid: c9e549e36bd5b3a4fbaf143f58003ea7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  objectId: -1
-  isMine: 0
-  isPlayer: 0
+  walkSpeed: 5
+  dashSpeed: 10
+  jumpHeight: 2
+  gravityValue: -9.81
+  mouseSensitivity: 2
+  groundLayer:
+    serializedVersion: 2
+    m_Bits: 0
+  groundCheckDistance: 0.16
+  fireRate: 0.1
+  shootDistance: 1000
+  hitLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  maxBulletCount: 30
+  cameraParent: {fileID: 0}
+  shootPos: {fileID: 0}
+  freeLookCamera: {fileID: 0}
+  particleMuzzle: {fileID: 0}
+  airControlPercent: 0
 --- !u!1 &3991277077687663939
 GameObject:
   m_ObjectHideFlags: 0
@@ -2644,7 +2623,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_BindingMode: 5
-  m_FollowOffset: {x: 0, y: 2.5, z: -3}
+  m_FollowOffset: {x: 0, y: 0.49695012, z: -1.4321803}
   m_XDamping: 1
   m_YDamping: 1
   m_ZDamping: 1
@@ -3471,7 +3450,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_BindingMode: 5
-  m_FollowOffset: {x: 0, y: 2.5, z: -3}
+  m_FollowOffset: {x: 0, y: 0.49695012, z: -1.4321803}
   m_XDamping: 1
   m_YDamping: 1
   m_ZDamping: 1
@@ -4905,7 +4884,7 @@ MonoBehaviour:
         m_Calls: []
   m_LegacyBlendHint: 0
   m_YAxis:
-    Value: 0.5
+    Value: 0.040700343
     m_SpeedMode: 0
     m_MaxSpeed: 2
     m_AccelTime: 0.2
@@ -5441,7 +5420,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_BindingMode: 5
-  m_FollowOffset: {x: 0, y: 2.5, z: -3}
+  m_FollowOffset: {x: 0, y: 0.49695012, z: -1.4321803}
   m_XDamping: 1
   m_YDamping: 1
   m_ZDamping: 1

@@ -60,14 +60,6 @@ public class UIPool : ObjectPool
 		return item;
 	}
 
-
-
-
-
-
-
-
-
 	public void ShowUI(Transform _target, string _text, Color _color)
 	{
 		GameObject go_Damage = GetPool();

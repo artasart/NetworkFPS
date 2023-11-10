@@ -1,6 +1,8 @@
-﻿using Demo.Scripts.Runtime;
+﻿using Cysharp.Threading.Tasks;
+using Demo.Scripts.Runtime;
 using Framework.Network;
 using FrameWork.Network;
+using MEC;
 using Protocol;
 using System.Collections.Generic;
 using System.Threading;
@@ -69,15 +71,16 @@ public class Client : Connection
             UnityEngine.Vector3 position = new(gameObject.Position.X, gameObject.Position.Y, gameObject.Position.Z);
             Quaternion rotation = Quaternion.Euler(gameObject.Rotation.X, gameObject.Rotation.Y, gameObject.Rotation.Z);
 
-			GameObject prefab = Resources.Load<GameObject>("Demo/Prefabs/Generic/PlayerCharacter");
+            GameObject prefab;
+
+            if(isMine)
+                prefab = Resources.Load<GameObject>("Demo/Prefabs/Generic/PlayerCharacter");
+                //prefab = Resources.Load<GameObject>("Prefab/FPSMan");
+            else
+                prefab = Resources.Load<GameObject>("Demo/Prefabs/Generic/PlayerCharacter_Other");
+                //prefab = Resources.Load<GameObject>("Prefab/FPSManOther");
 
             GameObject player = UnityEngine.Object.Instantiate(prefab, position, rotation);
-
-            if (!isMine)
-            {
-                UnityEngine.Object.Destroy(player.transform.Search("FPCameraHolder").gameObject);
-                UnityEngine.Object.Destroy(player.transform.Search("FPCameraSocket").gameObject);
-            }
 
             player.GetComponent<NetworkObject>().Client = this;
             player.GetComponent<NetworkObject>().id = gameObject.PlayerId;
@@ -85,9 +88,9 @@ public class Client : Connection
 
             Debug.Log("AddGameObject: " + gameObject.PlayerId + " " + gameObject.OwnerId);
 
-			player.name = gameObject.PlayerId.ToString();
+            player.name = gameObject.PlayerId.ToString();
 
-			gameObjects.Add(gameObject.PlayerId.ToString(), player);
+            gameObjects.Add(gameObject.PlayerId.ToString(), player);
         }
     }
 
@@ -113,7 +116,7 @@ public class Client : Connection
             UnityEngine.Object.Destroy(gameObject.Value);
         }
 
-        GameManager.UI.FetchPanel<Panel_HUD>().Clear();
+        //GameManager.UI.FetchPanel<Panel_HUD>().Clear();
         gameObjects.Clear();
     }
 

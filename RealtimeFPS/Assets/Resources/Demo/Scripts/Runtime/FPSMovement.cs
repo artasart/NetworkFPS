@@ -1,29 +1,19 @@
 // Designed by KINEMATION, 2023
 
+using Framework.Network;
+using FrameWork.Network;
 using Kinemation.FPSFramework.Runtime.FPSAnimator;
+using Protocol;
 using UnityEngine;
 using UnityEngine.Events;
+using Vector3 = UnityEngine.Vector3;
 
 namespace Demo.Scripts.Runtime
 {
-    public enum FPSMovementState
-    {
-        Idle,
-        Walking,
-        Sprinting,
-        InAir,
-        Sliding
-    }
-
-    public enum FPSPoseState
-    {
-        Standing,
-        Crouching,
-        Prone
-    }
-    
     public class FPSMovement : MonoBehaviour
     {
+        [SerializeField] public NetworkObject networkObject;
+
         [SerializeField] private FPSMovementSettings movementSettings;
         [SerializeField] public Transform rootBone;
         
@@ -417,6 +407,42 @@ namespace Demo.Scripts.Runtime
 
             a = Mathf.Lerp(a, b, FPSAnimLib.ExpDecayAlpha(_sprintAnimatorInterp, Time.deltaTime));
             _animator.SetFloat(Sprinting, a);
+
+            {
+                C_SET_ANIMATION pkt = new C_SET_ANIMATION();
+                pkt.GameObjectId = networkObject.id;
+                AnimationParameter MoveX = new()
+                {
+                    FloatParam = AnimatorVelocity.x
+                };
+                pkt.Params.Add((int)AnimatorParamId.MoveX, MoveX);
+                AnimationParameter MoveY = new()
+                {
+                    FloatParam = AnimatorVelocity.y
+                };
+                pkt.Params.Add((int)AnimatorParamId.MoveY, MoveY);
+                AnimationParameter Velocity = new()
+                {
+                    FloatParam = AnimatorVelocity.magnitude
+                };
+                pkt.Params.Add((int)AnimatorParamId.Velocity, Velocity);
+                AnimationParameter InAir = new()
+                {
+                    BoolParam = IsInAir()
+                };
+                pkt.Params.Add((int)AnimatorParamId.InAir, InAir);
+                AnimationParameter Moving = new()
+                {
+                    BoolParam = IsMoving()
+                };
+                pkt.Params.Add((int)AnimatorParamId.Moving, Moving);
+                AnimationParameter Sprinting = new()
+                {
+                    FloatParam = a
+                };
+                pkt.Params.Add((int)AnimatorParamId.Sprinting, Sprinting);
+                networkObject.Client.Send(PacketManager.MakeSendBuffer(pkt));
+            }
         }
 
         private void Start()

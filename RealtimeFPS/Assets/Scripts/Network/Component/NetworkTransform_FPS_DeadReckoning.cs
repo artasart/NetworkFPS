@@ -28,7 +28,7 @@ namespace FrameWork.Network
 
 		protected void Start()
 		{
-			networkObject = GetComponent<NetworkObject>();
+            networkObject = GetComponent<NetworkObject>();
 
 			controller = GetComponent<CharacterController>();
 
@@ -36,8 +36,7 @@ namespace FrameWork.Network
 
 			if (networkObject.isMine)
 			{
-				calculateVelocity = Timing.RunCoroutine(CalculeateVelocity(), nameof(CalculeateVelocity) + this.GetHashCode());
-
+				Timing.RunCoroutine(CalculeateVelocity(), nameof(CalculeateVelocity) + this.GetHashCode());
 				Timing.RunCoroutine(UpdatePosition(), nameof(UpdatePosition) + this.GetHashCode());
 				Timing.RunCoroutine(UpdateRotation(), nameof(UpdateRotation) + this.GetHashCode());
 			}
@@ -46,11 +45,11 @@ namespace FrameWork.Network
 				networkObject.Client.packetHandler.AddHandler(Handle_S_SET_FPS_POSITION);
 				networkObject.Client.packetHandler.AddHandler(Handle_S_SET_FPS_ROTATION);
 
-				remoteUpdatePosition = Timing.RunCoroutine(RemoteUpdatePosition());
+                remoteUpdatePosition = Timing.RunCoroutine(RemoteUpdatePosition());
 			}
 		}
 
-		protected void OnDestroy()
+        protected void OnDestroy()
 		{
 			if (networkObject.isMine)
 			{
@@ -65,8 +64,6 @@ namespace FrameWork.Network
 
 				Timing.KillCoroutines(remoteUpdatePosition);
 			}
-
-			Timing.KillCoroutines(remoteUpdatePosition);
 		}
 
 		private IEnumerator<float> CalculeateVelocity()
@@ -90,7 +87,6 @@ namespace FrameWork.Network
 		private IEnumerator<float> UpdatePosition()
 		{
 			Vector3 prevVelocity = velocity;
-
 			float delTime = 0;
 
 			while (true)
@@ -199,17 +195,17 @@ namespace FrameWork.Network
 		{
 			Vector3 prevPosition = transform.position;
 
-			float delaTime = 0.0f;
+			float delTime = 0.0f;
 
 			do
 			{
-				delaTime += Time.deltaTime * 1000;
+				delTime += Time.deltaTime * 1000;
 
-				controller.Move(Vector3.Lerp(prevPosition, position, Math.Min(delaTime / totalTime, 1f)) - transform.position);
+				controller.Move(Vector3.Lerp(prevPosition, position, Math.Min(delTime / totalTime, 1f)) - transform.position);
 
 				yield return Timing.WaitForOneFrame;
 
-			} while (delaTime <= totalTime);
+			} while (delTime <= totalTime);
 
 			remoteUpdatePosition = Timing.RunCoroutine(RemoteUpdatePosition());
 		}
@@ -245,6 +241,8 @@ namespace FrameWork.Network
 				transform.rotation = Quaternion.Lerp(startRotation, endRotation, delTime / interval);
 				yield return Timing.WaitForOneFrame;
 			}
+
+			transform.rotation = endRotation;
 		}
 	}
 }

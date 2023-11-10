@@ -1,9 +1,11 @@
 ﻿using Cysharp.Threading.Tasks;
 using Google.Protobuf;
+using MEC;
 using System;
 using System.Collections.Generic;
 using System.Threading;
 using UnityEngine;
+using UnityEngine.InputSystem.XR;
 
 namespace Framework.Network
 {
@@ -46,8 +48,6 @@ namespace Framework.Network
         private float deltaTime;
         readonly System.Diagnostics.Stopwatch stopwatch;
 
-        protected CancellationTokenSource cts;
-
         ~Connection()
         {
             UnityEngine.Debug.Log("Connection Destructor");
@@ -71,12 +71,11 @@ namespace Framework.Network
 
             stopwatch = new();
 
-            cts = new();
-
-            Ping(cts).Forget();
-            UpdateServerTime(cts).Forget();
+            Ping().Forget();
+            UpdateServerTime().Forget();
             //순서 중요, UpdateServerTime 이후에 PacketUpdate 실행
-            AsyncPacketUpdate(cts).Forget();
+            //AsyncPacketUpdate().Forget();
+            Timing.RunCoroutine(AsyncPacketUpdate_coroutine());
         }
 
         private void _OnConnected()
@@ -159,11 +158,11 @@ namespace Framework.Network
             session?.RegisterDisconnect();
         }
 
-        public async UniTaskVoid Ping( CancellationTokenSource cts )
+        public async UniTaskVoid Ping()
         {
             Protocol.C_PING ping = new();
 
-            while (!cts.IsCancellationRequested && state == ConnectionState.NORMAL)
+            while (state == ConnectionState.NORMAL)
             {
                 ping.Tick = (long)(DateTime.UtcNow - new DateTime(1970, 1, 1)).TotalMilliseconds;
                 Send(PacketManager.MakeSendBuffer(ping));
@@ -172,9 +171,9 @@ namespace Framework.Network
             }
         }
 
-        public async UniTaskVoid AsyncPacketUpdate( CancellationTokenSource cts )
+        public async UniTaskVoid AsyncPacketUpdate()
         {
-            while ((!cts.IsCancellationRequested && state == ConnectionState.NORMAL) || !PacketQueue.Empty())
+            while (state == ConnectionState.NORMAL || !PacketQueue.Empty())
             {
                 System.Collections.Generic.List<PacketMessage> packets = PacketQueue.PopAll();
 
@@ -191,9 +190,28 @@ namespace Framework.Network
             }
         }
 
-        public async UniTaskVoid UpdateServerTime( CancellationTokenSource cts )
+        private IEnumerator<float> AsyncPacketUpdate_coroutine()
         {
-            while (!cts.IsCancellationRequested && state == ConnectionState.NORMAL)
+            while (state == ConnectionState.NORMAL || !PacketQueue.Empty())
+            {
+                System.Collections.Generic.List<PacketMessage> packets = PacketQueue.PopAll();
+
+                for (int i = 0; i < packets.Count; i++)
+                {
+                    PacketMessage packet = packets[i];
+
+                    packetHandler.Handlers.TryGetValue(packet.Id, out Action<IMessage> handler);
+
+                    handler?.Invoke(packet.Message);
+                }
+
+                yield return Timing.WaitForOneFrame;
+            }
+        }
+
+        public async UniTaskVoid UpdateServerTime()
+        {
+            while (state == ConnectionState.NORMAL)
             {
                 if (stopwatch.IsRunning)
                 {
