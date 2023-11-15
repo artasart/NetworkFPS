@@ -21,7 +21,7 @@ namespace Kinemation.FPSFramework.Runtime.FPSAnimator
         private LookLayer internalLookLayer;
         protected RecoilAnimation recoilComponent;
         protected CharAnimData charAnimData;
-        
+
         // Used primarily for function calls from Animation Events
         // Runs once at the beginning of the next update
         protected UnityEvent queuedAnimEvents;

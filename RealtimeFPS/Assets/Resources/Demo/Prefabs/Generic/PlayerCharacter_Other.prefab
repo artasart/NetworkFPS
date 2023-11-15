@@ -399,18 +399,50 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fabe5020ccb2d88409929310b4c17f3f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  networkObject: {fileID: -6789627710406952921}
   animator: {fileID: 2881593552193471062}
-  lookLayer: {fileID: 0}
-  adsLayer: {fileID: 0}
-  swayLayer: {fileID: 0}
-  locoLayer: {fileID: 0}
+  turnInPlaceAngle: 85
+  turnCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 2.021981
+      outSlope: 2.021981
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0.06816644
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 1.8089235
+      outSlope: 1.8089235
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.058966875
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  turnSpeed: 1.2
+  aimMotionAsset: {fileID: 11400000, guid: 8d4c00b0add69ee479563b13a59805f9, type: 2}
+  leanMotionAsset: {fileID: 11400000, guid: ba2e1a2496024db428982ac4e189d5e2, type: 2}
+  crouchMotionAsset: {fileID: 11400000, guid: e17c7783a4255b748bf51256f0ae18c6, type: 2}
+  unCrouchMotionAsset: {fileID: 11400000, guid: 2201ebb031bed8249a648b1e4a66b39d, type: 2}
+  onJumpMotionAsset: {fileID: 11400000, guid: 3802f713565b150488506dd04aa04ea2, type: 2}
+  onLandedMotionAsset: {fileID: 11400000, guid: 3802f713565b150488506dd04aa04ea2, type: 2}
   slotLayer: {fileID: 0}
-  collisionLayer: {fileID: 0}
+  timeScale: 1
+  equipDelay: 0.9
+  movementComponent: {fileID: 3426264325364372910}
   weapons:
   - {fileID: 5002645016562175231}
-  - {fileID: 7933449597942678629}
-  - {fileID: 5748296225702303881}
   - {fileID: 7205750031967115953}
+  - {fileID: 5748296225702303881}
+  - {fileID: 7933449597942678629}
+  weaponBone: {fileID: 5997014216381296179}
 --- !u!114 &3426264325364372910
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3857,6 +3889,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   isAiming: 0
   fireMode: 0
+--- !u!114 &3645303577511387880
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4060448433134786974}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 47c2b5861efb8bd499f3d3577a4a4165, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  controller: {fileID: 8601048764741485172}
 --- !u!114 &4358056069150149519
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4266,19 +4311,6 @@ MonoBehaviour:
     position: {x: -0.01, y: 0.01, z: 0}
     rotation: {x: 0, y: 0, z: 0.043619387, w: 0.99904823}
   crouchPoseCurve: CrouchWeight
---- !u!114 &8995327187265545220
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4060448433134786974}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: deb80aa9551eed74fbfdbd2713c9f7ae, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  controller: {fileID: 0}
 --- !u!114 &9161417388350660389
 MonoBehaviour:
   m_ObjectHideFlags: 0

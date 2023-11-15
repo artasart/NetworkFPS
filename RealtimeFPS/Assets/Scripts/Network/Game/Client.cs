@@ -48,12 +48,12 @@ public class Client : Connection
 
         {
             C_INSTANTIATE_FPS_PLAYER packet = new()
-            { 
+            {
                 Position = NetworkUtils.UnityVector3ToProtocolVector3(UnityEngine.Vector3.zero),
                 Rotation = NetworkUtils.UnityVector3ToProtocolVector3(UnityEngine.Vector3.zero),
             };
 
-			Send(PacketManager.MakeSendBuffer(packet));
+            Send(PacketManager.MakeSendBuffer(packet));
         }
     }
 

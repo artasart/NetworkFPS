@@ -18,11 +18,17 @@ namespace Demo.Scripts.Runtime
 
     public enum AnimatorParamId
     {
+        InAir,
         MoveX,
         MoveY,
         Velocity,
-        InAir,
         Moving,
+        Crouching,
         Sprinting,
+        Proning,
+
+        MovementState,
+
+        PoseState
     }
 }

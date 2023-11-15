@@ -66,6 +66,22 @@ namespace Demo.Scripts.Runtime
 
         private float _sprintAnimatorInterp = 8f;
 
+        #region pkt
+        private C_SET_ANIMATION pkt;
+        
+        private AnimationParameter pkt_InAir;
+        private AnimationParameter pkt_MoveX;
+        private AnimationParameter pkt_MoveY;
+        private AnimationParameter pkt_Velocity;
+        private AnimationParameter pkt_Moving;
+        private AnimationParameter pkt_Crouching;
+        private AnimationParameter pkt_Sprinting;
+        private AnimationParameter pkt_Proning;
+
+        private AnimationParameter pkt_MovementState;
+        private AnimationParameter pkt_PoseState;
+        #endregion
+
         public bool IsInAir()
         {
             return !_controller.isGrounded;
@@ -407,42 +423,6 @@ namespace Demo.Scripts.Runtime
 
             a = Mathf.Lerp(a, b, FPSAnimLib.ExpDecayAlpha(_sprintAnimatorInterp, Time.deltaTime));
             _animator.SetFloat(Sprinting, a);
-
-            {
-                C_SET_ANIMATION pkt = new C_SET_ANIMATION();
-                pkt.GameObjectId = networkObject.id;
-                AnimationParameter MoveX = new()
-                {
-                    FloatParam = AnimatorVelocity.x
-                };
-                pkt.Params.Add((int)AnimatorParamId.MoveX, MoveX);
-                AnimationParameter MoveY = new()
-                {
-                    FloatParam = AnimatorVelocity.y
-                };
-                pkt.Params.Add((int)AnimatorParamId.MoveY, MoveY);
-                AnimationParameter Velocity = new()
-                {
-                    FloatParam = AnimatorVelocity.magnitude
-                };
-                pkt.Params.Add((int)AnimatorParamId.Velocity, Velocity);
-                AnimationParameter InAir = new()
-                {
-                    BoolParam = IsInAir()
-                };
-                pkt.Params.Add((int)AnimatorParamId.InAir, InAir);
-                AnimationParameter Moving = new()
-                {
-                    BoolParam = IsMoving()
-                };
-                pkt.Params.Add((int)AnimatorParamId.Moving, Moving);
-                AnimationParameter Sprinting = new()
-                {
-                    FloatParam = a
-                };
-                pkt.Params.Add((int)AnimatorParamId.Sprinting, Sprinting);
-                networkObject.Client.Send(PacketManager.MakeSendBuffer(pkt));
-            }
         }
 
         private void Start()
@@ -457,6 +437,8 @@ namespace Demo.Scripts.Runtime
             PoseState = FPSPoseState.Standing;
 
             _desiredGait = movementSettings.walking;
+
+            InitPacket();
         }
         
         private void Update()
@@ -485,6 +467,62 @@ namespace Demo.Scripts.Runtime
 
             UpdateMovement();
             UpdateAnimatorParams();
+
+            SendPacket();
+        }
+
+        private void SendPacket()
+        {
+            pkt_MoveX.FloatParam = _animator.GetFloat(MoveX);
+            pkt_MoveY.FloatParam = _animator.GetFloat(MoveY);
+            pkt_Velocity.FloatParam = _animator.GetFloat(Velocity);
+            pkt_Moving.BoolParam = _animator.GetBool(Moving);
+            pkt_InAir.BoolParam = _animator.GetBool(InAir);
+            pkt_Sprinting.FloatParam = _animator.GetFloat(Sprinting);
+
+            pkt_Crouching.BoolParam = Input.GetKeyDown(movementSettings.crouchKey);
+            pkt_Proning.BoolParam = Input.GetKeyDown(movementSettings.proneKey);
+
+            pkt_MovementState.IntParam = (int)MovementState;
+            pkt_PoseState.IntParam = (int)PoseState;
+
+            networkObject.Client.Send(PacketManager.MakeSendBuffer(pkt));
+        }
+
+        private void InitPacket()
+        {
+            pkt = new C_SET_ANIMATION();
+            pkt.GameObjectId = networkObject.id;
+
+            pkt_InAir = new();
+            pkt.Params.Add((int)AnimatorParamId.InAir, pkt_InAir);
+
+            pkt_MoveX = new();
+            pkt.Params.Add((int)AnimatorParamId.MoveX, pkt_MoveX);
+
+            pkt_MoveY = new();
+            pkt.Params.Add((int)AnimatorParamId.MoveY, pkt_MoveY);
+
+            pkt_Velocity = new();
+            pkt.Params.Add((int)AnimatorParamId.Velocity, pkt_Velocity);
+
+            pkt_Moving = new();
+            pkt.Params.Add((int)AnimatorParamId.Moving, pkt_Moving);
+
+            pkt_Crouching = new();
+            pkt.Params.Add((int)AnimatorParamId.Crouching, pkt_Crouching);
+
+            pkt_Sprinting = new();
+            pkt.Params.Add((int)AnimatorParamId.Sprinting, pkt_Sprinting);
+
+            pkt_Proning = new();
+            pkt.Params.Add((int)AnimatorParamId.Proning, pkt_Proning);
+
+            pkt_MovementState = new();
+            pkt.Params.Add((int)AnimatorParamId.MovementState, pkt_MovementState);
+
+            pkt_PoseState = new();
+            pkt.Params.Add((int)AnimatorParamId.PoseState, pkt_PoseState);
         }
     }
 }

@@ -12,6 +12,7 @@ using Quaternion = UnityEngine.Quaternion;
 using Vector2 = UnityEngine.Vector2;
 using Vector3 = UnityEngine.Vector3;
 using FrameWork.Network;
+using Framework.Network;
 
 namespace Demo.Scripts.Runtime
 {
@@ -26,6 +27,8 @@ namespace Demo.Scripts.Runtime
     // An example-controller class
     public class FPSController : FPSAnimController
     {
+        [SerializeField] public NetworkObject networkObject;
+
         [Header("General")] [Tab("Animation")]
         [SerializeField] private Animator animator;
 
@@ -136,7 +139,7 @@ namespace Demo.Scripts.Runtime
             InitLayers();
             EquipWeapon();
         }
-        
+
         private void StartWeaponChange()
         {
             DisableAim();
@@ -540,7 +543,7 @@ namespace Demo.Scripts.Runtime
             
             _playerInput.x += deltaMouseX;
             _playerInput.y += deltaMouseY;
-            
+
             float proneWeight = animator.GetFloat("ProneWeight");
             Vector2 pitchClamp = Vector2.Lerp(new Vector2(-90f, 90f), new Vector2(-30, 0f), proneWeight);
             
@@ -633,6 +636,61 @@ namespace Demo.Scripts.Runtime
 
             UpdateTimer();
             UpdateAnimController();
+
+            {
+                if (Input.GetKeyDown(KeyCode.R))
+                {
+                    Protocol.C_RELOAD reload = new Protocol.C_RELOAD();
+                    networkObject.Client.Send(PacketManager.MakeSendBuffer(reload));
+                }
+            }
+
+            {
+                if(Input.GetKeyDown(KeyCode.Mouse0))
+                {
+                    Protocol.C_FIRE fire = new Protocol.C_FIRE();
+                    fire.IsFiring = true;
+                    networkObject.Client.Send(PacketManager.MakeSendBuffer(fire));
+                }
+
+                if (Input.GetKeyUp(KeyCode.Mouse0))
+                {
+                    Protocol.C_FIRE fire = new Protocol.C_FIRE();
+                    fire.IsFiring = false;
+                    networkObject.Client.Send(PacketManager.MakeSendBuffer(fire));
+                }
+            }
+
+            {
+                Protocol.C_LOOK look = new Protocol.C_LOOK();
+                look.X = _playerInput.x;
+                look.Y = _playerInput.y;
+                look.DeltaX = Input.GetAxis("Mouse X") * sensitivity;
+                look.DeltaY = -Input.GetAxis("Mouse Y") * sensitivity;
+                networkObject.Client.Send(PacketManager.MakeSendBuffer(look));
+            }
+
+            {
+                Protocol.C_LEAN lean = new Protocol.C_LEAN();
+                lean.Value = charAnimData.leanDirection;
+                networkObject.Client.Send(PacketManager.MakeSendBuffer(lean));
+            }
+
+            {
+                if(Input.GetKeyDown(KeyCode.F))
+                {
+                    Protocol.C_CHANGE_WEAPON changeWeapon = new Protocol.C_CHANGE_WEAPON();
+                    networkObject.Client.Send(PacketManager.MakeSendBuffer(changeWeapon));
+                }                
+            }
+
+            {
+                if (Input.GetKeyDown(KeyCode.Mouse1))
+                {
+                    Protocol.C_AIM aim = new Protocol.C_AIM();
+                    networkObject.Client.Send(PacketManager.MakeSendBuffer(aim));
+                }
+            }
         }
 
         private Quaternion _smoothBodyCam;
