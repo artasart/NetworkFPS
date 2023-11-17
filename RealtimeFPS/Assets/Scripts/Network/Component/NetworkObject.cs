@@ -2,7 +2,7 @@
 using UnityEngine;
 using UnityEngine.UIElements;
 
-namespace FrameWork.Network
+namespace Framework.Network
 {
     public class NetworkObject : MonoBehaviour
     {

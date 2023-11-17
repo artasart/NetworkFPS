@@ -897,6 +897,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 81d0c9cae953fca4ab9737e1caf87cd3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  networkObject: {fileID: 0}
   animator: {fileID: 4505190999055681087}
   turnInPlaceAngle: 85
   turnCurve:
@@ -950,6 +951,10 @@ MonoBehaviour:
   - {fileID: 7416079444267653013}
   shake: {fileID: 11400000, guid: ce574d2150fc1f540a612314d3d6662e, type: 2}
   weaponBone: {fileID: 6624334008445290585}
+  _playerInput: {x: 0, y: 0}
+  _aiming: 0
+  test_turn: 0
+  trigger_right: 0
 --- !u!114 &4496267191253631901
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -962,6 +967,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ed2e60975b014a14bee2ee51f674b480, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  networkObject: {fileID: 0}
   movementSettings: {fileID: 11400000, guid: 7d33a2d0b337ad54e8d85db297de9b26, type: 2}
   rootBone: {fileID: 6624334008445290585}
   onSprintStarted:

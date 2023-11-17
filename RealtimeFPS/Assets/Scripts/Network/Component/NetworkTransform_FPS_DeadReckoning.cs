@@ -7,7 +7,7 @@ using Unity.Mathematics;
 using UnityEngine;
 using Vector3 = UnityEngine.Vector3;
 
-namespace FrameWork.Network
+namespace Framework.Network
 {
 	public class NetworkTransform_FPS_DeadReckoning : MonoBehaviour
 	{

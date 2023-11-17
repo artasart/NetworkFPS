@@ -1,13 +1,12 @@
 using Demo.Scripts.Runtime;
-using FrameWork.Network;
-using Kinemation.FPSFramework.Runtime.Camera;
+using Framework.Network;
 using Kinemation.FPSFramework.Runtime.FPSAnimator;
 using Kinemation.FPSFramework.Runtime.Layers;
 using Kinemation.FPSFramework.Runtime.Recoil;
-using System.Collections;
+using MEC;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.InputSystem;
 using static UnityEngine.ParticleSystem;
 
 public class FPSController_Dummy : FPSAnimController
@@ -17,10 +16,6 @@ public class FPSController_Dummy : FPSAnimController
     [Header("General")]
     [Tab("Animation")]
     [SerializeField] private Animator animator;
-
-    [SerializeField] private float turnInPlaceAngle;
-    [SerializeField] private AnimationCurve turnCurve = new AnimationCurve(new Keyframe(0f, 0f));
-    [SerializeField] private float turnSpeed = 1f;
 
     [Header("Dynamic Motions")]
     [SerializeField] private IKAnimation aimMotionAsset;
@@ -41,35 +36,9 @@ public class FPSController_Dummy : FPSAnimController
 
     [Header("General")]
     [Tab("Controller")]
-    [SerializeField] private float timeScale = 1f;
-    [SerializeField] private float equipDelay = 0f;
-
-    [Header("Movement")]
-    [SerializeField] private FPSMovement_Dummy movementComponent;
 
     [SerializeField][Tab("Weapon")] private List<Weapon> weapons;
     public Transform weaponBone;
-
-    private Vector2 _playerInput;
-
-    // Used for free-look
-    private Vector2 _freeLookInput;
-
-    private int _index;
-    private int _lastIndex;
-
-    private float _fireTimer = -1f;
-    private int _bursts;
-    private bool _aiming;
-    private bool _freeLook;
-    private bool _hasActiveAction;
-
-    private FPSActionState actionState;
-
-    private float smoothCurveAlpha = 0f;
-
-    private bool _equipTimerActive = false;
-    private float _equipTimer = 0f;
 
     private static readonly int Crouching = Animator.StringToHash("Crouching");
     private static readonly int OverlayType = Animator.StringToHash("OverlayType");
@@ -81,320 +50,7 @@ public class FPSController_Dummy : FPSAnimController
     private void Start()
     {
         InitLayers();
-        EquipWeapon();
-
-        movementComponent = GetComponent<FPSMovement_Dummy>();
-
-        networkObject.Client.packetHandler.AddHandler(OnReload);
-        networkObject.Client.packetHandler.AddHandler(OnFire);
-        networkObject.Client.packetHandler.AddHandler(OnLook);
-        networkObject.Client.packetHandler.AddHandler(OnLean);
-        networkObject.Client.packetHandler.AddHandler(OnChangeWeapon);
-        networkObject.Client.packetHandler.AddHandler(OnAim);
-    }
-
-    public void OnAim(Protocol.S_AIM pkt)
-    {
-        if (pkt.PlayerId != networkObject.id)
-            return;
-
-        ToggleAim();
-    }
-
-    public void ToggleAim()
-    {
-        if (!GetGun().canAim) return;
-
-        _aiming = !_aiming;
-
-        if (_aiming)
-        {
-            actionState = FPSActionState.Aiming;
-            adsLayer.SetAds(true);
-            swayLayer.SetFreeAimEnable(false);
-            swayLayer.SetLayerAlpha(0.3f);
-            slotLayer.PlayMotion(aimMotionAsset);
-            OnInputAim(_aiming);
-        }
-        else
-        {
-            DisableAim();
-        }
-
-        recoilComponent.isAiming = _aiming;
-    }
-
-    private void DisableAim()
-    {
-        if (!GetGun().canAim) return;
-
-        _aiming = false;
-        OnInputAim(_aiming);
-
-        actionState = FPSActionState.None;
-        adsLayer.SetAds(false);
-        adsLayer.SetPointAim(false);
-        swayLayer.SetFreeAimEnable(true);
-        swayLayer.SetLayerAlpha(1f);
-        slotLayer.PlayMotion(aimMotionAsset);
-    }
-
-    public void OnChangeWeapon(Protocol.S_CHANGE_WEAPON pkt)
-    {
-        if (pkt.PlayerId != networkObject.id)
-            return;
-
-        ChangeWeapon_Internal();
-    }
-
-    private void ChangeWeapon_Internal()
-    {
-        if (movementComponent.PoseState == FPSPoseState.Prone
-            || movementComponent.MovementState == FPSMovementState.Sprinting) return;
-
-        OnFireReleased();
-
-        int newIndex = _index;
-        newIndex++;
-        if (newIndex > weapons.Count - 1)
-        {
-            newIndex = 0;
-        }
-
-        _lastIndex = _index;
-        _index = newIndex;
-
-        StartWeaponChange();
-    }
-
-    private void StartWeaponChange()
-    {
-        animator.CrossFade(UnEquip, 0.1f);
-        _equipTimerActive = true;
-        _equipTimer = 0f;
-    }
-
-    float prevLean = 0f;
-
-    public void OnLean( Protocol.S_LEAN pkt )
-    {
-        if (pkt.PlayerId != networkObject.id)
-            return;
-
-        if(pkt.Value != prevLean)
-            slotLayer.PlayMotion(leanMotionAsset);
-
-        charAnimData.SetLeanInput(pkt.Value);
-        prevLean = pkt.Value;
-    }
-
-    public void OnReload(Protocol.S_RELOAD pkt)
-    {
-        if (pkt.PlayerId != networkObject.id)
-            return;
-
-        TryReload();
-    }
-
-    private void TryReload()
-    {
-        if (movementComponent.MovementState == FPSMovementState.Sprinting) return;
-
-        var reloadClip = GetGun().reloadClip;
-
-        if (reloadClip == null) return;
-
-        OnFireReleased();
-        //DisableAim();
-
-        PlayAnimation(reloadClip);
-        GetGun().Reload();
-    }
-
-    private void Update()
-    {
-        UpdateFiring();
-
-        UpdateTimer();
-
-        UpdateAnimController();
-    }
-
-    private void UpdateTimer()
-    {
-        if (!_equipTimerActive) return;
-
-        if (_equipTimer > equipDelay)
-        {
-            EquipWeapon();
-
-            _equipTimerActive = false;
-            _equipTimer = 0f;
-            return;
-        }
-
-        _equipTimer += Time.deltaTime;
-    }
-
-    private void UpdateFiring()
-    {
-        if (recoilComponent == null) return;
-
-        if (recoilComponent.fireMode != FireMode.Semi && _fireTimer >= 60f / GetGun().fireRate)
-        {
-            Fire();
-
-            if (recoilComponent.fireMode == FireMode.Burst)
-            {
-                _bursts--;
-
-                if (_bursts == 0)
-                {
-                    _fireTimer = -1f;
-                    OnFireReleased();
-                }
-                else
-                {
-                    _fireTimer = 0f;
-                }
-            }
-            else
-            {
-                _fireTimer = 0f;
-            }
-        }
-
-        if (_fireTimer >= 0f)
-        {
-            _fireTimer += Time.deltaTime;
-        }
-    }
-
-    public void OnFire(Protocol.S_FIRE pkt)
-    {
-        if (pkt.PlayerId != networkObject.id)
-            return;
-
-        if(pkt.IsFiring)
-            OnFirePressed();
-        else
-            OnFireReleased();
-    }
-
-    private void OnFirePressed()
-    {
-        if (weapons.Count == 0) return;
-
-        Fire();
-        _bursts = GetGun().burstAmount - 1;
-        _fireTimer = 0f;
-    }
-
-    private void OnFireReleased()
-    {
-        if (weapons.Count == 0) return;
-
-        if (recoilComponent != null)
-        {
-            recoilComponent.Stop();
-        }
-
-        _fireTimer = -1f;
-    }
-
-    private void Fire()
-    {
-        GetGun().OnFire();
-        PlayAnimation(GetGun().fireClip);
-
-        if (recoilComponent != null)
-        {
-            recoilComponent.Play();
-        }
-    }
-
-    private Weapon GetGun()
-    {
-        if (weapons.Count == 0) return null;
-
-        return weapons[_index];
-    }
-
-    private float _jumpState = 0f;
-
-    public void OnLook(Protocol.S_LOOK pkt)
-    {
-        if (pkt.PlayerId != networkObject.id)
-            return;
-
-        _playerInput.x = pkt.X;
-        _playerInput.y = pkt.Y;
-        float deltaMouseX = pkt.DeltaX;
-
-        float proneWeight = animator.GetFloat("ProneWeight");
-        Vector2 pitchClamp = Vector2.Lerp(new Vector2(-90f, 90f), new Vector2(-30, 0f), proneWeight);
-
-        _playerInput.y = Mathf.Clamp(_playerInput.y, pitchClamp.x, pitchClamp.y);
-        moveRotation *= Quaternion.Euler(0f, deltaMouseX, 0f);
-        TurnInPlace();
-
-        _jumpState = Mathf.Lerp(_jumpState, movementComponent.IsInAir() ? 1f : 0f,
-            FPSAnimLib.ExpDecayAlpha(10f, Time.deltaTime));
-
-        float moveWeight = Mathf.Clamp01(movementComponent.AnimatorVelocity.magnitude);
-        transform.rotation = Quaternion.Slerp(transform.rotation, moveRotation, moveWeight);
-        transform.rotation = Quaternion.Slerp(transform.rotation, moveRotation, _jumpState);
-        _playerInput.x *= 1f - moveWeight;
-        _playerInput.x *= 1f - _jumpState;
-
-        charAnimData.SetAimInput(_playerInput);
-        charAnimData.AddDeltaInput(new Vector2(deltaMouseX, charAnimData.deltaAimInput.y));
-    }
-
-    private Quaternion desiredRotation;
-    private Quaternion moveRotation;
-    private float turnProgress = 1f;
-    private bool isTurning = false;
-
-    private void TurnInPlace()
-    {
-        float turnInput = _playerInput.x;
-        _playerInput.x = Mathf.Clamp(_playerInput.x, -90f, 90f);
-        turnInput -= _playerInput.x;
-
-        float sign = Mathf.Sign(_playerInput.x);
-        if (Mathf.Abs(_playerInput.x) > turnInPlaceAngle)
-        {
-            if (!isTurning)
-            {
-                turnProgress = 0f;
-
-                animator.ResetTrigger(TurnRight);
-                animator.ResetTrigger(TurnLeft);
-
-                animator.SetTrigger(sign > 0f ? TurnRight : TurnLeft);
-            }
-
-            isTurning = true;
-        }
-
-        transform.rotation *= Quaternion.Euler(0f, turnInput, 0f);
-
-        float lastProgress = turnCurve.Evaluate(turnProgress);
-        turnProgress += Time.deltaTime * turnSpeed;
-        turnProgress = Mathf.Min(turnProgress, 1f);
-
-        float deltaProgress = turnCurve.Evaluate(turnProgress) - lastProgress;
-
-        _playerInput.x -= sign * turnInPlaceAngle * deltaProgress;
-
-        transform.rotation *= Quaternion.Slerp(Quaternion.identity,
-            Quaternion.Euler(0f, sign * turnInPlaceAngle, 0f), deltaProgress);
-
-        if (Mathf.Approximately(turnProgress, 1f) && isTurning)
-        {
-            isTurning = false;
-        }
+        EquipWeapon(0);
     }
 
     private void InitLayers()
@@ -410,19 +66,152 @@ public class FPSController_Dummy : FPSAnimController
         //collisionLayer = GetComponentInChildren<WeaponCollision>();
     }
 
-    public void EquipWeapon()
+    private void Update()
     {
-        if (weapons.Count == 0) return;
+        UpdateAnimController();
+    }
 
-        weapons[_lastIndex].gameObject.SetActive(false);
-        var gun = weapons[_index];
+    #region Aiming
 
-        _bursts = gun.burstAmount;
+    private bool isAds;
+    private Vector2 aim;
+    private CoroutineHandle updateAimPoint;
+
+    public void SetAds( bool _isAds )
+    {
+        if (isAds == _isAds)
+            return;
+
+        isAds = _isAds;
+
+        if (isAds)
+        {
+            adsLayer.SetAds(true);
+
+            swayLayer.SetFreeAimEnable(false);
+            swayLayer.SetLayerAlpha(0.3f);
+
+            slotLayer.PlayMotion(aimMotionAsset);
+        }
+        else if (!isAds)
+        {
+            DisableAim();
+        }
+
+        recoilComponent.isAiming = isAds;
+    }
+
+    private void DisableAim()
+    {
+        adsLayer.SetAds(false);
+        adsLayer.SetPointAim(false);
+
+        swayLayer.SetFreeAimEnable(true);
+        swayLayer.SetLayerAlpha(1f);
+
+        slotLayer.PlayMotion(aimMotionAsset);
+    }
+
+    public void SetAimPoint( Vector2 newAim )
+    {
+        if (updateAimPoint.IsRunning)
+        {
+            Timing.KillCoroutines(updateAimPoint);
+        }
+
+        updateAimPoint = Timing.RunCoroutine(UpdateAimPoint(newAim));
+    }
+
+    private IEnumerator<float> UpdateAimPoint( Vector2 endAim )
+    {
+        float interval = 0.05f;
+        float delTime = 0.0f;
+
+        Vector2 startAim = aim;
+
+        while (delTime < interval)
+        {
+            delTime += Time.deltaTime;
+
+            Vector2 currentAim = Vector2.Lerp(startAim, endAim, delTime / interval);
+
+            float deltaAim = aim.x - currentAim.x;
+
+            aim = currentAim;
+
+            charAnimData.SetAimInput(aim);
+            charAnimData.AddDeltaInput(new Vector2(deltaAim, charAnimData.deltaAimInput.y));
+
+            yield return Timing.WaitForOneFrame;
+        }
+
+        aim = endAim;
+    }
+
+    #endregion
+
+    private Weapon GetGun()
+    {
+        if (weapons.Count == 0) return null;
+
+        return weapons[weaponIndex];
+    }
+
+    #region Weapon
+
+    private int weaponIndex;
+    public readonly float equipDelay = 0.9f;
+    
+    public IEnumerator<float> ChangeWeapon(int newWeaponIndex, float waitTime)
+    {
+        DisableAim();
+        animator.CrossFade(UnEquip, 0.1f);
+
+        yield return Timing.WaitForSeconds(waitTime);
+
+        EquipWeapon(newWeaponIndex);
+    }
+
+    private void EquipWeapon( int newWeaponIndex )
+    {
+        weapons[weaponIndex].gameObject.SetActive(false);
+
+        weaponIndex = newWeaponIndex;
+
+        var gun = weapons[weaponIndex];
 
         StopAnimation(0.1f);
         InitWeapon(gun);
         gun.gameObject.SetActive(true);
 
         animator.SetFloat(OverlayType, (float)gun.overlayType);
+    }
+
+    #endregion
+
+    #region Reload
+
+    public void Reload()
+    {
+        var reloadClip = GetGun().reloadClip;
+
+        if (reloadClip == null) 
+            return;
+
+        PlayAnimation(reloadClip);
+        GetGun().Reload();
+    }
+
+    #endregion
+
+    public void Fire()
+    {
+        GetGun().OnFire();
+        PlayAnimation(GetGun().fireClip);
+
+        if (recoilComponent != null)
+        {
+            recoilComponent.Play();
+        }
     }
 }

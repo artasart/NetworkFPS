@@ -11,7 +11,6 @@ using System.Collections.Generic;
 using Quaternion = UnityEngine.Quaternion;
 using Vector2 = UnityEngine.Vector2;
 using Vector3 = UnityEngine.Vector3;
-using FrameWork.Network;
 using Framework.Network;
 
 namespace Demo.Scripts.Runtime
@@ -71,7 +70,7 @@ namespace Demo.Scripts.Runtime
         [SerializeField] private FPSCameraShake shake;
         public Transform weaponBone;
         
-        private Vector2 _playerInput;
+        public Vector2 _playerInput;
 
         // Used for free-look
         private Vector2 _freeLookInput;
@@ -81,7 +80,7 @@ namespace Demo.Scripts.Runtime
 
         private float _fireTimer = -1f;
         private int _bursts;
-        private bool _aiming;
+        public bool _aiming;
         private bool _freeLook;
         private bool _hasActiveAction;
         
@@ -475,11 +474,16 @@ namespace Demo.Scripts.Runtime
         private float turnProgress = 1f;
         private bool isTurning = false;
 
+        public bool test_turn = false;
+        public bool trigger_right = false;
+
         private void TurnInPlace()
         {
             float turnInput = _playerInput.x;
             _playerInput.x = Mathf.Clamp(_playerInput.x, -90f, 90f);
             turnInput -= _playerInput.x;
+
+            //print("test : " + Mathf.Abs(_playerInput.x) + " " + turnInPlaceAngle);
 
             float sign = Mathf.Sign(_playerInput.x);
             if (Mathf.Abs(_playerInput.x) > turnInPlaceAngle)
@@ -492,6 +496,9 @@ namespace Demo.Scripts.Runtime
                     animator.ResetTrigger(TurnLeft);
                     
                     animator.SetTrigger(sign > 0f ? TurnRight : TurnLeft);
+
+                    test_turn = true;
+                    trigger_right = sign > 0f;
                 }
                 
                 isTurning = true;
@@ -520,11 +527,11 @@ namespace Demo.Scripts.Runtime
 
         private void UpdateLookInput()
         {
-            _freeLook = Input.GetKey(KeyCode.X);
-
             float deltaMouseX = Input.GetAxis("Mouse X") * sensitivity;
             float deltaMouseY = -Input.GetAxis("Mouse Y") * sensitivity;
-            
+
+            _freeLook = Input.GetKey(KeyCode.X);
+
             if (_freeLook)
             {
                 // No input for both controller and animation component. We only want to rotate the camera
@@ -538,23 +545,25 @@ namespace Demo.Scripts.Runtime
                 return;
             }
 
-            _freeLookInput = Vector2.Lerp(_freeLookInput, Vector2.zero, 
+            _freeLookInput = Vector2.Lerp(_freeLookInput, Vector2.zero,
                 FPSAnimLib.ExpDecayAlpha(15f, Time.deltaTime));
-            
+
             _playerInput.x += deltaMouseX;
             _playerInput.y += deltaMouseY;
 
+            //prone weight 는 서 있을 때 0, 엎드려 있을 때 1, 그 사이에는 연속적인 0~1 값
+            //prone weight 에 따라 pitch clamp 를 조절한다.
             float proneWeight = animator.GetFloat("ProneWeight");
             Vector2 pitchClamp = Vector2.Lerp(new Vector2(-90f, 90f), new Vector2(-30, 0f), proneWeight);
-            
             _playerInput.y = Mathf.Clamp(_playerInput.y, pitchClamp.x, pitchClamp.y);
-            moveRotation *= Quaternion.Euler(0f, deltaMouseX, 0f);
+            
             TurnInPlace();
 
             _jumpState = Mathf.Lerp(_jumpState, movementComponent.IsInAir() ? 1f : 0f,
                 FPSAnimLib.ExpDecayAlpha(10f, Time.deltaTime));
 
             float moveWeight = Mathf.Clamp01(movementComponent.AnimatorVelocity.magnitude);
+            moveRotation *= Quaternion.Euler(0f, deltaMouseX, 0f);
             transform.rotation = Quaternion.Slerp(transform.rotation, moveRotation, moveWeight);
             transform.rotation = Quaternion.Slerp(transform.rotation, moveRotation, _jumpState);
             _playerInput.x *= 1f - moveWeight;
@@ -646,50 +655,13 @@ namespace Demo.Scripts.Runtime
             }
 
             {
-                if(Input.GetKeyDown(KeyCode.Mouse0))
-                {
-                    Protocol.C_FIRE fire = new Protocol.C_FIRE();
-                    fire.IsFiring = true;
-                    networkObject.Client.Send(PacketManager.MakeSendBuffer(fire));
-                }
-
-                if (Input.GetKeyUp(KeyCode.Mouse0))
-                {
-                    Protocol.C_FIRE fire = new Protocol.C_FIRE();
-                    fire.IsFiring = false;
-                    networkObject.Client.Send(PacketManager.MakeSendBuffer(fire));
-                }
-            }
-
-            {
-                Protocol.C_LOOK look = new Protocol.C_LOOK();
-                look.X = _playerInput.x;
-                look.Y = _playerInput.y;
-                look.DeltaX = Input.GetAxis("Mouse X") * sensitivity;
-                look.DeltaY = -Input.GetAxis("Mouse Y") * sensitivity;
-                networkObject.Client.Send(PacketManager.MakeSendBuffer(look));
-            }
-
-            {
-                Protocol.C_LEAN lean = new Protocol.C_LEAN();
-                lean.Value = charAnimData.leanDirection;
-                networkObject.Client.Send(PacketManager.MakeSendBuffer(lean));
-            }
-
-            {
                 if(Input.GetKeyDown(KeyCode.F))
                 {
                     Protocol.C_CHANGE_WEAPON changeWeapon = new Protocol.C_CHANGE_WEAPON();
+                    changeWeapon.WeaponId = _index;
+                    changeWeapon.Timestamp = networkObject.Client.calcuatedServerTime;
                     networkObject.Client.Send(PacketManager.MakeSendBuffer(changeWeapon));
                 }                
-            }
-
-            {
-                if (Input.GetKeyDown(KeyCode.Mouse1))
-                {
-                    Protocol.C_AIM aim = new Protocol.C_AIM();
-                    networkObject.Client.Send(PacketManager.MakeSendBuffer(aim));
-                }
             }
         }
 

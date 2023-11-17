@@ -168,13 +168,13 @@ public class FPSController_backup : MonoBehaviour
 			? (hitInfo.point - rayOrigin).normalized
 			: shootPos.forward.normalized;
 
-		Protocol.C_SHOT enter = new Protocol.C_SHOT
-		{
-			Position = NetworkUtils.UnityVector3ToProtocolVector3(rayOrigin),
-			Direction = NetworkUtils.UnityVector3ToProtocolVector3(rayDirection)
-		};
+		//Protocol.C_SHOT enter = new Protocol.C_SHOT
+		//{
+		//	Position = NetworkUtils.UnityVector3ToProtocolVector3(rayOrigin),
+		//	Direction = NetworkUtils.UnityVector3ToProtocolVector3(rayDirection)
+		//};
 
-		GameClientManager.Instance.Client.Send(PacketManager.MakeSendBuffer(enter));
+		//GameClientManager.Instance.Client.Send(PacketManager.MakeSendBuffer(enter));
 
 		particleMuzzle.Play();
 

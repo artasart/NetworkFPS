@@ -364,6 +364,7 @@ GameObject:
   - component: {fileID: 1481196064775287564}
   - component: {fileID: -6789627710406952921}
   - component: {fileID: 4221801357733014496}
+  - component: {fileID: 4405313977069937137}
   m_Layer: 0
   m_Name: PlayerCharacter_Other
   m_TagString: Untagged
@@ -433,6 +434,8 @@ MonoBehaviour:
   unCrouchMotionAsset: {fileID: 11400000, guid: 2201ebb031bed8249a648b1e4a66b39d, type: 2}
   onJumpMotionAsset: {fileID: 11400000, guid: 3802f713565b150488506dd04aa04ea2, type: 2}
   onLandedMotionAsset: {fileID: 11400000, guid: 3802f713565b150488506dd04aa04ea2, type: 2}
+  adsLayer: {fileID: 0}
+  swayLayer: {fileID: 0}
   slotLayer: {fileID: 0}
   timeScale: 1
   equipDelay: 0.9
@@ -532,6 +535,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dfcfead17f564ab48a22f0ed82f15536, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &4405313977069937137
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8314422345246962827}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e0c0045a7f4fa0e40816d9ffe2a4925a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  networkObject: {fileID: -6789627710406952921}
+  FPSController: {fileID: 8601048764741485172}
+  FPSMovement: {fileID: 3426264325364372910}
+  animator: {fileID: 2881593552193471062}
 --- !u!1 &8424496636742518228
 GameObject:
   m_ObjectHideFlags: 0

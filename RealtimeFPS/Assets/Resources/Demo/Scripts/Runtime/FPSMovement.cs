@@ -1,7 +1,6 @@
 // Designed by KINEMATION, 2023
 
 using Framework.Network;
-using FrameWork.Network;
 using Kinemation.FPSFramework.Runtime.FPSAnimator;
 using Protocol;
 using UnityEngine;
@@ -468,7 +467,7 @@ namespace Demo.Scripts.Runtime
             UpdateMovement();
             UpdateAnimatorParams();
 
-            SendPacket();
+            //SendPacket();
         }
 
         private void SendPacket()
