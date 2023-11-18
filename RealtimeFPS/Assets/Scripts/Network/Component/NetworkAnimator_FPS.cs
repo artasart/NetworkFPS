@@ -8,20 +8,21 @@ public class NetworkAnimator_FPS : MonoBehaviour
 {
     [SerializeField] private NetworkObject networkObject;
 
-    [SerializeField] private FPSController FPSController;
-    [SerializeField] private FPSMovement FPSMovement;
-    [SerializeField] private Animator animator;
+    [SerializeField] private FPSController controllerComponent;
+    [SerializeField] private FPSMovement movementCompnent;
 
     private readonly float interval = 0.05f;
 
+    CoroutineHandle updateAnimation;
+
     void Start()
     {
-        Timing.RunCoroutine(UpdateAnimation(), nameof(UpdateAnimation) + this.GetHashCode());
+        updateAnimation = Timing.RunCoroutine(UpdateAnimation());
     }
 
     private void OnDestroy()
     {
-        Timing.KillCoroutines(nameof(UpdateAnimation) + this.GetHashCode());
+        Timing.KillCoroutines(updateAnimation);
     }
 
     private IEnumerator<float> UpdateAnimation()
@@ -36,24 +37,8 @@ public class NetworkAnimator_FPS : MonoBehaviour
             delTime += Time.deltaTime;
             if (delTime > interval)
             {
-                payload.MoveX = animator.GetFloat("MoveX");
-                payload.MoveY = animator.GetFloat("MoveY");
-                payload.Velocity = animator.GetFloat("Velocity");
-                payload.Moving = animator.GetBool("Moving");
-                payload.InAir = animator.GetBool("InAir");
-                payload.Sprinting = animator.GetFloat("Sprinting");
-
-                payload.PoseState = (int)FPSMovement.PoseState;
-                payload.MovementState = (int)FPSMovement.MovementState;
-
-                payload.IsTurning = FPSController.test_turn;
-                FPSController.test_turn = false;
-
-                payload.TurnRight = FPSController.trigger_right;
-
-                payload.LookX = FPSController._playerInput.x;
-                payload.LookY = FPSController._playerInput.y;
-                payload.Aiming = FPSController._aiming;
+                movementCompnent.MakePacket(ref payload);
+                controllerComponent.MakePacket(ref payload);
 
                 networkObject.Client.Send(PacketManager.MakeSendBuffer(pkt));
             }

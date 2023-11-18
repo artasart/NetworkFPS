@@ -32,6 +32,8 @@ public class NetworkAnimator_FPS_Remote : MonoBehaviour
         Timing.KillCoroutines(updateAnimation);
     }
 
+    bool prevIsTurning = false;
+
     private void OnAnimation( Protocol.S_FPS_ANIMATION pkt )
     {
         if (pkt.PlayerId != networkObject.id)
@@ -40,8 +42,9 @@ public class NetworkAnimator_FPS_Remote : MonoBehaviour
         movementComponent.SetPose((FPSPoseState)pkt.FpsAnimation.PoseState);
         movementComponent.SetMovement((FPSMovementState)pkt.FpsAnimation.MovementState);
 
-        if (pkt.FpsAnimation.IsTurning)
+        if (!prevIsTurning && pkt.FpsAnimation.IsTurning)
             controllerComponent.Turn(pkt.FpsAnimation.TurnRight);
+        prevIsTurning = pkt.FpsAnimation.IsTurning;
 
         controllerComponent.SetAds(pkt.FpsAnimation.Aiming);
         controllerComponent.SetAim(new Vector2(pkt.FpsAnimation.LookX, pkt.FpsAnimation.LookY));

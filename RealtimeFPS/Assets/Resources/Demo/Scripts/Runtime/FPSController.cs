@@ -26,8 +26,6 @@ namespace Demo.Scripts.Runtime
     // An example-controller class
     public class FPSController : FPSAnimController
     {
-        [SerializeField] public NetworkObject networkObject;
-
         [Header("General")] [Tab("Animation")]
         [SerializeField] private Animator animator;
 
@@ -483,8 +481,6 @@ namespace Demo.Scripts.Runtime
             _playerInput.x = Mathf.Clamp(_playerInput.x, -90f, 90f);
             turnInput -= _playerInput.x;
 
-            //print("test : " + Mathf.Abs(_playerInput.x) + " " + turnInPlaceAngle);
-
             float sign = Mathf.Sign(_playerInput.x);
             if (Mathf.Abs(_playerInput.x) > turnInPlaceAngle)
             {
@@ -496,9 +492,6 @@ namespace Demo.Scripts.Runtime
                     animator.ResetTrigger(TurnLeft);
                     
                     animator.SetTrigger(sign > 0f ? TurnRight : TurnLeft);
-
-                    test_turn = true;
-                    trigger_right = sign > 0f;
                 }
                 
                 isTurning = true;
@@ -551,8 +544,6 @@ namespace Demo.Scripts.Runtime
             _playerInput.x += deltaMouseX;
             _playerInput.y += deltaMouseY;
 
-            //prone weight 는 서 있을 때 0, 엎드려 있을 때 1, 그 사이에는 연속적인 0~1 값
-            //prone weight 에 따라 pitch clamp 를 조절한다.
             float proneWeight = animator.GetFloat("ProneWeight");
             Vector2 pitchClamp = Vector2.Lerp(new Vector2(-90f, 90f), new Vector2(-30, 0f), proneWeight);
             _playerInput.y = Mathf.Clamp(_playerInput.y, pitchClamp.x, pitchClamp.y);
@@ -646,23 +637,23 @@ namespace Demo.Scripts.Runtime
             UpdateTimer();
             UpdateAnimController();
 
-            {
-                if (Input.GetKeyDown(KeyCode.R))
-                {
-                    Protocol.C_RELOAD reload = new Protocol.C_RELOAD();
-                    networkObject.Client.Send(PacketManager.MakeSendBuffer(reload));
-                }
-            }
+            //{
+            //    if (Input.GetKeyDown(KeyCode.R))
+            //    {
+            //        Protocol.C_RELOAD reload = new Protocol.C_RELOAD();
+            //        networkObject.Client.Send(PacketManager.MakeSendBuffer(reload));
+            //    }
+            //}
 
-            {
-                if(Input.GetKeyDown(KeyCode.F))
-                {
-                    Protocol.C_CHANGE_WEAPON changeWeapon = new Protocol.C_CHANGE_WEAPON();
-                    changeWeapon.WeaponId = _index;
-                    changeWeapon.Timestamp = networkObject.Client.calcuatedServerTime;
-                    networkObject.Client.Send(PacketManager.MakeSendBuffer(changeWeapon));
-                }                
-            }
+            //{
+            //    if(Input.GetKeyDown(KeyCode.F))
+            //    {
+            //        Protocol.C_CHANGE_WEAPON changeWeapon = new Protocol.C_CHANGE_WEAPON();
+            //        changeWeapon.WeaponId = _index;
+            //        changeWeapon.Timestamp = networkObject.Client.calcuatedServerTime;
+            //        networkObject.Client.Send(PacketManager.MakeSendBuffer(changeWeapon));
+            //    }                
+            //}
         }
 
         private Quaternion _smoothBodyCam;
@@ -678,6 +669,18 @@ namespace Demo.Scripts.Runtime
             cameraHolder.position = cameraTransform.Item2;
 
             mainCamera.rotation = cameraHolder.rotation * Quaternion.Euler(_freeLookInput.y, _freeLookInput.x, 0f);
+        }
+
+        public void MakePacket(ref Protocol.FPS_Animation pkt)
+        {
+            pkt.IsTurning = isTurning;
+
+            float sign = Mathf.Sign(_playerInput.x);
+            pkt.TurnRight = sign > 0;
+
+            pkt.LookX = _playerInput.x;
+            pkt.LookY = _playerInput.y;
+            pkt.Aiming = _aiming;
         }
     }
 }

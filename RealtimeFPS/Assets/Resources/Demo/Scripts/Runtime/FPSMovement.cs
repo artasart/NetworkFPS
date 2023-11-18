@@ -15,13 +15,13 @@ namespace Demo.Scripts.Runtime
 
         [SerializeField] private FPSMovementSettings movementSettings;
         [SerializeField] public Transform rootBone;
-        
+
         [SerializeField] public UnityEvent onSprintStarted;
         [SerializeField] public UnityEvent onSprintEnded;
 
         [SerializeField] public UnityEvent onCrouch;
         [SerializeField] public UnityEvent onUncrouch;
-        
+
         [SerializeField] public UnityEvent onProneStarted;
         [SerializeField] public UnityEvent onProneEnded;
 
@@ -30,28 +30,25 @@ namespace Demo.Scripts.Runtime
 
         [SerializeField] public UnityEvent onSlideStarted;
         [SerializeField] public UnityEvent onSlideEnded;
-        
+
         public FPSMovementState MovementState { get; private set; }
         public FPSPoseState PoseState { get; private set; }
 
         public Vector2 AnimatorVelocity { get; private set; }
-        
+
         private CharacterController _controller;
         private Animator _animator;
         private Vector2 _inputDirection;
 
         public Vector3 MoveVector { get; private set; }
-        
+
         private Vector3 _velocity;
 
         private float _originalHeight;
         private Vector3 _originalCenter;
-        
+
         private GaitSettings _desiredGait;
         private float _slideProgress = 0f;
-
-        private Vector3 _prevPosition;
-        private Vector3 _velocityVector;
 
         private static readonly int InAir = Animator.StringToHash("InAir");
         private static readonly int MoveX = Animator.StringToHash("MoveX");
@@ -65,27 +62,11 @@ namespace Demo.Scripts.Runtime
 
         private float _sprintAnimatorInterp = 8f;
 
-        #region pkt
-        private C_SET_ANIMATION pkt;
-        
-        private AnimationParameter pkt_InAir;
-        private AnimationParameter pkt_MoveX;
-        private AnimationParameter pkt_MoveY;
-        private AnimationParameter pkt_Velocity;
-        private AnimationParameter pkt_Moving;
-        private AnimationParameter pkt_Crouching;
-        private AnimationParameter pkt_Sprinting;
-        private AnimationParameter pkt_Proning;
-
-        private AnimationParameter pkt_MovementState;
-        private AnimationParameter pkt_PoseState;
-        #endregion
-
         public bool IsInAir()
         {
             return !_controller.isGrounded;
         }
-        
+
         private bool IsMoving()
         {
             return !Mathf.Approximately(_inputDirection.normalized.magnitude, 0f);
@@ -108,7 +89,7 @@ namespace Demo.Scripts.Runtime
                 CancelProne();
                 return false;
             }
-            
+
             MovementState = FPSMovementState.InAir;
             return true;
         }
@@ -130,7 +111,7 @@ namespace Demo.Scripts.Runtime
                 MovementState = FPSMovementState.Sliding;
                 return true;
             }
-            
+
             MovementState = FPSMovementState.Sprinting;
             return true;
         }
@@ -148,7 +129,7 @@ namespace Demo.Scripts.Runtime
             PoseState = FPSPoseState.Prone;
             _animator.SetBool(Crouching, false);
             _animator.SetBool(Proning, true);
-            
+
             onProneStarted?.Invoke();
             _desiredGait = movementSettings.prone;
         }
@@ -159,7 +140,7 @@ namespace Demo.Scripts.Runtime
             UnCrouch();
             PoseState = FPSPoseState.Standing;
             _animator.SetBool(Proning, false);
-            
+
             onProneEnded?.Invoke();
             _desiredGait = movementSettings.walking;
         }
@@ -177,7 +158,7 @@ namespace Demo.Scripts.Runtime
             _controller.center = crouchedCenter;
 
             PoseState = FPSPoseState.Crouching;
-            
+
             _animator.SetBool(Crouching, true);
             onCrouch.Invoke();
         }
@@ -186,9 +167,9 @@ namespace Demo.Scripts.Runtime
         {
             _controller.height = _originalHeight;
             _controller.center = _originalCenter;
-            
+
             PoseState = FPSPoseState.Standing;
-            
+
             _animator.SetBool(Crouching, false);
             onUncrouch.Invoke();
         }
@@ -210,7 +191,7 @@ namespace Demo.Scripts.Runtime
                 {
                     EnableProne();
                 }
-                
+
                 return;
             }
 
@@ -240,7 +221,7 @@ namespace Demo.Scripts.Runtime
                 // Do not update player movement while jumping or falling
                 return;
             }
-            
+
             // Get the current player input
             float moveX = Input.GetAxisRaw("Horizontal");
             float moveY = Input.GetAxisRaw("Vertical");
@@ -259,7 +240,7 @@ namespace Demo.Scripts.Runtime
             {
                 return;
             }
-            
+
             if (TrySprint())
             {
                 return;
@@ -270,11 +251,11 @@ namespace Demo.Scripts.Runtime
                 MovementState = FPSMovementState.Idle;
                 return;
             }
-            
+
             MovementState = FPSMovementState.Walking;
         }
 
-        private void OnMovementStateChanged(FPSMovementState prevState)
+        private void OnMovementStateChanged( FPSMovementState prevState )
         {
             if (prevState == FPSMovementState.InAir)
             {
@@ -297,7 +278,7 @@ namespace Demo.Scripts.Runtime
                     UnCrouch();
                 }
             }
-            
+
             if (MovementState == FPSMovementState.Idle)
             {
                 float prevVelocity = _desiredGait.velocity;
@@ -341,7 +322,7 @@ namespace Demo.Scripts.Runtime
                 _desiredGait = movementSettings.prone;
                 return;
             }
-            
+
             // Walking state
             _desiredGait = movementSettings.walking;
         }
@@ -350,7 +331,7 @@ namespace Demo.Scripts.Runtime
         {
             // 1. Extract the slide animation.
             float slideAmount = movementSettings.slideCurve.Evaluate(_slideProgress);
-            
+
             // 2. Apply sliding to both current and desired velocity vectors.
             // Here we just want to interpolate between the same velocities, but different directions.
 
@@ -359,10 +340,10 @@ namespace Demo.Scripts.Runtime
             Vector3 desiredVelocity = _velocity;
             desiredVelocity.y = -movementSettings.gravity;
             MoveVector = desiredVelocity;
-            
+
             _slideProgress = Mathf.Clamp01(_slideProgress + Time.deltaTime * movementSettings.slideSpeed);
         }
-        
+
         private void UpdateGrounded()
         {
             var normInput = _inputDirection.normalized;
@@ -370,33 +351,33 @@ namespace Demo.Scripts.Runtime
 
             desiredVelocity *= _desiredGait.velocity;
 
-            desiredVelocity = Vector3.Lerp(_velocity, desiredVelocity, 
+            desiredVelocity = Vector3.Lerp(_velocity, desiredVelocity,
                 FPSAnimLib.ExpDecayAlpha(_desiredGait.velocitySmoothing, Time.deltaTime));
-            
+
             _velocity = desiredVelocity;
 
             desiredVelocity.y = -movementSettings.gravity;
             MoveVector = desiredVelocity;
         }
-        
+
         private void UpdateInAir()
         {
             var normInput = _inputDirection.normalized;
             _velocity.y -= movementSettings.gravity * Time.deltaTime;
             _velocity.y = Mathf.Max(-movementSettings.maxFallVelocity, _velocity.y);
-            
+
             var desiredVelocity = rootBone.right * normInput.x + rootBone.forward * normInput.y;
             desiredVelocity *= _desiredGait.velocity;
 
-            desiredVelocity = Vector3.Lerp(_velocity, desiredVelocity * movementSettings.airFriction, 
+            desiredVelocity = Vector3.Lerp(_velocity, desiredVelocity * movementSettings.airFriction,
                 FPSAnimLib.ExpDecayAlpha(movementSettings.airVelocity, Time.deltaTime));
 
             desiredVelocity.y = _velocity.y;
             _velocity = desiredVelocity;
-            
+
             MoveVector = desiredVelocity;
         }
-        
+
         private void UpdateMovement()
         {
             _controller.Move(MoveVector * Time.deltaTime);
@@ -407,7 +388,7 @@ namespace Demo.Scripts.Runtime
             var animatorVelocity = _inputDirection;
             animatorVelocity *= MovementState == FPSMovementState.InAir ? 0f : 1f;
 
-            AnimatorVelocity = Vector2.Lerp(AnimatorVelocity, animatorVelocity, 
+            AnimatorVelocity = Vector2.Lerp(AnimatorVelocity, animatorVelocity,
                 FPSAnimLib.ExpDecayAlpha(_desiredGait.velocitySmoothing, Time.deltaTime));
 
             _animator.SetFloat(MoveX, AnimatorVelocity.x);
@@ -428,24 +409,22 @@ namespace Demo.Scripts.Runtime
         {
             _controller = GetComponent<CharacterController>();
             _animator = GetComponentInChildren<Animator>();
-            
+
             _originalHeight = _controller.height;
             _originalCenter = _controller.center;
-            
+
             MovementState = FPSMovementState.Idle;
             PoseState = FPSPoseState.Standing;
 
             _desiredGait = movementSettings.walking;
-
-            InitPacket();
         }
-        
+
         private void Update()
         {
             var prevState = MovementState;
             UpdateMovementState();
             UpdatePoseState();
-            
+
             if (prevState != MovementState)
             {
                 OnMovementStateChanged(prevState);
@@ -466,62 +445,19 @@ namespace Demo.Scripts.Runtime
 
             UpdateMovement();
             UpdateAnimatorParams();
-
-            //SendPacket();
         }
 
-        private void SendPacket()
+        public void MakePacket(ref Protocol.FPS_Animation pkt)
         {
-            pkt_MoveX.FloatParam = _animator.GetFloat(MoveX);
-            pkt_MoveY.FloatParam = _animator.GetFloat(MoveY);
-            pkt_Velocity.FloatParam = _animator.GetFloat(Velocity);
-            pkt_Moving.BoolParam = _animator.GetBool(Moving);
-            pkt_InAir.BoolParam = _animator.GetBool(InAir);
-            pkt_Sprinting.FloatParam = _animator.GetFloat(Sprinting);
+            pkt.MoveX = _animator.GetFloat(MoveX);
+            pkt.MoveY = _animator.GetFloat(MoveY);
+            pkt.Velocity = _animator.GetFloat(Velocity);
+            pkt.Moving = _animator.GetBool(Moving);
+            pkt.InAir = _animator.GetBool(InAir);
+            pkt.Sprinting = _animator.GetFloat(Sprinting);
 
-            pkt_Crouching.BoolParam = Input.GetKeyDown(movementSettings.crouchKey);
-            pkt_Proning.BoolParam = Input.GetKeyDown(movementSettings.proneKey);
-
-            pkt_MovementState.IntParam = (int)MovementState;
-            pkt_PoseState.IntParam = (int)PoseState;
-
-            networkObject.Client.Send(PacketManager.MakeSendBuffer(pkt));
-        }
-
-        private void InitPacket()
-        {
-            pkt = new C_SET_ANIMATION();
-            pkt.GameObjectId = networkObject.id;
-
-            pkt_InAir = new();
-            pkt.Params.Add((int)AnimatorParamId.InAir, pkt_InAir);
-
-            pkt_MoveX = new();
-            pkt.Params.Add((int)AnimatorParamId.MoveX, pkt_MoveX);
-
-            pkt_MoveY = new();
-            pkt.Params.Add((int)AnimatorParamId.MoveY, pkt_MoveY);
-
-            pkt_Velocity = new();
-            pkt.Params.Add((int)AnimatorParamId.Velocity, pkt_Velocity);
-
-            pkt_Moving = new();
-            pkt.Params.Add((int)AnimatorParamId.Moving, pkt_Moving);
-
-            pkt_Crouching = new();
-            pkt.Params.Add((int)AnimatorParamId.Crouching, pkt_Crouching);
-
-            pkt_Sprinting = new();
-            pkt.Params.Add((int)AnimatorParamId.Sprinting, pkt_Sprinting);
-
-            pkt_Proning = new();
-            pkt.Params.Add((int)AnimatorParamId.Proning, pkt_Proning);
-
-            pkt_MovementState = new();
-            pkt.Params.Add((int)AnimatorParamId.MovementState, pkt_MovementState);
-
-            pkt_PoseState = new();
-            pkt.Params.Add((int)AnimatorParamId.PoseState, pkt_PoseState);
+            pkt.PoseState = (int)PoseState;
+            pkt.MovementState = (int)MovementState;
         }
     }
 }

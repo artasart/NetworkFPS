@@ -565,7 +565,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 81d0c9cae953fca4ab9737e1caf87cd3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  networkObject: {fileID: -6789627710406952921}
   animator: {fileID: 2881593552193471062}
   turnInPlaceAngle: 85
   turnCurve:
@@ -726,9 +725,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   networkObject: {fileID: -6789627710406952921}
-  FPSController: {fileID: 4153466704391728986}
-  FPSMovement: {fileID: 655120612}
-  animator: {fileID: 2881593552193471062}
+  controllerComponent: {fileID: 4153466704391728986}
+  movementCompnent: {fileID: 655120612}
 --- !u!1 &8424496636742518228
 GameObject:
   m_ObjectHideFlags: 0
