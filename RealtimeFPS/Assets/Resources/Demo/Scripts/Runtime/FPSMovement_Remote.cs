@@ -1,17 +1,12 @@
-using Framework.Network;
 using Demo.Scripts.Runtime;
 using UnityEngine;
 using UnityEngine.Events;
-using Kinemation.FPSFramework.Runtime.FPSAnimator;
-using UnityEngine.InputSystem.XR;
+using MEC;
+using System.Collections.Generic;
 
-public class FPSMovement_Dummy : MonoBehaviour
+public class FPSMovement_Remote : MonoBehaviour
 {
-    [SerializeField] public NetworkObject networkObject;
-
     [SerializeField] private FPSMovementSettings movementSettings;
-
-    #region Events
 
     [SerializeField] public UnityEvent onSprintStarted;
     [SerializeField] public UnityEvent onSprintEnded;
@@ -28,19 +23,23 @@ public class FPSMovement_Dummy : MonoBehaviour
     [SerializeField] public UnityEvent onSlideStarted;
     [SerializeField] public UnityEvent onSlideEnded;
 
-    #endregion
-
     public FPSMovementState MovementState { get; private set; }
     public FPSPoseState PoseState { get; private set; }
 
-    private CharacterController _controller;
-    private Animator _animator;
+    private CharacterController controller;
+    private Animator animator;
 
-    private float _originalHeight;
-    private Vector3 _originalCenter;
+    private float originalHeight;
+    private Vector3 originalCenter;
 
+    private static readonly int InAir = Animator.StringToHash("InAir");
+    private static readonly int MoveX = Animator.StringToHash("MoveX");
+    private static readonly int MoveY = Animator.StringToHash("MoveY");
+    private static readonly int Velocity = Animator.StringToHash("Velocity");
+    private static readonly int Moving = Animator.StringToHash("Moving");
     private static readonly int Crouching = Animator.StringToHash("Crouching");
     private static readonly int Sliding = Animator.StringToHash("Sliding");
+    private static readonly int Sprinting = Animator.StringToHash("Sprinting");
     private static readonly int Proning = Animator.StringToHash("Proning");
 
     private void Start()
@@ -48,11 +47,11 @@ public class FPSMovement_Dummy : MonoBehaviour
         MovementState = FPSMovementState.Idle;
         PoseState = FPSPoseState.Standing;
 
-        _animator = GetComponentInChildren<Animator>();
-        _controller = GetComponent<CharacterController>();
+        animator = GetComponentInChildren<Animator>();
+        controller = GetComponent<CharacterController>();
 
-        _originalHeight = _controller.height;
-        _originalCenter = _controller.center;
+        originalHeight = controller.height;
+        originalCenter = controller.center;
     }
 
     #region Movement
@@ -86,7 +85,7 @@ public class FPSMovement_Dummy : MonoBehaviour
         }
         else if (newMovementState == FPSMovementState.Sliding)
         {
-            _animator.CrossFade(Sliding, 0.1f);
+            animator.CrossFade(Sliding, 0.1f);
             onSlideStarted.Invoke();
             Crouch();
         }
@@ -128,8 +127,8 @@ public class FPSMovement_Dummy : MonoBehaviour
     {
         Crouch();
         PoseState = FPSPoseState.Prone;
-        _animator.SetBool(Crouching, false);
-        _animator.SetBool(Proning, true);
+        animator.SetBool(Crouching, false);
+        animator.SetBool(Proning, true);
 
         onProneStarted?.Invoke();
     }
@@ -138,38 +137,63 @@ public class FPSMovement_Dummy : MonoBehaviour
     {
         UnCrouch();
         PoseState = FPSPoseState.Standing;
-        _animator.SetBool(Proning, false);
+        animator.SetBool(Proning, false);
 
         onProneEnded?.Invoke();
     }
 
     private void Crouch()
     {
-        float crouchedHeight = _originalHeight * movementSettings.crouchRatio;
-        float heightDifference = _originalHeight - crouchedHeight;
+        float crouchedHeight = originalHeight * movementSettings.crouchRatio;
+        float heightDifference = originalHeight - crouchedHeight;
 
-        _controller.height = crouchedHeight;
+        controller.height = crouchedHeight;
 
-        Vector3 crouchedCenter = _originalCenter;
+        Vector3 crouchedCenter = originalCenter;
         crouchedCenter.y -= heightDifference / 2;
-        _controller.center = crouchedCenter;
+        controller.center = crouchedCenter;
 
         PoseState = FPSPoseState.Crouching;
 
-        _animator.SetBool(Crouching, true);
+        animator.SetBool(Crouching, true);
         onCrouch.Invoke();
     }
 
     private void UnCrouch()
     {
-        _controller.height = _originalHeight;
-        _controller.center = _originalCenter;
+        controller.height = originalHeight;
+        controller.center = originalCenter;
 
         PoseState = FPSPoseState.Standing;
 
-        _animator.SetBool(Crouching, false);
+        animator.SetBool(Crouching, false);
         onUncrouch.Invoke();
     }
 
     #endregion
+
+    public IEnumerator<float> UpdateAnimation( Protocol.FPS_Animation pkt, float interval )
+    {
+        float delTime = 0.0f;
+
+        animator.SetBool(Moving, pkt.Moving);
+        animator.SetBool(InAir, pkt.InAir);
+
+        float prevMoveX = animator.GetFloat(MoveX);
+        float prevMoveY = animator.GetFloat(MoveY);
+        float prevVelocity = animator.GetFloat(Velocity);
+        float prevSprinting = animator.GetFloat(Sprinting);
+
+        while (delTime < interval)
+        {
+            delTime += Time.deltaTime;
+
+            animator.SetFloat(MoveX, Mathf.Lerp(prevMoveX, pkt.MoveX, delTime / interval));
+            animator.SetFloat(MoveY, Mathf.Lerp(prevMoveY, pkt.MoveY, delTime / interval));
+            animator.SetFloat(Velocity, Mathf.Lerp(prevVelocity, pkt.Velocity, delTime / interval));
+            animator.SetFloat(Sprinting, Mathf.Lerp(prevSprinting, pkt.Sprinting, delTime / interval));
+
+            yield return Timing.WaitForOneFrame;
+        }
+    }
 }

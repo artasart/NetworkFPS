@@ -1,18 +1,14 @@
 using Demo.Scripts.Runtime;
 using Framework.Network;
-using Google.Protobuf.WellKnownTypes;
 using MEC;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class NetworkAnimator_FPS_Remote : MonoBehaviour
 {
     [SerializeField] private NetworkObject networkObject;
 
-    [SerializeField] private FPSController_Dummy FPSController;
-    [SerializeField] private FPSMovement_Dummy FPSMovement;
-    [SerializeField] private Animator animator;
+    [SerializeField] private FPSController_Remote controllerComponent;
+    [SerializeField] private FPSMovement_Remote movementComponent;
 
     private readonly float interval = 0.05f;
 
@@ -41,56 +37,19 @@ public class NetworkAnimator_FPS_Remote : MonoBehaviour
         if (pkt.PlayerId != networkObject.id)
             return;
 
-        FPSMovement.SetPose((FPSPoseState)pkt.FpsAnimation.PoseState);
-        FPSMovement.SetMovement((FPSMovementState)pkt.FpsAnimation.MovementState);
-
-        FPSController.SetAds(pkt.FpsAnimation.Aiming);
-        FPSController.SetAimPoint(new Vector2(pkt.FpsAnimation.LookX, pkt.FpsAnimation.LookY));
+        movementComponent.SetPose((FPSPoseState)pkt.FpsAnimation.PoseState);
+        movementComponent.SetMovement((FPSMovementState)pkt.FpsAnimation.MovementState);
 
         if (pkt.FpsAnimation.IsTurning)
-        {
-            animator.ResetTrigger("TurnRight");
-            animator.ResetTrigger("TurnLeft");
+            controllerComponent.Turn(pkt.FpsAnimation.TurnRight);
 
-            if (pkt.FpsAnimation.TurnRight)
-            {
-                animator.SetTrigger("TurnRight");
-            }
-            else
-            {
-                animator.SetTrigger("TurnLeft");
-            }
-        }
+        controllerComponent.SetAds(pkt.FpsAnimation.Aiming);
+        controllerComponent.SetAim(new Vector2(pkt.FpsAnimation.LookX, pkt.FpsAnimation.LookY));
 
         if (updateAnimation.IsRunning)
             Timing.KillCoroutines(updateAnimation);
 
-        updateAnimation = Timing.RunCoroutine(UpdateAnimation(pkt.FpsAnimation));
-    }
-
-    private IEnumerator<float> UpdateAnimation( Protocol.FPS_Animation pkt )
-    {
-        float delTime = 0.0f;
-
-        animator.SetBool("Moving", pkt.Moving);
-        animator.SetBool("InAir", pkt.InAir);
-
-        float prevMoveX = animator.GetFloat("MoveX");
-        float prevMoveY = animator.GetFloat("MoveY");
-        float prevVelocity = animator.GetFloat("Velocity");
-        float prevSprinting = animator.GetFloat("Sprinting");
-
-        while (delTime < interval)
-        {
-            delTime += Time.deltaTime;
-
-            animator.SetFloat("MoveX", Mathf.Lerp(prevMoveX, pkt.MoveX, delTime / interval));
-            animator.SetFloat("MoveY", Mathf.Lerp(prevMoveY, pkt.MoveY, delTime / interval));
-            animator.SetFloat("Velocity", Mathf.Lerp(prevVelocity, pkt.Velocity, delTime / interval));
-            animator.SetFloat("Sprinting", Mathf.Lerp(prevSprinting, pkt.Sprinting, delTime / interval));
-
-            yield return Timing.WaitForOneFrame;
-        }
+        updateAnimation = Timing.RunCoroutine(movementComponent.UpdateAnimation(pkt.FpsAnimation, interval));
     }
 
     private void OnFire(Protocol.S_SHOOT pkt)
@@ -98,13 +57,15 @@ public class NetworkAnimator_FPS_Remote : MonoBehaviour
         if (pkt.PlayerId != networkObject.id)
             return;
 
-        FPSController.Fire();
+        controllerComponent.Fire();
     }
 
     private void OnReload( Protocol.S_RELOAD pkt )
     {
         if (pkt.PlayerId != networkObject.id)
             return;
+
+        controllerComponent.Reload();
     }
 
     private void OnChangeWeapon( Protocol.S_CHANGE_WEAPON pkt )
@@ -112,7 +73,7 @@ public class NetworkAnimator_FPS_Remote : MonoBehaviour
         if (pkt.PlayerId != networkObject.id)
             return;
 
-        float waitTime = (pkt.Timestamp + FPSController.equipDelay * 1000 - networkObject.Client.calcuatedServerTime) / 1000f;
-        Timing.RunCoroutine(FPSController.ChangeWeapon(pkt.WeaponId, waitTime));
+        float waitTime = (pkt.Timestamp + controllerComponent.equipDelay * 1000 - networkObject.Client.calcuatedServerTime) / 1000f;
+        Timing.RunCoroutine(controllerComponent.ChangeWeapon(pkt.WeaponId, waitTime));
     }
 }

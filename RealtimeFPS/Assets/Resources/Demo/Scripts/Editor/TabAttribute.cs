@@ -10,7 +10,7 @@ using UnityEngine;
 
 namespace Demo.Scripts.Editor
 {
-    [CustomEditor(typeof(FPSController_backup), true)]
+    //[CustomEditor(typeof(FPSController_backup), true)]
     public class TabAttribute : UnityEditor.Editor
     {
         private int selectedTab;

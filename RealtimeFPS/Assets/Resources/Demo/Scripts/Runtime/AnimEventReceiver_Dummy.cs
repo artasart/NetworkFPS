@@ -6,13 +6,13 @@ namespace Demo.Scripts.Runtime
 {
     public class AnimEventReceiver_Dummy : MonoBehaviour
     {
-        [SerializeField] private FPSController_Dummy controller;
+        [SerializeField] private FPSController_Remote controller;
 
         private void Start()
         {
             if (controller == null)
             {
-                controller = GetComponentInParent<FPSController_Dummy>();
+                controller = GetComponentInParent<FPSController_Remote>();
             }
         }
         
