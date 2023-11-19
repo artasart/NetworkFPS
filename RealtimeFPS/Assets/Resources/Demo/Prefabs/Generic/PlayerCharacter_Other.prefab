@@ -522,7 +522,6 @@ MonoBehaviour:
   networkObject: {fileID: -6789627710406952921}
   controllerComponent: {fileID: 8601048764741485172}
   movementComponent: {fileID: 3426264325364372910}
-  animator: {fileID: 2881593552193471062}
 --- !u!1 &8424496636742518228
 GameObject:
   m_ObjectHideFlags: 0

@@ -33,7 +33,7 @@ public class GameClientManager : MonoBehaviour
 
     private readonly bool isLocal = true;
     
-    private readonly string localAddress = "192.168.0.104";
+    private readonly string localAddress = "192.168.0.8";
     private readonly int localPort = 7777;
 
     private readonly string remoteAddress = "20.200.230.139";
@@ -128,7 +128,7 @@ public class GameClientManager : MonoBehaviour
         Client.Send(PacketManager.MakeSendBuffer(new C_LEAVE()));
         Client = null;
 
-        GameManager.UI.FetchPanel<Panel_Network>().SetDisconnectButtonState(false);
-        GameManager.UI.FetchPanel<Panel_Network>().SetConnetButtonState(true);
+        GameManager.UI.FetchPanel<Panel_Network>()?.SetDisconnectButtonState(false);
+        GameManager.UI.FetchPanel<Panel_Network>()?.SetConnetButtonState(true);
     }
 }

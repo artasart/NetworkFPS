@@ -204,6 +204,7 @@ public class FPSController_Remote : FPSAnimController
         var gun = weapons[weaponIndex];
 
         StopAnimation(0.1f);
+        gun.fireMode = Kinemation.FPSFramework.Runtime.Recoil.FireMode.Semi;
         InitWeapon(gun);
         gun.gameObject.SetActive(true);
 
@@ -255,11 +256,6 @@ public class FPSController_Remote : FPSAnimController
         lookLayer.SetLayerAlpha(0.5f);
         adsLayer.SetLayerAlpha(0f);
         locoLayer.SetReadyWeight(0f);
-
-        if (recoilComponent != null)
-        {
-            recoilComponent.Stop();
-        }
     }
 
     private void OnSprintEnded()

@@ -17,6 +17,10 @@ public class NetworkAnimator_FPS : MonoBehaviour
 
     void Start()
     {
+        controllerComponent.OnFire += OnFire;
+        controllerComponent.OnReload += OnReload;
+        controllerComponent.OnChangeWeapon += OnChangeWeapon;
+
         updateAnimation = Timing.RunCoroutine(UpdateAnimation());
     }
 
@@ -45,5 +49,27 @@ public class NetworkAnimator_FPS : MonoBehaviour
 
             yield return Timing.WaitForOneFrame;
         }
+    }
+
+    private void OnFire()
+    {
+        Protocol.C_SHOOT pkt = new Protocol.C_SHOOT();
+
+        networkObject.Client.Send(PacketManager.MakeSendBuffer(pkt));
+    }
+
+    private void OnReload()
+    {
+        Protocol.C_RELOAD pkt = new Protocol.C_RELOAD();
+
+        networkObject.Client.Send(PacketManager.MakeSendBuffer(pkt));
+    }
+
+    private void OnChangeWeapon(int weaponId)
+    {
+        Protocol.C_CHANGE_WEAPON pkt = new Protocol.C_CHANGE_WEAPON();
+        pkt.WeaponId = weaponId;
+        pkt.Timestamp = networkObject.Client.calcuatedServerTime;
+        networkObject.Client.Send(PacketManager.MakeSendBuffer(pkt));
     }
 }

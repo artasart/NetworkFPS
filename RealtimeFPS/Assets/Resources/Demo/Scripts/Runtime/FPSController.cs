@@ -12,6 +12,7 @@ using Quaternion = UnityEngine.Quaternion;
 using Vector2 = UnityEngine.Vector2;
 using Vector3 = UnityEngine.Vector3;
 using Framework.Network;
+using System;
 
 namespace Demo.Scripts.Runtime
 {
@@ -177,7 +178,9 @@ namespace Demo.Scripts.Runtime
 
             animator.SetFloat(OverlayType, (float) gun.overlayType);
         }
-        
+
+        public Action<int> OnChangeWeapon;
+
         private void ChangeWeapon_Internal()
         {
             if (movementComponent.PoseState == FPSPoseState.Prone 
@@ -198,6 +201,8 @@ namespace Demo.Scripts.Runtime
             _index = newIndex;
 
             StartWeaponChange();
+
+            OnChangeWeapon?.Invoke(_index);
         }
 
         private void DisableAim()
@@ -243,6 +248,8 @@ namespace Demo.Scripts.Runtime
             InitAimPoint(GetGun());
         }
 
+        public Action OnFire;
+
         private void Fire()
         {
             if (_hasActiveAction) return;
@@ -256,6 +263,8 @@ namespace Demo.Scripts.Runtime
             }
             
             PlayCameraShake(shake);
+
+            OnFire?.Invoke();
         }
 
         private void OnFirePressed()
@@ -342,6 +351,8 @@ namespace Demo.Scripts.Runtime
             slotLayer.PlayMotion(onLandedMotionAsset);
         }
 
+        public Action OnReload;
+
         private void TryReload()
         {
             if (movementComponent.MovementState == FPSMovementState.Sprinting || _hasActiveAction) return;
@@ -355,6 +366,8 @@ namespace Demo.Scripts.Runtime
             
             PlayAnimation(reloadClip);
             GetGun().Reload();
+
+            OnReload?.Invoke();
         }
 
         private void TryGrenadeThrow()
