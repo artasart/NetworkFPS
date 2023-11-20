@@ -250,6 +250,14 @@ namespace Demo.Scripts.Runtime
         {
             if (_hasActiveAction) return;
             
+            var gun = GetGun();
+
+            if (gun.currentAmmo <= 0)
+            {
+                OnFireReleased();
+                return;
+            }
+
             GetGun().OnFire();
             PlayAnimation(GetGun().fireClip);
             
@@ -260,8 +268,7 @@ namespace Demo.Scripts.Runtime
             
             PlayCameraShake(shake);
 
-            var aimPoint = GetGun().GetAimPoint();
-            OnFire?.Invoke(aimPoint);
+            OnFire?.Invoke();
         }
 
         private void OnFirePressed()
@@ -274,7 +281,7 @@ namespace Demo.Scripts.Runtime
             _fireTimer = 0f;
         }
 
-        private Weapon GetGun()
+        public Weapon GetGun()
         {
             if (weapons.Count == 0) return null;
             
@@ -633,9 +640,12 @@ namespace Demo.Scripts.Runtime
         {
             Time.timeScale = timeScale;
 
-            UpdateActionInput();
-            UpdateLookInput();
-            UpdateFiring();
+            if(inputEnabled)
+            {
+                UpdateActionInput();
+                UpdateLookInput();
+                UpdateFiring();
+            }
 
             charAnimData.moveInput = movementComponent.AnimatorVelocity;
 
@@ -658,9 +668,11 @@ namespace Demo.Scripts.Runtime
             mainCamera.rotation = cameraHolder.rotation * Quaternion.Euler(_freeLookInput.y, _freeLookInput.x, 0f);
         }
 
-        public Action<Transform> OnFire;
+        public Action OnFire;
         public Action OnReload;
         public Action<int> OnChangeWeapon;
+
+        private bool inputEnabled = true;
 
         public void MakePacket(ref Protocol.FPS_Animation pkt)
         {
@@ -672,6 +684,11 @@ namespace Demo.Scripts.Runtime
             pkt.LookX = _playerInput.x;
             pkt.LookY = _playerInput.y;
             pkt.Aiming = _aiming;
+        }
+
+        public void enableInput(bool enable)
+        {
+            inputEnabled = enable;
         }
     }
 }

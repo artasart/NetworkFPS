@@ -1,4 +1,5 @@
-﻿using Framework.Network;
+﻿using Demo.Scripts.Runtime;
+using Framework.Network;
 using Protocol;
 using System.Collections.Generic;
 using UnityEngine;
@@ -69,12 +70,13 @@ public class Client : Connection
 
             if(isMine)
                 prefab = Resources.Load<GameObject>("Demo/Prefabs/Generic/PlayerCharacter");
-                //prefab = Resources.Load<GameObject>("Prefab/FPSMan");
             else
                 prefab = Resources.Load<GameObject>("Demo/Prefabs/Generic/PlayerCharacter_Other");
-                //prefab = Resources.Load<GameObject>("Prefab/FPSManOther");
 
             GameObject player = UnityEngine.Object.Instantiate(prefab, position, rotation);
+
+            if (isMine)
+                GameUIManager.Instance.FetchPanel<Panel_HUD>().SetController(player.GetComponent<FPSController>());
 
             player.GetComponent<NetworkObject>().Client = this;
             player.GetComponent<NetworkObject>().id = gameObject.PlayerId;
@@ -110,7 +112,6 @@ public class Client : Connection
             UnityEngine.Object.Destroy(gameObject.Value);
         }
 
-        //GameManager.UI.FetchPanel<Panel_HUD>().Clear();
         gameObjects.Clear();
     }
 

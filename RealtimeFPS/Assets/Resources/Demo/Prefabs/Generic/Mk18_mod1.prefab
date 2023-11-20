@@ -62,6 +62,8 @@ MonoBehaviour:
   scopes:
   - {fileID: 447321888450830617}
   - {fileID: 2382635355684495694}
+  maxAmmo: 40
+  currentAmmo: 40
 --- !u!1 &177094813266833730
 GameObject:
   m_ObjectHideFlags: 0

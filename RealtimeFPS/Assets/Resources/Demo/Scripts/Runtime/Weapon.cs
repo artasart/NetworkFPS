@@ -30,6 +30,9 @@ namespace Demo.Scripts.Runtime
 
         private int _stagedSegments;
 
+        public int maxAmmo;
+        public int currentAmmo;
+
         protected void Start()
         {
             _animator = GetComponentInChildren<Animator>();
@@ -49,7 +52,7 @@ namespace Demo.Scripts.Runtime
             _scopeIndex = _scopeIndex > scopes.Count - 1 ? 0 : _scopeIndex;
             return scopes[_scopeIndex];
         }
-        
+
         public void OnFire()
         {
             if (_animator == null)
@@ -58,6 +61,8 @@ namespace Demo.Scripts.Runtime
             }
 
             _animator.Play("Fire", 0, 0f);
+
+            currentAmmo--;
         }
 
         public void Reload()
@@ -69,6 +74,8 @@ namespace Demo.Scripts.Runtime
             
             _animator.Rebind();
             _animator.Play("Reload", 0);
+
+            currentAmmo = maxAmmo;
         }
     }
 }

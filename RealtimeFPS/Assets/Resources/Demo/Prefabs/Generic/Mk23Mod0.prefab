@@ -95,6 +95,8 @@ MonoBehaviour:
   stagedReloadSegment: 0
   scopes:
   - {fileID: 6506212990733282748}
+  maxAmmo: 12
+  currentAmmo: 12
 --- !u!1 &5480914323491122808
 GameObject:
   m_ObjectHideFlags: 0

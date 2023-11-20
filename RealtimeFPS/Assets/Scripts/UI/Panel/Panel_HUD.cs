@@ -1,12 +1,15 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
+using Demo.Scripts.Runtime;
+using Newtonsoft.Json.Converters;
+using Unity.VisualScripting;
 
 public class Panel_HUD : Panel_Base
 {
     TMP_Text txtmp_BulletCount;
     TMP_Text txtmp_Health;
+
+    FPSController controllerComponent;
 
     protected override void Awake()
     {
@@ -16,15 +19,44 @@ public class Panel_HUD : Panel_Base
         txtmp_Health = transform.Search("txtmp_Health").GetComponent<TMP_Text>();
     }
 
-    //public void Clear()
-    //{
-    //    txtmp_BulletCount.text = "";
-    //    txtmp_Health.text = "";
-    //}
-
-    public void UpdateBulletCount(int currentBullet, int maxBullet)
+    public void Clear()
     {
-        txtmp_BulletCount.text = $"{currentBullet} / {maxBullet}";
+        txtmp_BulletCount.text = "";
+        txtmp_Health.text = "";
+    }
+
+    public void SetController(FPSController controllerComponent)
+    {
+        this.controllerComponent = controllerComponent;
+        this.controllerComponent.OnFire += OnFire;
+        this.controllerComponent.OnReload += OnReload;
+        this.controllerComponent.OnChangeWeapon += OnChangeWeapon;
+
+        var gun = controllerComponent.GetGun();
+        SetAmmoUI(gun.currentAmmo, gun.maxAmmo);
+    }
+
+    public void OnFire()
+    {
+        var gun = controllerComponent.GetGun();
+        SetAmmoUI(gun.currentAmmo, gun.maxAmmo);
+    }
+
+    public void OnReload()
+    {
+        var gun = controllerComponent.GetGun();
+        SetAmmoUI(gun.maxAmmo, gun.maxAmmo);
+    }
+
+    public void OnChangeWeapon(int weaponId)
+    {
+        var gun = controllerComponent.GetGun();
+        SetAmmoUI(gun.currentAmmo, gun.maxAmmo);
+    }
+
+    public void SetAmmoUI(int current, int max)
+    {
+        txtmp_BulletCount.text = $"{current} / {max}";
     }
 
     public void UpdateHealth(int _health)
@@ -35,14 +67,18 @@ public class Panel_HUD : Panel_Base
     public override void OnOpen()
     {
         Show(true);
+        Cursor.visible = false;
         Cursor.lockState = CursorLockMode.Locked;
-        //FindObjectOfType<FPSController_backup>()?.LockCameraInput(false);
+
+        controllerComponent?.enableInput(true);
     }
 
     public override void OnClose()
     {
         Show(false);
+        Cursor.visible = true;
         Cursor.lockState = CursorLockMode.None;
-        //FindObjectOfType<FPSController_backup>()?.LockCameraInput(true);
+
+        controllerComponent?.enableInput(false);
     }
 }
