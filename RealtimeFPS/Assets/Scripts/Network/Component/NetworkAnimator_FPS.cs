@@ -51,9 +51,12 @@ public class NetworkAnimator_FPS : MonoBehaviour
         }
     }
 
-    private void OnFire()
+    private void OnFire(Transform aimPoint)
     {
         Protocol.C_SHOOT pkt = new Protocol.C_SHOOT();
+
+        pkt.Position = NetworkUtils.UnityVector3ToProtocolVector3(aimPoint.position);
+        pkt.Direction = NetworkUtils.UnityVector3ToProtocolVector3(aimPoint.forward);
 
         networkObject.Client.Send(PacketManager.MakeSendBuffer(pkt));
     }

@@ -179,8 +179,6 @@ namespace Demo.Scripts.Runtime
             animator.SetFloat(OverlayType, (float) gun.overlayType);
         }
 
-        public Action<int> OnChangeWeapon;
-
         private void ChangeWeapon_Internal()
         {
             if (movementComponent.PoseState == FPSPoseState.Prone 
@@ -248,8 +246,6 @@ namespace Demo.Scripts.Runtime
             InitAimPoint(GetGun());
         }
 
-        public Action OnFire;
-
         private void Fire()
         {
             if (_hasActiveAction) return;
@@ -264,7 +260,8 @@ namespace Demo.Scripts.Runtime
             
             PlayCameraShake(shake);
 
-            OnFire?.Invoke();
+            var aimPoint = GetGun().GetAimPoint();
+            OnFire?.Invoke(aimPoint);
         }
 
         private void OnFirePressed()
@@ -350,8 +347,6 @@ namespace Demo.Scripts.Runtime
         {
             slotLayer.PlayMotion(onLandedMotionAsset);
         }
-
-        public Action OnReload;
 
         private void TryReload()
         {
@@ -484,9 +479,6 @@ namespace Demo.Scripts.Runtime
         private Quaternion moveRotation;
         private float turnProgress = 1f;
         private bool isTurning = false;
-
-        public bool test_turn = false;
-        public bool trigger_right = false;
 
         private void TurnInPlace()
         {
@@ -649,24 +641,6 @@ namespace Demo.Scripts.Runtime
 
             UpdateTimer();
             UpdateAnimController();
-
-            //{
-            //    if (Input.GetKeyDown(KeyCode.R))
-            //    {
-            //        Protocol.C_RELOAD reload = new Protocol.C_RELOAD();
-            //        networkObject.Client.Send(PacketManager.MakeSendBuffer(reload));
-            //    }
-            //}
-
-            //{
-            //    if(Input.GetKeyDown(KeyCode.F))
-            //    {
-            //        Protocol.C_CHANGE_WEAPON changeWeapon = new Protocol.C_CHANGE_WEAPON();
-            //        changeWeapon.WeaponId = _index;
-            //        changeWeapon.Timestamp = networkObject.Client.calcuatedServerTime;
-            //        networkObject.Client.Send(PacketManager.MakeSendBuffer(changeWeapon));
-            //    }                
-            //}
         }
 
         private Quaternion _smoothBodyCam;
@@ -683,6 +657,10 @@ namespace Demo.Scripts.Runtime
 
             mainCamera.rotation = cameraHolder.rotation * Quaternion.Euler(_freeLookInput.y, _freeLookInput.x, 0f);
         }
+
+        public Action<Transform> OnFire;
+        public Action OnReload;
+        public Action<int> OnChangeWeapon;
 
         public void MakePacket(ref Protocol.FPS_Animation pkt)
         {
