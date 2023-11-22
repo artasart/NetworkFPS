@@ -2,8 +2,9 @@
 using Framework.Network;
 using Protocol;
 using System.Collections.Generic;
-using Unity.VisualScripting.FullSerializer;
 using UnityEngine;
+using Vector3 = UnityEngine.Vector3;
+using Quaternion = UnityEngine.Quaternion;
 
 public class Client : Connection
 {
@@ -62,8 +63,8 @@ public class Client : Connection
         {
             bool isMine = gameObject.PlayerId == myPlayerId;
 
-            UnityEngine.Vector3 position = new(gameObject.Position.X, gameObject.Position.Y, gameObject.Position.Z);
-            Quaternion rotation = Quaternion.Euler(gameObject.Rotation.X, gameObject.Rotation.Y, gameObject.Rotation.Z);
+            Vector3 position = NetworkUtils.ConvertVector3(gameObject.Position);
+            Quaternion rotation = NetworkUtils.ConvertQuaternion(gameObject.Rotation);
 
             GameObject prefab;
 

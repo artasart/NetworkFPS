@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using Unity.Mathematics;
 using UnityEngine;
 using Vector3 = UnityEngine.Vector3;
+using Quaternion = UnityEngine.Quaternion;
 
 namespace Framework.Network
 {
@@ -133,7 +134,7 @@ namespace Framework.Network
 						C_SET_FPS_ROTATION packet = new()
 						{
 							PlayerId = networkObject.id,
-							Rotation = NetworkUtils.ConvertVector3(transform.eulerAngles)
+							Rotation = NetworkUtils.ConvertQuaternion(transform.rotation)
 						};
 
 						networkObject.Client.Send(PacketManager.MakeSendBuffer(packet));
@@ -224,7 +225,7 @@ namespace Framework.Network
 
 			remoteUpdateRotation = Timing.RunCoroutine(
 				RemoteUpdateRotation(
-						NetworkUtils.ProtocolVector3ToUnityQuaternion(packet.Rotation)
+						NetworkUtils.ConvertQuaternion(packet.Rotation)
 					)
 				);
 		}
