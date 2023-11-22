@@ -102,8 +102,8 @@ namespace Framework.Network
 						{
 							PlayerId = networkObject.id,
 							Timestamp = networkObject.Client.calcuatedServerTime,
-							Position = NetworkUtils.UnityVector3ToProtocolVector3(transform.position),
-							Velocity = NetworkUtils.UnityVector3ToProtocolVector3(velocity)
+							Position = NetworkUtils.ConvertVector3(transform.position),
+							Velocity = NetworkUtils.ConvertVector3(velocity)
 						};
 
 						networkObject.Client.Send(PacketManager.MakeSendBuffer(packet));
@@ -133,7 +133,7 @@ namespace Framework.Network
 						C_SET_FPS_ROTATION packet = new()
 						{
 							PlayerId = networkObject.id,
-							Rotation = NetworkUtils.UnityVector3ToProtocolVector3(transform.eulerAngles)
+							Rotation = NetworkUtils.ConvertVector3(transform.eulerAngles)
 						};
 
 						networkObject.Client.Send(PacketManager.MakeSendBuffer(packet));
@@ -164,8 +164,8 @@ namespace Framework.Network
 
 			float timeGap;
 
-			Vector3 packetPosition = NetworkUtils.ProtocolVector3ToUnityVector3(packet.Position);
-			velocity = NetworkUtils.ProtocolVector3ToUnityVector3(packet.Velocity);
+			Vector3 packetPosition = NetworkUtils.ConvertVector3(packet.Position);
+			velocity = NetworkUtils.ConvertVector3(packet.Velocity);
 			Vector3 predictedPosition;
 
 			timeGap = networkObject.Client.calcuatedServerTime - packet.Timestamp;

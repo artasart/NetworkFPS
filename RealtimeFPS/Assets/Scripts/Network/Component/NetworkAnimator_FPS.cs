@@ -57,8 +57,8 @@ public class NetworkAnimator_FPS : MonoBehaviour
 
         Transform aimPoint = controllerComponent.GetGun().GetAimPoint();
 
-        pkt.Position = NetworkUtils.UnityVector3ToProtocolVector3(aimPoint.position);
-        pkt.Direction = NetworkUtils.UnityVector3ToProtocolVector3(aimPoint.forward);
+        pkt.Position = NetworkUtils.ConvertVector3(aimPoint.position);
+        pkt.Direction = NetworkUtils.ConvertVector3(aimPoint.forward);
 
         networkObject.Client.Send(PacketManager.MakeSendBuffer(pkt));
     }

@@ -23,7 +23,9 @@ public class GameUIManager : SingletonManager<GameUIManager>
 	GameObject group_MasterCanvas;
 	GameObject group_Panel;
 
-	public Canvas MasterCanvas { get => group_MasterCanvas.GetComponent<Canvas>(); }
+	bool isInitialized;
+
+    public Canvas MasterCanvas { get => group_MasterCanvas.GetComponent<Canvas>(); }
 
 	#endregion
 
@@ -36,6 +38,8 @@ public class GameUIManager : SingletonManager<GameUIManager>
 		group_Panel = GameObject.Find(nameof(group_Panel));
 
 		CacheUI(group_Panel, panels);
+
+		isInitialized = true;
 	}
 
     private void OnDestroy()
@@ -206,5 +210,18 @@ public class GameUIManager : SingletonManager<GameUIManager>
 		yield return Timing.WaitForOneFrame;
 	}
 
-	#endregion
+    public void Restart()
+    {
+        if (!isInitialized) return;
+
+        panels.Clear();
+
+        group_MasterCanvas = GameObject.Find("go_Canvas");
+
+        group_Panel = GameObject.Find(nameof(group_Panel));
+
+        CacheUI(group_Panel, panels);
+    }
+
+    #endregion
 }

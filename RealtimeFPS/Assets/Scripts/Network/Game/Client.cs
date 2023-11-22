@@ -2,6 +2,7 @@
 using Framework.Network;
 using Protocol;
 using System.Collections.Generic;
+using Unity.VisualScripting.FullSerializer;
 using UnityEngine;
 
 public class Client : Connection
@@ -14,12 +15,16 @@ public class Client : Connection
 	public Client()
 	{
         packetHandler.AddHandler(OnEnter);
+        packetHandler.AddHandler(OnLoad);
+        packetHandler.AddHandler(OnStart);
+
         packetHandler.AddHandler(OnInstantiateGameObject);
         packetHandler.AddHandler(OnAddGameObject);
         packetHandler.AddHandler(OnRemoveGameObject);
         packetHandler.AddHandler(OnDisconnected);
         packetHandler.AddHandler(DisplayPing);
         packetHandler.AddHandler(OnAttacked);
+        packetHandler.AddHandler(OnItemOccupied);
     }
 
     ~Client()
@@ -34,22 +39,16 @@ public class Client : Connection
             Debug.Log(pkt.Result);
             return;
         }
+    }
 
-        {
-            C_GET_GAME_OBJECT packet = new();
+    public void OnLoad(S_FPS_LOAD pkt)
+    {
+        GameManager.Scene.LoadScene(SceneName.Main);
+    }
 
-            Send(PacketManager.MakeSendBuffer(packet));
-        }
-
-        {
-            C_INSTANTIATE_FPS_PLAYER packet = new()
-            {
-                Position = NetworkUtils.UnityVector3ToProtocolVector3(UnityEngine.Vector3.zero),
-                Rotation = NetworkUtils.UnityVector3ToProtocolVector3(UnityEngine.Vector3.zero),
-            };
-
-            Send(PacketManager.MakeSendBuffer(packet));
-        }
+    public void OnStart(S_FPS_START pkt)
+    {
+        GameManager.Scene.Fade(false);
     }
 
     public void OnInstantiateGameObject( S_INSTANTIATE_GAME_OBJECT pkt )
@@ -124,5 +123,10 @@ public class Client : Connection
     {
         if (pkt.Playerid == myPlayerId)
             GameManager.UI.FetchPanel<Panel_HUD>().UpdateHealth(pkt.Hp);
+    }
+
+    private void OnItemOccupied(Protocol.S_FPS_ITEM_OCCUPIED pkt)
+    {
+        Debug.Log("item Occupied : " + pkt.Occupier);
     }
 }

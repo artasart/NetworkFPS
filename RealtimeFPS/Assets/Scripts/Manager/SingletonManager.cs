@@ -5,6 +5,7 @@ public static class GameManager
     public static GameUIManager UI { get { return GameUIManager.Instance; } }
     public static GameSceneManager Scene { get { return GameSceneManager.Instance; } }
     public static GameSoundManager Sound { get { return GameSoundManager.Instance; } }
+    public static NetworkManager Network { get { return NetworkManager.Instance; } }
 }
 
 public class SingletonManager<T> : MonoBehaviour where T : MonoBehaviour

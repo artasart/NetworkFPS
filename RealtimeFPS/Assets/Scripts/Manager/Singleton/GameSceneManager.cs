@@ -8,7 +8,8 @@ public enum SceneName
 	Logo,
 	Title,
 	Login,
-	Main
+	Main,
+	Lobby
 }
 
 public class GameSceneManager : SingletonManager<GameSceneManager>
@@ -134,18 +135,21 @@ public class GameSceneManager : SingletonManager<GameSceneManager>
 		switch(_sceneName)
 		{
 			case SceneName.Logo:
-				sceneName = "01_" + _sceneName.ToString();
+				sceneName = _sceneName.ToString();
 				break;
 			case SceneName.Title:
-				sceneName = "02_" + _sceneName.ToString();
+				sceneName = _sceneName.ToString();
 				break;
 			case SceneName.Login:
-				sceneName = "03_" + _sceneName.ToString();
+				sceneName = _sceneName.ToString();
 				break;
 			case SceneName.Main:
-				sceneName = "04_" + _sceneName.ToString();
+				sceneName = _sceneName.ToString();
 				break;
-		}
+            case SceneName.Lobby:
+                sceneName = _sceneName.ToString();
+                break;
+        }
 
 		return sceneName;
 	}

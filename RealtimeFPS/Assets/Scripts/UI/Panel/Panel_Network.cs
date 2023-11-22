@@ -1,5 +1,6 @@
 using Framework.Network;
 using Protocol;
+using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -33,7 +34,7 @@ public class Panel_Network : Panel_Base
             clientId = inputField_ClientId.placeholder.GetComponent<TMP_Text>().text;
         }
 
-        GameClientManager.Instance.Connect(clientId);
+        NetworkManager.Instance.Connect(clientId);
     }
 
     public void SetConnetButtonState(bool state)
@@ -43,7 +44,7 @@ public class Panel_Network : Panel_Base
 
     private void OnClick_Disconnect()
     {
-        GameClientManager.Instance.Disconnect();
+        NetworkManager.Instance.Disconnect();
     }
 
     public void SetDisconnectButtonState(bool state)
