@@ -7,12 +7,12 @@ public class Scene_Lobby : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        
-    }
+        GameUIManager.Instance.Restart();
 
-    // Update is called once per frame
-    void Update()
-    {
-        
+        Cursor.visible = true;
+        Cursor.lockState = CursorLockMode.None;
+
+        GameManager.UI.OpenPanel<Panel_Network>();
+        GameManager.Scene.Fade(false);
     }
 }

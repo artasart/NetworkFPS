@@ -18,6 +18,7 @@ public class Client : Connection
         packetHandler.AddHandler(OnEnter);
         packetHandler.AddHandler(OnLoad);
         packetHandler.AddHandler(OnStart);
+        packetHandler.AddHandler(OnFinish);
 
         packetHandler.AddHandler(OnInstantiateGameObject);
         packetHandler.AddHandler(OnAddGameObject);
@@ -52,6 +53,12 @@ public class Client : Connection
         GameManager.Scene.Fade(false);
     }
 
+    public void OnFinish(S_FPS_FINISH pkt)
+    {
+        GameManager.Scene.Fade(true);
+        GameManager.Scene.LoadScene(SceneName.Lobby);
+    }
+
     public void OnInstantiateGameObject( S_INSTANTIATE_GAME_OBJECT pkt )
     {
         myPlayerId = pkt.GameObjectId;
@@ -76,7 +83,10 @@ public class Client : Connection
             GameObject player = UnityEngine.Object.Instantiate(prefab, position, rotation);
 
             if (isMine)
+            {
                 GameUIManager.Instance.FetchPanel<Panel_HUD>().SetController(player.GetComponent<FPSController>());
+                GameManager.UI.FetchPanel<Panel_HUD>().UpdateHealth(100);
+            }
 
             player.GetComponent<NetworkObject>().Client = this;
             player.GetComponent<NetworkObject>().id = gameObject.PlayerId;

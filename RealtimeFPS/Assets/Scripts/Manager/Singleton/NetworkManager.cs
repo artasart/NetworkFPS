@@ -89,10 +89,10 @@ public class NetworkManager : SingletonManager<NetworkManager>
 
             Client.Send(PacketManager.MakeSendBuffer(enter));
 
-            GameManager.UI.FetchPanel<Panel_Network>().SetConnetButtonState(false);
-            GameManager.UI.FetchPanel<Panel_Network>().SetDisconnectButtonState(true);
+            GameManager.UI.FetchPanel<Panel_Network>()?.SetConnetButtonState(false);
+            GameManager.UI.FetchPanel<Panel_Network>()?.SetDisconnectButtonState(true);
 
-            GameManager.UI.ClosePanel<Panel_Network>();
+            GameManager.UI.FetchPanel<Panel_Network>()?.SetReadyButtonState(true);
         }
     }
 
@@ -108,5 +108,8 @@ public class NetworkManager : SingletonManager<NetworkManager>
 
         GameManager.UI.FetchPanel<Panel_Network>()?.SetDisconnectButtonState(false);
         GameManager.UI.FetchPanel<Panel_Network>()?.SetConnetButtonState(true);
+
+        GameManager.UI.FetchPanel<Panel_Network>()?.SetReadyButtonState(false);
+        GameManager.UI.FetchPanel<Panel_Network>()?.SetUnReadyButtonState(false);
     }
 }
