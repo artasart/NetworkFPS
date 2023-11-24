@@ -674,7 +674,7 @@ namespace Demo.Scripts.Runtime
 
         private bool inputEnabled = true;
 
-        public void MakePacket(ref Protocol.FPS_Animation pkt)
+        public void MakePacket(ref Protocol.FPSAnimation pkt)
         {
             pkt.IsTurning = isTurning;
 

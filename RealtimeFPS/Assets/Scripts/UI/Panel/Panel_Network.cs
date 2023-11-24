@@ -93,7 +93,7 @@ public class Panel_Network : Panel_Base
         SetReadyButtonState(false);
         SetUnReadyButtonState(false);
 
-        if(Client == null)
+        if(Client.State != ConnectionState.Connected)
         {
             SetConnetButtonState(true);
             SetDisconnectButtonState(false);

@@ -21,6 +21,11 @@ public class NetworkManager : SingletonManager<NetworkManager>
 
     private readonly string query = "/Room/FPS";
 
+    private void Awake()
+    {
+        Client = (Client)ConnectionManager.GetConnection<Client>();
+    }
+
     private void OnDestroy()
     {
         Disconnect();
@@ -75,8 +80,6 @@ public class NetworkManager : SingletonManager<NetworkManager>
             return;
         }
 
-        Client = (Client)ConnectionManager.GetConnection<Client>();
-
         bool success = await ConnectionManager.Connect(endPoint, Client);
         if (success)
         {
@@ -98,13 +101,7 @@ public class NetworkManager : SingletonManager<NetworkManager>
 
     public void Disconnect()
     {
-        if (Client == null)
-        {
-            return;
-        }
-
         Client.Send(PacketManager.MakeSendBuffer(new C_LEAVE()));
-        Client = null;
 
         GameManager.UI.FetchPanel<Panel_Network>()?.SetDisconnectButtonState(false);
         GameManager.UI.FetchPanel<Panel_Network>()?.SetConnetButtonState(true);
