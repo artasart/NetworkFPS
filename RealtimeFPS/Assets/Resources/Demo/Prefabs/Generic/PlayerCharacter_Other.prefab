@@ -365,7 +365,6 @@ GameObject:
   - component: {fileID: -6789627710406952921}
   - component: {fileID: 4221801357733014496}
   - component: {fileID: 4405313977069937137}
-  - component: {fileID: -9057913249836718836}
   m_Layer: 0
   m_Name: PlayerCharacter_Other
   m_TagString: Untagged
@@ -523,20 +522,6 @@ MonoBehaviour:
   networkObject: {fileID: -6789627710406952921}
   controllerComponent: {fileID: 8601048764741485172}
   movementComponent: {fileID: 3426264325364372910}
---- !u!114 &-9057913249836718836
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8314422345246962827}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e856d283d2887a24585cb601b3334b1c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  networkObject: {fileID: 0}
-  hp: 100
 --- !u!1 &8424496636742518228
 GameObject:
   m_ObjectHideFlags: 0

@@ -172,7 +172,7 @@ public class FPSMovement_Remote : MonoBehaviour
 
     #endregion
 
-    public IEnumerator<float> UpdateAnimation( Protocol.FPSAnimation pkt, float interval )
+    public IEnumerator<float> UpdateAnimation( Protocol.FPS_Animation pkt, float interval )
     {
         float delTime = 0.0f;
 

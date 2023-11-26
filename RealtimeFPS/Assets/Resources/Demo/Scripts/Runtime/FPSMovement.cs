@@ -447,7 +447,7 @@ namespace Demo.Scripts.Runtime
             UpdateAnimatorParams();
         }
 
-        public void MakePacket(ref Protocol.FPSAnimation pkt)
+        public void MakePacket(ref Protocol.FPS_Animation pkt)
         {
             pkt.MoveX = _animator.GetFloat(MoveX);
             pkt.MoveY = _animator.GetFloat(MoveY);
