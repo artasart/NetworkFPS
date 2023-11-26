@@ -3,16 +3,14 @@ using Google.Protobuf;
 using MEC;
 using System;
 using System.Collections.Generic;
-using System.Threading;
 using UnityEngine;
-using UnityEngine.InputSystem.XR;
 
 namespace Framework.Network
 {
     public enum ConnectionState
     {
-        NORMAL,
-        CLOSED
+        Idle,
+        Connected
     }
 
     public class Connection
@@ -36,9 +34,14 @@ namespace Framework.Network
         public PacketHandler packetHandler { get; }
 
         protected ConnectionState state;
+        public ConnectionState State => state;
 
         protected Action connectedHandler;
         protected Action disconnectedHandler;
+
+        CoroutineHandle ping;
+        CoroutineHandle updateServerTime;
+        CoroutineHandle packetUpdate;
 
         private readonly Queue<long> pings;
         public long pingAverage;
@@ -48,14 +51,9 @@ namespace Framework.Network
         private float deltaTime;
         readonly System.Diagnostics.Stopwatch stopwatch;
 
-        ~Connection()
-        {
-            UnityEngine.Debug.Log("Connection Destructor");
-        }
-
         public Connection()
         {
-            state = ConnectionState.NORMAL;
+            state = ConnectionState.Idle;
 
             packetHandler = new PacketHandler();
             packetHandler.AddHandler(Handle_S_ENTER);
@@ -71,20 +69,32 @@ namespace Framework.Network
 
             stopwatch = new();
 
-            Ping().Forget();
-            UpdateServerTime().Forget();
+            ping = Timing.RunCoroutine(Ping());
+            updateServerTime = Timing.RunCoroutine(UpdateServerTime());
             //순서 중요, UpdateServerTime 이후에 PacketUpdate 실행
-            //AsyncPacketUpdate().Forget();
-            Timing.RunCoroutine(AsyncPacketUpdate_coroutine());
+            packetUpdate = Timing.RunCoroutine(PacketUpdate());
+        }
+
+        ~Connection()
+        {
+            UnityEngine.Debug.Log("Connection Destructor");
+
+            Timing.KillCoroutines(packetUpdate);
+            Timing.KillCoroutines(updateServerTime);
+            Timing.KillCoroutines(ping);
         }
 
         private void _OnConnected()
         {
+            state = ConnectionState.Connected;
+
             connectedHandler?.Invoke();
         }
 
         private void _OnDisconnected()
         {
+            state = ConnectionState.Idle;
+
             disconnectedHandler?.Invoke();
         }
 
@@ -95,12 +105,8 @@ namespace Framework.Network
 
         public void Send( ArraySegment<byte> pkt )
         {
-            if (session == null)
-            {
-                return;
-            }
-
-            Session.Send(pkt);
+            if (state == ConnectionState.Connected)
+                Session.Send(pkt);
         }
 
         private void Handle_S_ENTER( Protocol.S_ENTER pkt )
@@ -146,72 +152,59 @@ namespace Framework.Network
 
         public void Close()
         {
-            if (state == ConnectionState.CLOSED)
+            if (state == ConnectionState.Idle)
             {
                 return;
             }
 
-            state = ConnectionState.CLOSED;
+            state = ConnectionState.Idle;
 
             ConnectionManager.RemoveConnection(this);
 
             session?.RegisterDisconnect();
         }
 
-        public async UniTaskVoid Ping()
+        IEnumerator<float> Ping()
         {
             Protocol.C_PING ping = new();
 
-            while (state == ConnectionState.NORMAL)
+            while (true)
             {
-                ping.Tick = (long)(DateTime.UtcNow - new DateTime(1970, 1, 1)).TotalMilliseconds;
-                Send(PacketManager.MakeSendBuffer(ping));
-
-                await UniTask.Delay(TimeSpan.FromSeconds(0.2));
-            }
-        }
-
-        public async UniTaskVoid AsyncPacketUpdate()
-        {
-            while (state == ConnectionState.NORMAL || !PacketQueue.Empty())
-            {
-                System.Collections.Generic.List<PacketMessage> packets = PacketQueue.PopAll();
-
-                for (int i = 0; i < packets.Count; i++)
+                if (state == ConnectionState.Connected)
                 {
-                    PacketMessage packet = packets[i];
-                    
-                    packetHandler.Handlers.TryGetValue(packet.Id, out Action<IMessage> handler);
-                    
-                    handler?.Invoke(packet.Message);
+                    ping.Tick = (long)(DateTime.UtcNow - new DateTime(1970, 1, 1)).TotalMilliseconds;
+                    Send(PacketManager.MakeSendBuffer(ping));
                 }
 
-                await UniTask.Yield();
+                yield return Timing.WaitForSeconds(0.2f);
             }
         }
 
-        private IEnumerator<float> AsyncPacketUpdate_coroutine()
+        private IEnumerator<float> PacketUpdate()
         {
-            while (state == ConnectionState.NORMAL || !PacketQueue.Empty())
+            while (true)
             {
-                System.Collections.Generic.List<PacketMessage> packets = PacketQueue.PopAll();
-
-                for (int i = 0; i < packets.Count; i++)
+                if(state == ConnectionState.Connected || !PacketQueue.Empty())
                 {
-                    PacketMessage packet = packets[i];
+                    System.Collections.Generic.List<PacketMessage> packets = PacketQueue.PopAll();
 
-                    packetHandler.Handlers.TryGetValue(packet.Id, out Action<IMessage> handler);
+                    for (int i = 0; i < packets.Count; i++)
+                    {
+                        PacketMessage packet = packets[i];
 
-                    handler?.Invoke(packet.Message);
+                        packetHandler.Handlers.TryGetValue(packet.Id, out Action<IMessage> handler);
+
+                        handler?.Invoke(packet.Message);
+                    }
                 }
 
                 yield return Timing.WaitForOneFrame;
             }
         }
 
-        public async UniTaskVoid UpdateServerTime()
+        private IEnumerator<float> UpdateServerTime()
         {
-            while (state == ConnectionState.NORMAL)
+            while (true)
             {
                 if (stopwatch.IsRunning)
                 {
@@ -229,7 +222,7 @@ namespace Framework.Network
                     calcuatedServerTime = serverTime + (long)Math.Round(deltaTime * 1000, 1);
                 }
 
-                await UniTask.Yield();
+                yield return Timing.WaitForOneFrame;
             }
         }
     }

@@ -55,7 +55,7 @@ public class NetworkAnimator_FPS_Remote : MonoBehaviour
         updateAnimation = Timing.RunCoroutine(movementComponent.UpdateAnimation(pkt.FpsAnimation, interval));
     }
 
-    private void OnFire(Protocol.S_SHOOT pkt)
+    private void OnFire(Protocol.S_FPS_SHOOT pkt)
     {
         if (pkt.PlayerId != networkObject.id)
             return;
@@ -63,7 +63,7 @@ public class NetworkAnimator_FPS_Remote : MonoBehaviour
         controllerComponent.Fire();
     }
 
-    private void OnReload( Protocol.S_RELOAD pkt )
+    private void OnReload( Protocol.S_FPS_RELOAD pkt )
     {
         if (pkt.PlayerId != networkObject.id)
             return;
@@ -71,7 +71,7 @@ public class NetworkAnimator_FPS_Remote : MonoBehaviour
         controllerComponent.Reload();
     }
 
-    private void OnChangeWeapon( Protocol.S_CHANGE_WEAPON pkt )
+    private void OnChangeWeapon( Protocol.S_FPS_CHANGE_WEAPON pkt )
     {
         if (pkt.PlayerId != networkObject.id)
             return;

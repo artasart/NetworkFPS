@@ -33,7 +33,7 @@ public class NetworkAnimator_FPS : MonoBehaviour
     {
         float delTime = 0f;
         Protocol.C_FPS_ANIMATION pkt = new Protocol.C_FPS_ANIMATION();
-        Protocol.FPS_Animation payload = new Protocol.FPS_Animation();
+        Protocol.FPSAnimation payload = new Protocol.FPSAnimation();
         pkt.FpsAnimation = payload;
 
         while (true)
@@ -53,7 +53,7 @@ public class NetworkAnimator_FPS : MonoBehaviour
 
     private void OnFire()
     {
-        Protocol.C_SHOOT pkt = new Protocol.C_SHOOT();
+        Protocol.C_FPS_SHOOT pkt = new Protocol.C_FPS_SHOOT();
 
         Transform aimPoint = controllerComponent.GetGun().GetAimPoint();
 
@@ -65,14 +65,14 @@ public class NetworkAnimator_FPS : MonoBehaviour
 
     private void OnReload()
     {
-        Protocol.C_RELOAD pkt = new Protocol.C_RELOAD();
+        Protocol.C_FPS_RELOAD pkt = new Protocol.C_FPS_RELOAD();
 
         networkObject.Client.Send(PacketManager.MakeSendBuffer(pkt));
     }
 
     private void OnChangeWeapon(int weaponId)
     {
-        Protocol.C_CHANGE_WEAPON pkt = new Protocol.C_CHANGE_WEAPON();
+        Protocol.C_FPS_CHANGE_WEAPON pkt = new Protocol.C_FPS_CHANGE_WEAPON();
         pkt.WeaponId = weaponId;
         pkt.Timestamp = networkObject.Client.calcuatedServerTime;
         networkObject.Client.Send(PacketManager.MakeSendBuffer(pkt));

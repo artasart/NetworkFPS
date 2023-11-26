@@ -43,8 +43,8 @@ namespace Framework.Network
 			}
 			else
 			{
-				networkObject.Client.packetHandler.AddHandler(Handle_S_SET_FPS_POSITION);
-				networkObject.Client.packetHandler.AddHandler(Handle_S_SET_FPS_ROTATION);
+				networkObject.Client.packetHandler.AddHandler(Handle_S_FPS_POSITION);
+				networkObject.Client.packetHandler.AddHandler(Handle_S_FPS_ROTATION);
 
                 remoteUpdatePosition = Timing.RunCoroutine(RemoteUpdatePosition());
 			}
@@ -60,8 +60,8 @@ namespace Framework.Network
 			}
 			else
 			{
-				networkObject.Client.packetHandler.RemoveHandler(Handle_S_SET_FPS_POSITION);
-				networkObject.Client.packetHandler.RemoveHandler(Handle_S_SET_FPS_ROTATION);
+				networkObject.Client.packetHandler.RemoveHandler(Handle_S_FPS_POSITION);
+				networkObject.Client.packetHandler.RemoveHandler(Handle_S_FPS_ROTATION);
 
 				Timing.KillCoroutines(remoteUpdatePosition);
 			}
@@ -99,9 +99,8 @@ namespace Framework.Network
 
 					if (prevVelocity != velocity)
 					{
-						C_SET_FPS_POSITION packet = new()
+						C_FPS_POSITION packet = new()
 						{
-							PlayerId = networkObject.id,
 							Timestamp = networkObject.Client.calcuatedServerTime,
 							Position = NetworkUtils.ConvertVector3(transform.position),
 							Velocity = NetworkUtils.ConvertVector3(velocity)
@@ -131,9 +130,8 @@ namespace Framework.Network
 
 					if (prevRotation != transform.rotation)
 					{
-						C_SET_FPS_ROTATION packet = new()
+						C_FPS_ROTATION packet = new()
 						{
-							PlayerId = networkObject.id,
 							Rotation = NetworkUtils.ConvertQuaternion(transform.rotation)
 						};
 
@@ -156,7 +154,7 @@ namespace Framework.Network
 			}
 		}
 
-		private void Handle_S_SET_FPS_POSITION(S_SET_FPS_POSITION packet)
+		private void Handle_S_FPS_POSITION(S_FPS_POSITION packet)
 		{
 			if (packet.PlayerId != networkObject.id)
 			{
@@ -211,7 +209,7 @@ namespace Framework.Network
 			remoteUpdatePosition = Timing.RunCoroutine(RemoteUpdatePosition());
 		}
 
-		void Handle_S_SET_FPS_ROTATION(Protocol.S_SET_FPS_ROTATION packet)
+		void Handle_S_FPS_ROTATION(Protocol.S_FPS_ROTATION packet)
 		{
 			if (packet.PlayerId != networkObject.id)
 			{
