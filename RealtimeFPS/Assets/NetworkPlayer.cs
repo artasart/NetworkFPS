@@ -28,7 +28,7 @@ public class NetworkPlayer : MonoBehaviour
 
     private void OnAttacked( Protocol.S_FPS_ATTACKED pkt )
     {
-        if (pkt.Playerid == networkObject.id)
+        if (networkObject.isMine && pkt.Playerid == networkObject.id)
             GameManager.UI.FetchPanel<Panel_HUD>()?.UpdateHealth(pkt.Hp);
     }
 }

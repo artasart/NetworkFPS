@@ -7,9 +7,4 @@ public class MyPlayer : MonoBehaviour
     {
         GameUIManager.Instance.OpenPanel<Panel_HUD>();
     }
-
-    private void OnDestroy()
-    {
-        GameUIManager.Instance.ClosePanel<Panel_HUD>();
-    }
 }

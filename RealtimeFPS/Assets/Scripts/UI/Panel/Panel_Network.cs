@@ -15,7 +15,7 @@ public class Panel_Network : Panel_Base
     private Button btn_Ready;
     private Button btn_UnReady;
 
-	protected override void Awake()
+    protected override void Awake()
     {
         base.Awake();
 
@@ -29,7 +29,65 @@ public class Panel_Network : Panel_Base
         btn_UnReady = GetUI_Button(nameof(btn_UnReady), OnClick_UnReady);
     }
 
-	private void OnClick_Connect()
+    private void Start()
+    {
+        NetworkManager.Instance.Client.connectedHandler += OnConnected;
+        NetworkManager.Instance.Client.packetHandler.AddHandler(OnDisconnected);
+    }
+
+    private void OnDestroy()
+    {
+        NetworkManager.Instance.Client.connectedHandler -= OnConnected;
+        NetworkManager.Instance.Client.packetHandler.RemoveHandler(OnDisconnected);
+    }
+
+    public void SetConnetButtonState( bool state )
+    {
+        btn_Connect.interactable = state;
+    }
+
+    public void SetDisconnectButtonState( bool state )
+    {
+        btn_Disconnect.interactable = state;
+    }
+
+    public void SetReadyButtonState( bool state )
+    {
+        btn_Ready.interactable = state;
+    }
+
+    public void SetUnReadyButtonState( bool state )
+    {
+        btn_UnReady.interactable = state;
+    }
+
+    override public void OnOpen()
+    {
+        SetConnetButtonState(NetworkManager.Instance.Client.State != ConnectionState.Connected);
+        SetDisconnectButtonState(NetworkManager.Instance.Client.State == ConnectionState.Connected);
+
+        SetReadyButtonState(NetworkManager.Instance.Client.State == ConnectionState.Connected);
+        SetUnReadyButtonState(false);
+    }
+
+    public void OnConnected()
+    {
+        SetConnetButtonState(false);
+        SetDisconnectButtonState(true);
+
+        SetReadyButtonState(true);
+    }
+
+    public void OnDisconnected(Protocol.S_DISCONNECT pkt)
+    {
+        SetConnetButtonState(true);
+        SetDisconnectButtonState(false);
+
+        SetReadyButtonState(false);
+        SetUnReadyButtonState(false);
+    }
+
+    private void OnClick_Connect()
     {
         string clientId = inputField_ClientId.text;
 
@@ -41,19 +99,9 @@ public class Panel_Network : Panel_Base
         NetworkManager.Instance.Connect(clientId);
     }
 
-    public void SetConnetButtonState(bool state)
-    {
-        btn_Connect.interactable = state;
-    }
-
     private void OnClick_Disconnect()
     {
         NetworkManager.Instance.Disconnect();
-    }
-
-    public void SetDisconnectButtonState(bool state)
-    {
-        btn_Disconnect.interactable = state;
     }
 
     private void OnClick_Ready()
@@ -74,23 +122,5 @@ public class Panel_Network : Panel_Base
 
         SetUnReadyButtonState(false);
         SetReadyButtonState(true);
-    }
-
-    public void SetReadyButtonState(bool state)
-    {
-        btn_Ready.interactable = state;
-    }
-
-    public void SetUnReadyButtonState(bool state)
-    {
-        btn_UnReady.interactable = state;
-    }
-
-    override public void OnOpen()
-    {
-        SetConnetButtonState(NetworkManager.Instance.Client == null);
-        SetDisconnectButtonState(NetworkManager.Instance.Client != null);
-        SetReadyButtonState(NetworkManager.Instance.Client != null);
-        SetUnReadyButtonState(false);
     }
 }

@@ -10,7 +10,6 @@ public class Client : Connection
 	public Client()
 	{
         packetHandler.AddHandler(OnEnter);
-        packetHandler.AddHandler(OnDisconnected);
     }
 
     ~Client()
@@ -18,7 +17,6 @@ public class Client : Connection
         Debug.Log("Client Destructor");
 
         packetHandler.RemoveHandler(OnEnter);
-        packetHandler.RemoveHandler(OnDisconnected);
     }
 
     public void OnEnter( S_ENTER pkt )
@@ -30,18 +28,8 @@ public class Client : Connection
         }
     }
 
-    public void OnDisconnected( S_DISCONNECT pkt )
-    {
-        Debug.Log("Disconnected");
-    }
-
     public void DisplayPing( Protocol.S_PING pkt )
     {
-        //Panel_NetworkInfo.Instance.SetPing((int)pingAverage);
-    }
-
-    private void OnItemOccupied(Protocol.S_FPS_ITEM_OCCUPIED pkt)
-    {
-        Debug.Log("item Occupied : " + pkt.Occupier);
+        Panel_NetworkInfo.Instance.SetPing((int)pingAverage);
     }
 }

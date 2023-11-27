@@ -36,8 +36,8 @@ namespace Framework.Network
         protected ConnectionState state;
         public ConnectionState State => state;
 
-        protected Action connectedHandler;
-        protected Action disconnectedHandler;
+        public Action connectedHandler;
+        public Action disconnectedHandler;
 
         CoroutineHandle ping;
         CoroutineHandle updateServerTime;
@@ -161,8 +161,6 @@ namespace Framework.Network
             }
 
             state = ConnectionState.Closed;
-
-            ConnectionManager.RemoveConnection(this);
 
             session?.RegisterDisconnect();
         }

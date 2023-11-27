@@ -16,7 +16,7 @@ public class SingletonManager<T> : MonoBehaviour where T : MonoBehaviour
     {
         get
         {
-            if (instance == null)
+            if (instance == null && Time.timeScale != 0)
             {
                 instance = FindObjectOfType<T>() ?? new GameObject(typeof(T).Name).AddComponent<T>();
                 DontDestroyOnLoad(instance.gameObject);
@@ -24,5 +24,10 @@ public class SingletonManager<T> : MonoBehaviour where T : MonoBehaviour
 
             return instance;
         }
+    }
+
+    private void OnApplicationQuit()
+    {
+        Time.timeScale = 0;
     }
 }

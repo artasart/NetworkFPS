@@ -21,6 +21,11 @@ public class NetworkManager : SingletonManager<NetworkManager>
 
     private readonly string query = "/Room/FPS";
 
+    private void Awake()
+    {
+        Client = new();
+    }
+
     private void OnDestroy()
     {
         Disconnect();
@@ -63,10 +68,8 @@ public class NetworkManager : SingletonManager<NetworkManager>
 
     public async void Connect( string connectionId )
     {
-        if (Client != null)
-        {
+        if (Client.State == ConnectionState.Connected)
             return;
-        }
 
         IPEndPoint endPoint = await GetAddress();
         if (endPoint == null)
@@ -75,9 +78,7 @@ public class NetworkManager : SingletonManager<NetworkManager>
             return;
         }
 
-        Client = (Client)ConnectionManager.GetConnection<Client>();
-
-        bool success = await ConnectionManager.Connect(endPoint, Client);
+        bool success = await Connector.Connect(endPoint, Client);
         if (success)
         {
             Client.ClientId = connectionId;
@@ -88,26 +89,14 @@ public class NetworkManager : SingletonManager<NetworkManager>
             };
 
             Client.Send(PacketManager.MakeSendBuffer(enter));
-
-            GameManager.UI.FetchPanel<Panel_Network>()?.SetConnetButtonState(false);
-            GameManager.UI.FetchPanel<Panel_Network>()?.SetDisconnectButtonState(true);
-
-            GameManager.UI.FetchPanel<Panel_Network>()?.SetReadyButtonState(true);
         }
     }
 
     public void Disconnect()
     {
-        if (Client == null)
+        if (Client == null || Client.State == ConnectionState.Closed)
             return;
 
         Client.Send(PacketManager.MakeSendBuffer(new C_LEAVE()));
-        Client = null;
-
-        GameManager.UI.FetchPanel<Panel_Network>()?.SetDisconnectButtonState(false);
-        GameManager.UI.FetchPanel<Panel_Network>()?.SetConnetButtonState(true);
-
-        GameManager.UI.FetchPanel<Panel_Network>()?.SetReadyButtonState(false);
-        GameManager.UI.FetchPanel<Panel_Network>()?.SetUnReadyButtonState(false);
     }
 }
