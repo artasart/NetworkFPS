@@ -25,7 +25,7 @@ public class Scene_Main : MonoBehaviour
         NetworkManager.Instance.Client.packetHandler.AddHandler(OnFinish);
         NetworkManager.Instance.Client.packetHandler.AddHandler(OnInstantiate);
         NetworkManager.Instance.Client.packetHandler.AddHandler(OnRemoveGameObject);
-        NetworkManager.Instance.Client.packetHandler.AddHandler(OnItem);
+        NetworkManager.Instance.Client.packetHandler.AddHandler(OnSpawnItem);
         NetworkManager.Instance.Client.packetHandler.AddHandler(OnItemOccupied);
         NetworkManager.Instance.Client.packetHandler.AddHandler(OnSpawnDestination);
         NetworkManager.Instance.Client.packetHandler.AddHandler(OnDestoryDestination);
@@ -40,7 +40,7 @@ public class Scene_Main : MonoBehaviour
         NetworkManager.Instance.Client.packetHandler.RemoveHandler(OnFinish);
         NetworkManager.Instance.Client.packetHandler.RemoveHandler(OnInstantiate);
         NetworkManager.Instance.Client.packetHandler.RemoveHandler(OnRemoveGameObject);
-        NetworkManager.Instance.Client.packetHandler.RemoveHandler(OnItem);
+        NetworkManager.Instance.Client.packetHandler.RemoveHandler(OnSpawnItem);
         NetworkManager.Instance.Client.packetHandler.RemoveHandler(OnItemOccupied);
         NetworkManager.Instance.Client.packetHandler.RemoveHandler(OnSpawnDestination);
         NetworkManager.Instance.Client.packetHandler.RemoveHandler(OnDestoryDestination);
@@ -101,7 +101,7 @@ public class Scene_Main : MonoBehaviour
         }
     }
 
-    void OnItem(Protocol.S_FPS_SPAWN_ITEM pkt)
+    void OnSpawnItem(Protocol.S_FPS_SPAWN_ITEM pkt)
     {
         if(destination != null)
         {
