@@ -21,6 +21,11 @@ public class NetworkPlayer : MonoBehaviour
         networkObject.Client.packetHandler.AddHandler(OnAttacked);
     }
 
+    private void OnDestroy()
+    {
+        networkObject.Client.packetHandler.RemoveHandler(OnAttacked);
+    }
+
     private void OnAttacked( Protocol.S_FPS_ATTACKED pkt )
     {
         if (pkt.Playerid == networkObject.id)

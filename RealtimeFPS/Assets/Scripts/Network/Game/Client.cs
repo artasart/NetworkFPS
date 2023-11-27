@@ -16,6 +16,9 @@ public class Client : Connection
     ~Client()
     {
         Debug.Log("Client Destructor");
+
+        packetHandler.RemoveHandler(OnEnter);
+        packetHandler.RemoveHandler(OnDisconnected);
     }
 
     public void OnEnter( S_ENTER pkt )

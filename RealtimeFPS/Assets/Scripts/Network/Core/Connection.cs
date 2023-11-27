@@ -9,8 +9,8 @@ namespace Framework.Network
 {
     public enum ConnectionState
     {
-        Idle,
-        Connected
+        Connected,
+        Closed
     }
 
     public class Connection
@@ -53,7 +53,7 @@ namespace Framework.Network
 
         public Connection()
         {
-            state = ConnectionState.Idle;
+            state = ConnectionState.Closed;
 
             packetHandler = new PacketHandler();
             packetHandler.AddHandler(Handle_S_ENTER);
@@ -79,6 +79,9 @@ namespace Framework.Network
         {
             UnityEngine.Debug.Log("Connection Destructor");
 
+            packetHandler.RemoveHandler(Handle_S_ENTER);
+            packetHandler.RemoveHandler(Handle_S_DISCONNECTED);
+
             Timing.KillCoroutines(packetUpdate);
             Timing.KillCoroutines(updateServerTime);
             Timing.KillCoroutines(ping);
@@ -93,7 +96,7 @@ namespace Framework.Network
 
         private void _OnDisconnected()
         {
-            state = ConnectionState.Idle;
+            state = ConnectionState.Closed;
 
             disconnectedHandler?.Invoke();
         }
@@ -152,12 +155,12 @@ namespace Framework.Network
 
         public void Close()
         {
-            if (state == ConnectionState.Idle)
+            if (state == ConnectionState.Closed)
             {
                 return;
             }
 
-            state = ConnectionState.Idle;
+            state = ConnectionState.Closed;
 
             ConnectionManager.RemoveConnection(this);
 

@@ -8,21 +8,19 @@ public class Scene_Lobby : MonoBehaviour
 {
     void Start()
     {
-        GameUIManager.Instance.Restart();
-
-        NetworkManager.Instance.Client.packetHandler.AddHandler(OnLoad);
-
         Cursor.visible = true;
         Cursor.lockState = CursorLockMode.None;
 
+        GameUIManager.Instance.Restart();
         GameManager.UI.OpenPanel<Panel_Network>();
-
         GameManager.Scene.Fade(false);
+
+        //NetworkManager.Instance.Client.packetHandler.AddHandler(OnLoad);
     }
 
     private void OnDestroy()
     {
-        NetworkManager.Instance.Client.packetHandler.RemoveHandler(OnLoad);
+        //NetworkManager.Instance.Client.packetHandler.RemoveHandler(OnLoad);
     }
 
     public void OnLoad( S_FPS_LOAD pkt )

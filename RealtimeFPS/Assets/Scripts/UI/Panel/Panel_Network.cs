@@ -88,22 +88,9 @@ public class Panel_Network : Panel_Base
 
     override public void OnOpen()
     {
-        var Client = NetworkManager.Instance.Client;
-
-        SetReadyButtonState(false);
+        SetConnetButtonState(NetworkManager.Instance.Client == null);
+        SetDisconnectButtonState(NetworkManager.Instance.Client != null);
+        SetReadyButtonState(NetworkManager.Instance.Client != null);
         SetUnReadyButtonState(false);
-
-        if(Client.State != ConnectionState.Connected)
-        {
-            SetConnetButtonState(true);
-            SetDisconnectButtonState(false);
-        }
-        else
-        {
-            SetConnetButtonState(false);
-            SetDisconnectButtonState(true);
-
-            SetReadyButtonState(true);
-        }
     }
 }
