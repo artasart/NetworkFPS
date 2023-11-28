@@ -17,12 +17,17 @@ public class ProgressbarManager : MonoBehaviour
 
     void Start()
     {
-        progressbar = transform.Search(nameof(ProgressBar)).gameObject;
+        progressbar = transform.Search("Progressbar").gameObject;
         progressbar.SetActive(false);
+
+        NetworkManager.Instance.Client.packetHandler.AddHandler(OnSpawnItem);
+        NetworkManager.Instance.Client.packetHandler.AddHandler(OnItemOccupied);
     }
 
     private void OnSpawnItem(Protocol.S_FPS_SPAWN_ITEM pkt)
     {
+        progressbar.GetComponent<Progressbar>().Refresh();
+
         itemPosition = NetworkUtils.ConvertVector3(pkt.Position);
 
         isOn = true;
@@ -36,7 +41,6 @@ public class ProgressbarManager : MonoBehaviour
     {
         isOn = false;
         progressbar.SetActive(false);
-        Timing.KillCoroutines(updateUI);
     }
 
     private IEnumerator<float> UpdateUI()
@@ -50,7 +54,7 @@ public class ProgressbarManager : MonoBehaviour
             if (isVisible)
             {
                 Vector3 screenPoint = Camera.main.WorldToScreenPoint(itemPosition);
-                transform.position = screenPoint + Vector3.up * 100f;
+                transform.position = screenPoint + Vector3.up * 200f;
 
                 progressbar.SetActive(true);
             }
@@ -62,32 +66,4 @@ public class ProgressbarManager : MonoBehaviour
             yield return Timing.WaitForOneFrame;
         }
     }
-
-    //private void Update()
-    //{
-    //    if (testObject == null) return;
-
-    //    Vector3 objectWorldPosition = testObject.transform.position;
-
-    //    // 월드 좌표를 뷰포트 좌표로 변환
-    //    Vector3 viewportPoint = Camera.main.WorldToViewportPoint(objectWorldPosition);
-
-    //    // 오브젝트가 카메라 뷰포트 내에 있는지 확인
-    //    bool isVisible = viewportPoint.z > 0 && viewportPoint.x > 0 && viewportPoint.x < 1 && viewportPoint.y > 0 && viewportPoint.y < 1;
-
-    //    if (isVisible)
-    //    {
-    //        // 오브젝트가 보일 때, 스크린 좌표로 UI 위치 조정
-    //        Vector3 screenPoint = Camera.main.WorldToScreenPoint(objectWorldPosition);
-    //        testUI.GetComponent<RectTransform>().position = screenPoint + Vector3.up * 100f;
-
-    //        // UI 활성화
-    //        testUI.SetActive(true);
-    //    }
-    //    else
-    //    {
-    //        // 오브젝트가 보이지 않을 때, UI 비활성화
-    //        testUI.SetActive(false);
-    //    }
-    //}
 }

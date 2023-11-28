@@ -5,7 +5,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class ProgressBar : MonoBehaviour
+public class Progressbar : MonoBehaviour
 {
     Image Progressbar_Right;
     Image Progressbar_Left;
@@ -34,6 +34,13 @@ public class ProgressBar : MonoBehaviour
         NetworkManager.Instance.Client.packetHandler.RemoveHandler(OnItemOccupyProgressState);
     }
 
+    public void Refresh()
+    {
+        time.text = "3.00";
+        Progressbar_Right.fillAmount = 0;
+        Progressbar_Left.fillAmount = 0;
+    }
+
     private void OnItemOccupyProgressState(Protocol.S_FPS_ITEM_OCCUPY_PROGRESS_STATE pkt)
     {
         if (updateProgressState.IsRunning)
@@ -57,7 +64,7 @@ public class ProgressBar : MonoBehaviour
             Progressbar_Right.fillAmount = Mathf.Min(currentProgress / halfProgress, 1);
             Progressbar_Left.fillAmount = Mathf.Max((float)(currentProgress - halfProgress) / halfProgress, 0);
 
-            float remainTime = (float)(maxProgress - currentProgress) / 1000;
+            float remainTime = Mathf.Max((float)(maxProgress - currentProgress) / 1000, 0);
             time.text = remainTime.ToString("F2");
 
             yield return Timing.WaitForOneFrame;
