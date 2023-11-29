@@ -17,22 +17,27 @@ public class ProgressbarManager : MonoBehaviour
 
     void Start()
     {
-        progressbar = transform.Search("Progressbar").gameObject;
+        progressbar = transform.Search(nameof(Progressbar)).gameObject;
         progressbar.SetActive(false);
 
         NetworkManager.Instance.Client.packetHandler.AddHandler(OnSpawnItem);
         NetworkManager.Instance.Client.packetHandler.AddHandler(OnItemOccupied);
     }
 
+    private void OnDestroy()
+    {
+        NetworkManager.Instance.Client.packetHandler.RemoveHandler(OnSpawnItem);
+        NetworkManager.Instance.Client.packetHandler.RemoveHandler(OnItemOccupied);
+    }
+
     private void OnSpawnItem(Protocol.S_FPS_SPAWN_ITEM pkt)
     {
+        progressbar.SetActive(true);
         progressbar.GetComponent<Progressbar>().Refresh();
 
         itemPosition = NetworkUtils.ConvertVector3(pkt.Position);
 
         isOn = true;
-        
-        progressbar.SetActive(true);
 
         updateUI = Timing.RunCoroutine(UpdateUI());
     }
