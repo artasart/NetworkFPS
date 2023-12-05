@@ -67,9 +67,9 @@ public class Scene_Main : MonoBehaviour
         GameObject prefab;
 
         if (isMine)
-            prefab = Resources.Load<GameObject>("Demo/Prefabs/Generic/PlayerCharacter");
+            prefab = Resources.Load<GameObject>("Prefab/Generic/PlayerCharacter");
         else
-            prefab = Resources.Load<GameObject>("Demo/Prefabs/Generic/PlayerCharacter_Other");
+            prefab = Resources.Load<GameObject>("Prefab/Generic/PlayerCharacter_Remote");
 
         GameObject player = UnityEngine.Object.Instantiate(prefab, position, rotation);
 
