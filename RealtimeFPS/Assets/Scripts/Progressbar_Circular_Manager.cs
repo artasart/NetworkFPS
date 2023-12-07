@@ -5,7 +5,7 @@ using UnityEditor.Rendering;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-public class ProgressbarManager : MonoBehaviour
+public class Progressbar_Circular_Manager : MonoBehaviour
 {
     GameObject progressbar;
 
@@ -17,7 +17,7 @@ public class ProgressbarManager : MonoBehaviour
 
     void Start()
     {
-        progressbar = transform.Search(nameof(Progressbar)).gameObject;
+        progressbar = transform.Search(nameof(Progressbar_Circular)).gameObject;
         progressbar.SetActive(false);
 
         NetworkManager.Instance.Client.packetHandler.AddHandler(OnSpawnItem);
@@ -33,7 +33,7 @@ public class ProgressbarManager : MonoBehaviour
     private void OnSpawnItem(Protocol.S_FPS_SPAWN_ITEM pkt)
     {
         progressbar.SetActive(true);
-        progressbar.GetComponent<Progressbar>().Refresh();
+        progressbar.GetComponent<Progressbar_Circular>().Refresh();
 
         itemPosition = NetworkUtils.ConvertVector3(pkt.Position);
 

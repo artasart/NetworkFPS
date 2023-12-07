@@ -5,31 +5,29 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class Progressbar : MonoBehaviour
+public class Progressbar : Panel_Base
 {
-    Image Progressbar_Right;
     Image Progressbar_Left;
-    
-    TMP_Text Time;
+    Image Progressbar_Right;
 
     int halfProgress = 1500;
-    int maxProgress = 3000;
     float currentProgress = 0;
 
     float interval = 0.05f;
 
     CoroutineHandle updateProgressState;
 
-    private void Awake()
+    protected override void Awake()
     {
-        Progressbar_Right = transform.Search(nameof(Progressbar_Right)).GetComponent<Image>();
+        base.Awake();
+
         Progressbar_Left = transform.Search(nameof(Progressbar_Left)).GetComponent<Image>();
-        Time = transform.Search(nameof(Time)).GetComponent<TMP_Text>();
+        Progressbar_Right = transform.Search(nameof(Progressbar_Right)).GetComponent<Image>();
     }
 
     private void Start()
     {
-        NetworkManager.Instance.Client.packetHandler.AddHandler(OnItemOccupyProgressState);   
+        NetworkManager.Instance.Client.packetHandler.AddHandler(OnItemOccupyProgressState);
     }
 
     private void OnDestroy()
@@ -37,14 +35,13 @@ public class Progressbar : MonoBehaviour
         NetworkManager.Instance.Client.packetHandler.RemoveHandler(OnItemOccupyProgressState);
     }
 
-    public void Refresh()
+    public override void OnOpen()
     {
-        Time.text = "3.00";
-        Progressbar_Right.fillAmount = 0;
         Progressbar_Left.fillAmount = 0;
+        Progressbar_Right.fillAmount = 0;
     }
 
-    private void OnItemOccupyProgressState(Protocol.S_FPS_ITEM_OCCUPY_PROGRESS_STATE pkt)
+    private void OnItemOccupyProgressState( Protocol.S_FPS_ITEM_OCCUPY_PROGRESS_STATE pkt )
     {
         if (updateProgressState.IsRunning)
             Timing.KillCoroutines(updateProgressState);
@@ -52,7 +49,7 @@ public class Progressbar : MonoBehaviour
         updateProgressState = Timing.RunCoroutine(UpdateProgressBar(pkt.OccupyProgressState));
     }
 
-    private IEnumerator<float> UpdateProgressBar(float endProgresss)
+    private IEnumerator<float> UpdateProgressBar( float endProgresss )
     {
         float delTime = 0.0f;
 
@@ -64,11 +61,8 @@ public class Progressbar : MonoBehaviour
 
             currentProgress = Mathf.Lerp(startProgress, endProgresss, delTime / interval);
 
-            Progressbar_Right.fillAmount = Mathf.Min(currentProgress / halfProgress, 1);
-            Progressbar_Left.fillAmount = Mathf.Max((float)(currentProgress - halfProgress) / halfProgress, 0);
-
-            float remainTime = Mathf.Max((float)(maxProgress - currentProgress) / 1000, 0);
-            Time.text = remainTime.ToString("F2");
+            Progressbar_Left.fillAmount = Mathf.Min(currentProgress / halfProgress, 1);
+            Progressbar_Right.fillAmount = Mathf.Max((float)(currentProgress - halfProgress) / halfProgress, 0);
 
             yield return Timing.WaitForOneFrame;
         }

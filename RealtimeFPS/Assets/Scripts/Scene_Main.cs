@@ -103,6 +103,8 @@ public class Scene_Main : MonoBehaviour
 
     void OnSpawnItem(Protocol.S_FPS_SPAWN_ITEM pkt)
     {
+        GameUIManager.Instance.OpenPanel<Progressbar>();
+        
         if(destination != null)
         {
             Destroy(destination);
@@ -117,6 +119,8 @@ public class Scene_Main : MonoBehaviour
 
     void OnItemOccupied(Protocol.S_FPS_ITEM_OCCUPIED pkt)
     {
+        GameUIManager.Instance.ClosePanel<Progressbar>();
+
         Destroy(item);
     }
 
