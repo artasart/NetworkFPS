@@ -8,7 +8,7 @@ using UnityEngine.UIElements;
 public class ProgressbarManager : MonoBehaviour
 {
     GameObject progressbar;
-    
+
     Vector3 itemPosition;
 
     bool isOn;
