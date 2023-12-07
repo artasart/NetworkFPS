@@ -48,6 +48,7 @@ public class Scene_Main : MonoBehaviour
 
     public void OnStart( S_FPS_START pkt )
     {
+        GameUIManager.Instance.OpenPanel<Panel_HUD>();
         GameManager.Scene.Fade(false);
     }
 

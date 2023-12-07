@@ -530,7 +530,6 @@ GameObject:
   - component: {fileID: -6789627710406952921}
   - component: {fileID: 4221801357733014496}
   - component: {fileID: 2794766393806376851}
-  - component: {fileID: 5384489663031262422}
   - component: {fileID: 5527170253220983778}
   m_Layer: 0
   m_Name: PlayerCharacter
@@ -727,18 +726,6 @@ MonoBehaviour:
   networkObject: {fileID: -6789627710406952921}
   controllerComponent: {fileID: 4153466704391728986}
   movementCompnent: {fileID: 655120612}
---- !u!114 &5384489663031262422
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8314422345246962827}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d758ef8d12a531542b14b067058b5e69, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &5527170253220983778
 MonoBehaviour:
   m_ObjectHideFlags: 0
