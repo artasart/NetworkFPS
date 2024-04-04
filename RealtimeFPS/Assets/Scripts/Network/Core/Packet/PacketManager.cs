@@ -55,15 +55,16 @@ namespace Framework.Network
         PKT_C_FPS_READY = 214,
         PKT_S_FPS_LOAD = 215,
         PKT_C_FPS_LOAD_COMPLETE = 216,
-        PKT_S_FPS_START = 217,
-        PKT_S_FPS_FINISH = 218,
-        PKT_S_FPS_ANNOUNCE = 219,
-        PKT_S_FPS_SPAWN_ITEM = 220,
-        PKT_S_FPS_SPAWN_DESTINATION = 221,
-        PKT_S_FPS_DESTROY_DESTINATION = 222,
-        PKT_S_FPS_ITEM_OCCUPY_PROGRESS_STATE = 223,
-        PKT_S_FPS_ITEM_OCCUPIED = 224,
-        PKT_S_FPS_SCORED = 225,
+        PKT_C_FPS_START = 217,
+        PKT_S_FPS_START = 218,
+        PKT_S_FPS_FINISH = 219,
+        PKT_S_FPS_ANNOUNCE = 220,
+        PKT_S_FPS_SPAWN_ITEM = 221,
+        PKT_S_FPS_SPAWN_DESTINATION = 222,
+        PKT_S_FPS_DESTROY_DESTINATION = 223,
+        PKT_S_FPS_ITEM_OCCUPY_PROGRESS_STATE = 224,
+        PKT_S_FPS_ITEM_OCCUPIED = 225,
+        PKT_S_FPS_SCORED = 226,
     }
 
     public static class PacketManager
@@ -165,6 +166,7 @@ namespace Framework.Network
         public static ArraySegment<byte> MakeSendBuffer( Protocol.C_FPS_ANIMATION pkt ) { return MakeSendBuffer(pkt, 212); }
         public static ArraySegment<byte> MakeSendBuffer( Protocol.C_FPS_READY pkt ) { return MakeSendBuffer(pkt, 214); }
         public static ArraySegment<byte> MakeSendBuffer( Protocol.C_FPS_LOAD_COMPLETE pkt ) { return MakeSendBuffer(pkt, 216); }
+        public static ArraySegment<byte> MakeSendBuffer( Protocol.C_FPS_START pkt ) { return MakeSendBuffer(pkt, 217); }
 
         private static ArraySegment<byte> MakeSendBuffer( IMessage pkt, ushort pktId )
         {

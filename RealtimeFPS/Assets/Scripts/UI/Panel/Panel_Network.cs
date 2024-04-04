@@ -15,6 +15,8 @@ public class Panel_Network : Panel_Base
     private Button btn_Ready;
     private Button btn_UnReady;
 
+    private Button btn_Start;
+
     protected override void Awake()
     {
         base.Awake();
@@ -27,6 +29,8 @@ public class Panel_Network : Panel_Base
 
         btn_Ready = GetUI_Button(nameof(btn_Ready), OnClick_Ready);
         btn_UnReady = GetUI_Button(nameof(btn_UnReady), OnClick_UnReady);
+
+        btn_Start = GetUI_Button(nameof(btn_Start), OnClick_Start);
     }
 
     private void Start()
@@ -61,6 +65,11 @@ public class Panel_Network : Panel_Base
         btn_UnReady.interactable = state;
     }
 
+    public void SetStartButtonState( bool state )
+    {
+        btn_Start.interactable = state;
+    }
+
     override public void OnOpen()
     {
         SetConnetButtonState(NetworkManager.Instance.Client.State != ConnectionState.Connected);
@@ -68,6 +77,8 @@ public class Panel_Network : Panel_Base
 
         SetReadyButtonState(NetworkManager.Instance.Client.State == ConnectionState.Connected);
         SetUnReadyButtonState(false);
+
+        SetStartButtonState(NetworkManager.Instance.Client.State == ConnectionState.Connected);
     }
 
     public void OnConnected()
@@ -76,6 +87,8 @@ public class Panel_Network : Panel_Base
         SetDisconnectButtonState(true);
 
         SetReadyButtonState(true);
+
+        SetStartButtonState(true);
     }
 
     public void OnDisconnected(Protocol.S_DISCONNECT pkt)
@@ -85,6 +98,8 @@ public class Panel_Network : Panel_Base
 
         SetReadyButtonState(false);
         SetUnReadyButtonState(false);
+
+        SetStartButtonState(false);
     }
 
     private void OnClick_Connect()
@@ -122,5 +137,11 @@ public class Panel_Network : Panel_Base
 
         SetUnReadyButtonState(false);
         SetReadyButtonState(true);
+    }
+
+    private void OnClick_Start()
+    {
+        Protocol.C_FPS_START start = new Protocol.C_FPS_START();
+        NetworkManager.Instance.Client.Send(PacketManager.MakeSendBuffer(start));
     }
 }

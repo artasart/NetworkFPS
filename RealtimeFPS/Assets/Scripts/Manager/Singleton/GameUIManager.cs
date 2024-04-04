@@ -3,89 +3,88 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using static EasingFunction;
 
 public class GameUIManager : SingletonManager<GameUIManager>
 {
-	#region Members
+    #region Members
 
-	class Panel
-	{
-		public GameObject GameObject;
-		public bool IsOpen;
-	}
+    class Panel
+    {
+        public GameObject GameObject;
+        public bool IsOpen;
+    }
 
-	[NonReorderable] Dictionary<string, Panel> panels = new Dictionary<string, Panel>();
-	[NonReorderable] Dictionary<string, GameObject> popups = new Dictionary<string, GameObject>();
+    [NonReorderable] Dictionary<string, Panel> panels = new Dictionary<string, Panel>();
+    [NonReorderable] Dictionary<string, GameObject> popups = new Dictionary<string, GameObject>();
 
-	Stack<string> openPopups = new Stack<string>();
+    Stack<string> openPopups = new Stack<string>();
 
-	GameObject group_MasterCanvas;
-	GameObject group_Panel;
+    GameObject group_MasterCanvas;
+    GameObject group_Panel;
 
-	bool isInitialized;
+    bool isInitialized;
 
     public Canvas MasterCanvas { get => group_MasterCanvas.GetComponent<Canvas>(); }
 
-	#endregion
+    #endregion
 
-	#region Initialize
+    #region Initialize
 
-	private void Awake()
-	{
-		group_MasterCanvas = GameObject.Find("go_Canvas");
+    private void Awake()
+    {
+        group_MasterCanvas = GameObject.Find("go_Canvas");
 
-		group_Panel = GameObject.Find(nameof(group_Panel));
+        group_Panel = GameObject.Find(nameof(group_Panel));
 
-		CacheUI(group_Panel, panels);
+        CacheUI(group_Panel, panels);
 
-		isInitialized = true;
-	}
+        isInitialized = true;
+    }
 
     private void OnDestroy()
     {
         panels.Clear();
     }
 
-    private void CacheUI(GameObject _parent, Dictionary<string, Panel> _objects )
-	{
-		for (int i = 0; i < _parent.transform.childCount; i++)
-		{
-			var child = _parent.transform.GetChild(i);
-			var name = child.name;
+    private void CacheUI( GameObject _parent, Dictionary<string, Panel> _objects )
+    {
+        for (int i = 0; i < _parent.transform.childCount; i++)
+        {
+            var child = _parent.transform.GetChild(i);
+            var name = child.name;
 
-			if (_objects.ContainsKey(name))
-			{
-				DebugManager.Log($"Same Key is registered in {_parent.name}", DebugColor.UI);
-				continue;
-			}
+            if (_objects.ContainsKey(name))
+            {
+                DebugManager.Log($"Same Key is registered in {_parent.name}", DebugColor.UI);
+                continue;
+            }
 
-			child.gameObject.SetActive(true);
-			child.gameObject.GetComponent<CanvasGroup>().alpha = 0f;
-			child.gameObject.GetComponent<CanvasGroup>().blocksRaycasts = false;
-			child.gameObject.SetActive(false);
+            child.gameObject.SetActive(true);
+            child.gameObject.GetComponent<CanvasGroup>().alpha = 0f;
+            child.gameObject.GetComponent<CanvasGroup>().blocksRaycasts = false;
+            child.gameObject.SetActive(false);
 
-			_objects[name] = new Panel()
+            _objects[name] = new Panel()
             {
                 GameObject = child.gameObject,
                 IsOpen = false
             };
-		}
-	}
+        }
+    }
 
-	#endregion
+    #endregion
 
-	#region Core Methods
+    #region Core Methods
 
-	public T FetchPanel<T>() where T : Component
-	{
+    public T FetchPanel<T>() where T : Component
+    {
         if (!panels.ContainsKey(typeof(T).ToString())) return null;
 
         return panels[typeof(T).ToString()].GameObject.GetComponent<T>();
-	}
+    }
 
-	public void OpenPanel<T>() where T : Component
-	{
+    public void OpenPanel<T>( bool _instant = false ) where T : Component
+    {
         string panelName = typeof(T).ToString();
 
         if (panels.TryGetValue(panelName, out Panel panel))
@@ -95,12 +94,13 @@ public class GameUIManager : SingletonManager<GameUIManager>
 
             panel.GameObject.GetComponent<Panel_Base>().OnOpen();
             panel.IsOpen = true;
-            ShowPanel(panels[panelName].GameObject, true);
+
+            ShowPanel(panels[panelName].GameObject, true, _instant);
         }
     }
 
-	public void ClosePanel<T>() where T : Component
-	{
+    public void ClosePanel<T>( bool _instant = false ) where T : Component
+    {
         string panelName = typeof(T).ToString();
 
         if (panels.TryGetValue(panelName, out Panel panel))
@@ -110,12 +110,13 @@ public class GameUIManager : SingletonManager<GameUIManager>
 
             panel.GameObject.GetComponent<Panel_Base>().OnClose();
             panel.IsOpen = false;
-            ShowPanel(panels[panelName].GameObject, false);
+
+            ShowPanel(panels[panelName].GameObject, false, _instant);
         }
     }
 
-	public void TogglePanel<T>() where T : Component
-	{
+    public void TogglePanel<T>( bool _instant = false ) where T : Component
+    {
         string panelName = typeof(T).ToString();
 
         if (panels.TryGetValue(panelName, out Panel panel))
@@ -127,88 +128,105 @@ public class GameUIManager : SingletonManager<GameUIManager>
             else
                 panel.GameObject.GetComponent<Panel_Base>().OnClose();
 
-            ShowPanel(panels[panelName].GameObject, panel.IsOpen);
+            ShowPanel(panels[panelName].GameObject, panel.IsOpen, _instant);
         }
     }
 
-	public void PopPopup(bool _instant = false)
-	{
-		if (openPopups.Count <= 0) return;
+    public void PopPopup( bool _instant = false )
+    {
+        if (openPopups.Count <= 0) return;
 
-		var popupName = openPopups.Pop();
+        var popupName = openPopups.Pop();
 
-		if (_instant)
-		{
-			popups[popupName].SetActive(false);
-			popups[popupName].GetComponent<CanvasGroup>().alpha = 0f;
-			popups[popupName].GetComponent<CanvasGroup>().blocksRaycasts = false;
-		}
+        if (_instant)
+        {
+            popups[popupName].SetActive(false);
+            popups[popupName].GetComponent<CanvasGroup>().alpha = 0f;
+            popups[popupName].GetComponent<CanvasGroup>().blocksRaycasts = false;
+        }
 
-		else ShowPanel(popups[popupName], false);
+        else ShowPanel(popups[popupName], false, _instant);
 
-		DebugManager.Log($"Pop: {popupName}", DebugColor.UI);
-	}
+        DebugManager.Log($"Pop: {popupName}", DebugColor.UI);
+    }
 
-	#endregion
+    #endregion
 
-	#region Basic Methods
+    #region Basic Methods
 
-	public void ShowPanel(GameObject _gameObject, bool _isShow)
-	{
-		Timing.RunCoroutine(Co_Show(_gameObject, _isShow, 1.5f), _gameObject.GetHashCode());
-	}
+    public void ShowPanel( GameObject _gameObject, bool _isShow, bool _instant )
+    {
+        if (_instant)
+            Show(_gameObject, _isShow);
+        else
+            Timing.RunCoroutine(Co_Show(_gameObject, _isShow, 1.5f), _gameObject.GetHashCode());
+    }
 
-	private IEnumerator<float> Co_Show(GameObject _gameObject, bool _isShow, float _lerpspeed = 1f)
-	{
-		var canvasGroup = _gameObject.GetComponent<CanvasGroup>();
-		var targetAlpha = _isShow ? 1f : 0f;
-		var lerpvalue = 0f;
-		var lerpspeed = _lerpspeed;
+    private IEnumerator<float> Co_Show( GameObject _gameObject, bool _isShow, float _lerpspeed = 10f )
+    {
+        var canvasGroup = _gameObject.GetComponent<CanvasGroup>();
+        var targetAlpha = _isShow ? 1f : 0f;
+        var lerpvalue = 0f;
+        var lerpspeed = _lerpspeed;
 
-		if (!_isShow) canvasGroup.blocksRaycasts = false;
-		else _gameObject.SetActive(true);
+        if (!_isShow) canvasGroup.blocksRaycasts = false;
+        else _gameObject.SetActive(true);
 
-		while (Mathf.Abs(canvasGroup.alpha - targetAlpha) >= 0.001f)
-		{
-			canvasGroup.alpha = Mathf.Lerp(canvasGroup.alpha, targetAlpha, lerpvalue += lerpspeed * Time.deltaTime);
+        while (Mathf.Abs(canvasGroup.alpha - targetAlpha) >= 0.001f)
+        {
+            canvasGroup.alpha = Mathf.Lerp(canvasGroup.alpha, targetAlpha, lerpvalue += lerpspeed * Time.deltaTime);
 
-			yield return Timing.WaitForOneFrame;
-		}
+            yield return Timing.WaitForOneFrame;
+        }
 
-		canvasGroup.alpha = targetAlpha;
+        canvasGroup.alpha = targetAlpha;
 
-		if (_isShow) canvasGroup.blocksRaycasts = true;
-		else _gameObject.SetActive(false);
-	}
+        if (_isShow) canvasGroup.blocksRaycasts = true;
+        else _gameObject.SetActive(false);
+    }
 
-	public void FadeMaskableGrahpic<T>(T _current, float _target, float _lerpspeed = 1f, float _delay = 0f, Action _start = null, Action _end = null) where T : MaskableGraphic
-	{
-		Timing.RunCoroutine(Co_FadeMaskableGraphic(_current, _target, _lerpspeed, _start, _end).Delay(_delay), _current.GetHashCode().ToString()); ;
-	}
+    private void Show( GameObject _gameObject, bool _isShow )
+    {
+        var canvasGroup = _gameObject.GetComponent<CanvasGroup>();
+        var targetAlpha = _isShow ? 1f : 0f;
 
-	private IEnumerator<float> Co_FadeMaskableGraphic<T>(T _current, float _target, float _lerpspeed = 1f, Action _start = null, Action _end = null) where T : MaskableGraphic
-	{
-		float lerpvalue = 0f;
+        if (!_isShow) canvasGroup.blocksRaycasts = false;
+        else _gameObject.SetActive(true);
 
-		Color target = new Color(_current.color.r, _current.color.g, _current.color.b, _target);
+        canvasGroup.alpha = targetAlpha;
 
-		_start?.Invoke();
+        if (_isShow) canvasGroup.blocksRaycasts = true;
+        else _gameObject.SetActive(false);
+    }
 
-		_current.raycastTarget = true;
+    public void FadeMaskableGrahpic<T>( T _current, float _target, float _lerpspeed = 1f, float _delay = 0f, Action _start = null, Action _end = null ) where T : MaskableGraphic
+    {
+        Timing.RunCoroutine(Co_FadeMaskableGraphic(_current, _target, _lerpspeed, _start, _end).Delay(_delay), _current.GetHashCode().ToString()); ;
+    }
 
-		while (Mathf.Abs(_current.color.a - _target) >= 0.001f)
-		{
-			_current.color = Color.Lerp(_current.color, target, lerpvalue += _lerpspeed * Time.deltaTime);
+    private IEnumerator<float> Co_FadeMaskableGraphic<T>( T _current, float _target, float _lerpspeed = 1f, Action _start = null, Action _end = null ) where T : MaskableGraphic
+    {
+        float lerpvalue = 0f;
 
-			yield return Timing.WaitForOneFrame;
-		}
+        Color target = new Color(_current.color.r, _current.color.g, _current.color.b, _target);
 
-		_current.color = target;
+        _start?.Invoke();
 
-		_end?.Invoke();
+        _current.raycastTarget = true;
 
-		yield return Timing.WaitForOneFrame;
-	}
+        while (Mathf.Abs(_current.color.a - _target) >= 0.001f)
+        {
+            _current.color = Color.Lerp(_current.color, target, lerpvalue += _lerpspeed * Time.deltaTime);
+
+            yield return Timing.WaitForOneFrame;
+        }
+
+        _current.color = target;
+
+        _end?.Invoke();
+
+        yield return Timing.WaitForOneFrame;
+    }
 
     public void Restart()
     {

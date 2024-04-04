@@ -56,15 +56,16 @@ namespace Protocol {
             "b2wuRlBTQW5pbWF0aW9uIlEKD1NfRlBTX0FOSU1BVElPThIQCghwbGF5ZXJJ",
             "ZBgBIAEoBRIsCgxmcHNBbmltYXRpb24YAiABKAsyFi5Qcm90b2NvbC5GUFNB",
             "bmltYXRpb24iHgoLQ19GUFNfUkVBRFkSDwoHaXNSZWFkeRgBIAEoCCIMCgpT",
-            "X0ZQU19MT0FEIhUKE0NfRlBTX0xPQURfQ09NUExFVEUiDQoLU19GUFNfU1RB",
-            "UlQiDgoMU19GUFNfRklOSVNIIiEKDlNfRlBTX0FOTk9VTkNFEg8KB21lc3Nh",
-            "Z2UYASABKAkiNwoQU19GUFNfU1BBV05fSVRFTRIjCghwb3NpdGlvbhgBIAEo",
-            "CzIRLlByb3RvY29sLlZlY3RvcjMiPgoXU19GUFNfU1BBV05fREVTVElOQVRJ",
-            "T04SIwoIcG9zaXRpb24YASABKAsyES5Qcm90b2NvbC5WZWN0b3IzIhsKGVNf",
-            "RlBTX0RFU1RST1lfREVTVElOQVRJT04iPwogU19GUFNfSVRFTV9PQ0NVUFlf",
-            "UFJPR1JFU1NfU1RBVEUSGwoTb2NjdXB5UHJvZ3Jlc3NTdGF0ZRgBIAEoBSIn",
-            "ChNTX0ZQU19JVEVNX09DQ1VQSUVEEhAKCG9jY3VwaWVyGAEgASgFIh4KDFNf",
-            "RlBTX1NDT1JFRBIOCgZzY29yZXIYASABKAliBnByb3RvMw=="));
+            "X0ZQU19MT0FEIhUKE0NfRlBTX0xPQURfQ09NUExFVEUiDQoLQ19GUFNfU1RB",
+            "UlQiDQoLU19GUFNfU1RBUlQiDgoMU19GUFNfRklOSVNIIiEKDlNfRlBTX0FO",
+            "Tk9VTkNFEg8KB21lc3NhZ2UYASABKAkiNwoQU19GUFNfU1BBV05fSVRFTRIj",
+            "Cghwb3NpdGlvbhgBIAEoCzIRLlByb3RvY29sLlZlY3RvcjMiPgoXU19GUFNf",
+            "U1BBV05fREVTVElOQVRJT04SIwoIcG9zaXRpb24YASABKAsyES5Qcm90b2Nv",
+            "bC5WZWN0b3IzIhsKGVNfRlBTX0RFU1RST1lfREVTVElOQVRJT04iPwogU19G",
+            "UFNfSVRFTV9PQ0NVUFlfUFJPR1JFU1NfU1RBVEUSGwoTb2NjdXB5UHJvZ3Jl",
+            "c3NTdGF0ZRgBIAEoBSInChNTX0ZQU19JVEVNX09DQ1VQSUVEEhAKCG9jY3Vw",
+            "aWVyGAEgASgJIh4KDFNfRlBTX1NDT1JFRBIOCgZzY29yZXIYASABKAliBnBy",
+            "b3RvMw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { global::Protocol.Packet001GameObjectReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
@@ -87,6 +88,7 @@ namespace Protocol {
             new pbr::GeneratedClrTypeInfo(typeof(global::Protocol.C_FPS_READY), global::Protocol.C_FPS_READY.Parser, new[]{ "IsReady" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Protocol.S_FPS_LOAD), global::Protocol.S_FPS_LOAD.Parser, null, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Protocol.C_FPS_LOAD_COMPLETE), global::Protocol.C_FPS_LOAD_COMPLETE.Parser, null, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Protocol.C_FPS_START), global::Protocol.C_FPS_START.Parser, null, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Protocol.S_FPS_START), global::Protocol.S_FPS_START.Parser, null, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Protocol.S_FPS_FINISH), global::Protocol.S_FPS_FINISH.Parser, null, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Protocol.S_FPS_ANNOUNCE), global::Protocol.S_FPS_ANNOUNCE.Parser, new[]{ "Message" }, null, null, null, null),
@@ -4874,6 +4876,158 @@ namespace Protocol {
 
   }
 
+  public sealed partial class C_FPS_START : pb::IMessage<C_FPS_START>
+  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      , pb::IBufferMessage
+  #endif
+  {
+    private static readonly pb::MessageParser<C_FPS_START> _parser = new pb::MessageParser<C_FPS_START>(() => new C_FPS_START());
+    private pb::UnknownFieldSet _unknownFields;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static pb::MessageParser<C_FPS_START> Parser { get { return _parser; } }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static pbr::MessageDescriptor Descriptor {
+      get { return global::Protocol.Packet002FPSReflection.Descriptor.MessageTypes[19]; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    pbr::MessageDescriptor pb::IMessage.Descriptor {
+      get { return Descriptor; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public C_FPS_START() {
+      OnConstruction();
+    }
+
+    partial void OnConstruction();
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public C_FPS_START(C_FPS_START other) : this() {
+      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public C_FPS_START Clone() {
+      return new C_FPS_START(this);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override bool Equals(object other) {
+      return Equals(other as C_FPS_START);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool Equals(C_FPS_START other) {
+      if (ReferenceEquals(other, null)) {
+        return false;
+      }
+      if (ReferenceEquals(other, this)) {
+        return true;
+      }
+      return Equals(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override int GetHashCode() {
+      int hash = 1;
+      if (_unknownFields != null) {
+        hash ^= _unknownFields.GetHashCode();
+      }
+      return hash;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override string ToString() {
+      return pb::JsonFormatter.ToDiagnosticString(this);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void WriteTo(pb::CodedOutputStream output) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      output.WriteRawMessage(this);
+    #else
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(output);
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(ref output);
+      }
+    }
+    #endif
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int CalculateSize() {
+      int size = 0;
+      if (_unknownFields != null) {
+        size += _unknownFields.CalculateSize();
+      }
+      return size;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void MergeFrom(C_FPS_START other) {
+      if (other == null) {
+        return;
+      }
+      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void MergeFrom(pb::CodedInputStream input) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      input.ReadRawMessage(this);
+    #else
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+        switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
+            break;
+        }
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+        switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
+            break;
+        }
+      }
+    }
+    #endif
+
+  }
+
   public sealed partial class S_FPS_START : pb::IMessage<S_FPS_START>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       , pb::IBufferMessage
@@ -4888,7 +5042,7 @@ namespace Protocol {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Protocol.Packet002FPSReflection.Descriptor.MessageTypes[19]; }
+      get { return global::Protocol.Packet002FPSReflection.Descriptor.MessageTypes[20]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -5040,7 +5194,7 @@ namespace Protocol {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Protocol.Packet002FPSReflection.Descriptor.MessageTypes[20]; }
+      get { return global::Protocol.Packet002FPSReflection.Descriptor.MessageTypes[21]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -5192,7 +5346,7 @@ namespace Protocol {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Protocol.Packet002FPSReflection.Descriptor.MessageTypes[21]; }
+      get { return global::Protocol.Packet002FPSReflection.Descriptor.MessageTypes[22]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -5381,7 +5535,7 @@ namespace Protocol {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Protocol.Packet002FPSReflection.Descriptor.MessageTypes[22]; }
+      get { return global::Protocol.Packet002FPSReflection.Descriptor.MessageTypes[23]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -5579,7 +5733,7 @@ namespace Protocol {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Protocol.Packet002FPSReflection.Descriptor.MessageTypes[23]; }
+      get { return global::Protocol.Packet002FPSReflection.Descriptor.MessageTypes[24]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -5777,7 +5931,7 @@ namespace Protocol {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Protocol.Packet002FPSReflection.Descriptor.MessageTypes[24]; }
+      get { return global::Protocol.Packet002FPSReflection.Descriptor.MessageTypes[25]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -5929,7 +6083,7 @@ namespace Protocol {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Protocol.Packet002FPSReflection.Descriptor.MessageTypes[25]; }
+      get { return global::Protocol.Packet002FPSReflection.Descriptor.MessageTypes[26]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -6118,7 +6272,7 @@ namespace Protocol {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Protocol.Packet002FPSReflection.Descriptor.MessageTypes[26]; }
+      get { return global::Protocol.Packet002FPSReflection.Descriptor.MessageTypes[27]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -6150,13 +6304,13 @@ namespace Protocol {
 
     /// <summary>Field number for the "occupier" field.</summary>
     public const int OccupierFieldNumber = 1;
-    private int occupier_;
+    private string occupier_ = "";
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public int Occupier {
+    public string Occupier {
       get { return occupier_; }
       set {
-        occupier_ = value;
+        occupier_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
       }
     }
 
@@ -6183,7 +6337,7 @@ namespace Protocol {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override int GetHashCode() {
       int hash = 1;
-      if (Occupier != 0) hash ^= Occupier.GetHashCode();
+      if (Occupier.Length != 0) hash ^= Occupier.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -6202,9 +6356,9 @@ namespace Protocol {
     #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       output.WriteRawMessage(this);
     #else
-      if (Occupier != 0) {
-        output.WriteRawTag(8);
-        output.WriteInt32(Occupier);
+      if (Occupier.Length != 0) {
+        output.WriteRawTag(10);
+        output.WriteString(Occupier);
       }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
@@ -6216,9 +6370,9 @@ namespace Protocol {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
-      if (Occupier != 0) {
-        output.WriteRawTag(8);
-        output.WriteInt32(Occupier);
+      if (Occupier.Length != 0) {
+        output.WriteRawTag(10);
+        output.WriteString(Occupier);
       }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
@@ -6230,8 +6384,8 @@ namespace Protocol {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public int CalculateSize() {
       int size = 0;
-      if (Occupier != 0) {
-        size += 1 + pb::CodedOutputStream.ComputeInt32Size(Occupier);
+      if (Occupier.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(Occupier);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -6245,7 +6399,7 @@ namespace Protocol {
       if (other == null) {
         return;
       }
-      if (other.Occupier != 0) {
+      if (other.Occupier.Length != 0) {
         Occupier = other.Occupier;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
@@ -6263,8 +6417,8 @@ namespace Protocol {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
-          case 8: {
-            Occupier = input.ReadInt32();
+          case 10: {
+            Occupier = input.ReadString();
             break;
           }
         }
@@ -6282,8 +6436,8 @@ namespace Protocol {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
-          case 8: {
-            Occupier = input.ReadInt32();
+          case 10: {
+            Occupier = input.ReadString();
             break;
           }
         }
@@ -6307,7 +6461,7 @@ namespace Protocol {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Protocol.Packet002FPSReflection.Descriptor.MessageTypes[27]; }
+      get { return global::Protocol.Packet002FPSReflection.Descriptor.MessageTypes[28]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]

@@ -13,7 +13,7 @@ public class NetworkManager : SingletonManager<NetworkManager>
 
     private readonly bool isLocal = true;
 
-    private readonly string localAddress = "192.168.0.8";
+    private readonly string localAddress = "169.254.22.122";
     private readonly int localPort = 7777;
 
     private readonly string remoteAddress = "20.200.230.139";

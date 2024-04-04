@@ -7,9 +7,14 @@ public class Client : Connection
 {
 	public string ClientId { get; set; }
 
+    public HashSet<string> ClientList { get; set; }
+
 	public Client()
 	{
+        ClientList = new HashSet<string>();
+
         packetHandler.AddHandler(OnEnter);
+        packetHandler.AddHandler(OnAddClient);
     }
 
     ~Client()
@@ -26,6 +31,12 @@ public class Client : Connection
             Debug.Log(pkt.Result);
             return;
         }
+    }
+
+    public void OnAddClient( S_ADD_CLIENT pkt )
+    {
+        for(int i = 0; i < pkt.ClientInfos.Count; i++)
+            ClientList.Add(pkt.ClientInfos[i].ClientId);
     }
 
     public void DisplayPing( Protocol.S_PING pkt )

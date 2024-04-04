@@ -897,7 +897,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 81d0c9cae953fca4ab9737e1caf87cd3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  networkObject: {fileID: 0}
   animator: {fileID: 4505190999055681087}
   turnInPlaceAngle: 85
   turnCurve:
@@ -953,8 +952,6 @@ MonoBehaviour:
   weaponBone: {fileID: 6624334008445290585}
   _playerInput: {x: 0, y: 0}
   _aiming: 0
-  test_turn: 0
-  trigger_right: 0
 --- !u!114 &4496267191253631901
 MonoBehaviour:
   m_ObjectHideFlags: 0

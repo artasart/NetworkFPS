@@ -415,10 +415,24 @@ namespace Protocol {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public bool BoolParam {
-      get { return paramCase_ == ParamOneofCase.BoolParam ? (bool) param_ : false; }
+      get { return HasBoolParam ? (bool) param_ : false; }
       set {
         param_ = value;
         paramCase_ = ParamOneofCase.BoolParam;
+      }
+    }
+    /// <summary>Gets whether the "bool_param" field is set</summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool HasBoolParam {
+      get { return paramCase_ == ParamOneofCase.BoolParam; }
+    }
+    /// <summary> Clears the value of the oneof if it's currently set to "bool_param" </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void ClearBoolParam() {
+      if (HasBoolParam) {
+        ClearParam();
       }
     }
 
@@ -427,10 +441,24 @@ namespace Protocol {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public int IntParam {
-      get { return paramCase_ == ParamOneofCase.IntParam ? (int) param_ : 0; }
+      get { return HasIntParam ? (int) param_ : 0; }
       set {
         param_ = value;
         paramCase_ = ParamOneofCase.IntParam;
+      }
+    }
+    /// <summary>Gets whether the "int_param" field is set</summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool HasIntParam {
+      get { return paramCase_ == ParamOneofCase.IntParam; }
+    }
+    /// <summary> Clears the value of the oneof if it's currently set to "int_param" </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void ClearIntParam() {
+      if (HasIntParam) {
+        ClearParam();
       }
     }
 
@@ -439,10 +467,24 @@ namespace Protocol {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public float FloatParam {
-      get { return paramCase_ == ParamOneofCase.FloatParam ? (float) param_ : 0F; }
+      get { return HasFloatParam ? (float) param_ : 0F; }
       set {
         param_ = value;
         paramCase_ = ParamOneofCase.FloatParam;
+      }
+    }
+    /// <summary>Gets whether the "float_param" field is set</summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool HasFloatParam {
+      get { return paramCase_ == ParamOneofCase.FloatParam; }
+    }
+    /// <summary> Clears the value of the oneof if it's currently set to "float_param" </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void ClearFloatParam() {
+      if (HasFloatParam) {
+        ClearParam();
       }
     }
 
@@ -494,9 +536,9 @@ namespace Protocol {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override int GetHashCode() {
       int hash = 1;
-      if (paramCase_ == ParamOneofCase.BoolParam) hash ^= BoolParam.GetHashCode();
-      if (paramCase_ == ParamOneofCase.IntParam) hash ^= IntParam.GetHashCode();
-      if (paramCase_ == ParamOneofCase.FloatParam) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(FloatParam);
+      if (HasBoolParam) hash ^= BoolParam.GetHashCode();
+      if (HasIntParam) hash ^= IntParam.GetHashCode();
+      if (HasFloatParam) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(FloatParam);
       hash ^= (int) paramCase_;
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
@@ -516,15 +558,15 @@ namespace Protocol {
     #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       output.WriteRawMessage(this);
     #else
-      if (paramCase_ == ParamOneofCase.BoolParam) {
+      if (HasBoolParam) {
         output.WriteRawTag(8);
         output.WriteBool(BoolParam);
       }
-      if (paramCase_ == ParamOneofCase.IntParam) {
+      if (HasIntParam) {
         output.WriteRawTag(16);
         output.WriteInt32(IntParam);
       }
-      if (paramCase_ == ParamOneofCase.FloatParam) {
+      if (HasFloatParam) {
         output.WriteRawTag(29);
         output.WriteFloat(FloatParam);
       }
@@ -538,15 +580,15 @@ namespace Protocol {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
-      if (paramCase_ == ParamOneofCase.BoolParam) {
+      if (HasBoolParam) {
         output.WriteRawTag(8);
         output.WriteBool(BoolParam);
       }
-      if (paramCase_ == ParamOneofCase.IntParam) {
+      if (HasIntParam) {
         output.WriteRawTag(16);
         output.WriteInt32(IntParam);
       }
-      if (paramCase_ == ParamOneofCase.FloatParam) {
+      if (HasFloatParam) {
         output.WriteRawTag(29);
         output.WriteFloat(FloatParam);
       }
@@ -560,13 +602,13 @@ namespace Protocol {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public int CalculateSize() {
       int size = 0;
-      if (paramCase_ == ParamOneofCase.BoolParam) {
+      if (HasBoolParam) {
         size += 1 + 1;
       }
-      if (paramCase_ == ParamOneofCase.IntParam) {
+      if (HasIntParam) {
         size += 1 + pb::CodedOutputStream.ComputeInt32Size(IntParam);
       }
-      if (paramCase_ == ParamOneofCase.FloatParam) {
+      if (HasFloatParam) {
         size += 1 + 4;
       }
       if (_unknownFields != null) {
@@ -4371,7 +4413,7 @@ namespace Protocol {
       if (other.GameObjectId != 0) {
         GameObjectId = other.GameObjectId;
       }
-      params_.Add(other.params_);
+      params_.MergeFrom(other.params_);
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
 
@@ -4586,7 +4628,7 @@ namespace Protocol {
       if (other.GameObjectId != 0) {
         GameObjectId = other.GameObjectId;
       }
-      params_.Add(other.params_);
+      params_.MergeFrom(other.params_);
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
 

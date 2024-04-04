@@ -69,15 +69,15 @@ namespace Framework.Network
             Handlers.Add(211, _Handle_S_FPS_RELOAD);
             Handlers.Add(213, _Handle_S_FPS_ANIMATION);
             Handlers.Add(215, _Handle_S_FPS_LOAD);
-            Handlers.Add(217, _Handle_S_FPS_START);
-            Handlers.Add(218, _Handle_S_FPS_FINISH);
-            Handlers.Add(219, _Handle_S_FPS_ANNOUNCE);
-            Handlers.Add(220, _Handle_S_FPS_SPAWN_ITEM);
-            Handlers.Add(221, _Handle_S_FPS_SPAWN_DESTINATION);
-            Handlers.Add(222, _Handle_S_FPS_DESTROY_DESTINATION);
-            Handlers.Add(223, _Handle_S_FPS_ITEM_OCCUPY_PROGRESS_STATE);
-            Handlers.Add(224, _Handle_S_FPS_ITEM_OCCUPIED);
-            Handlers.Add(225, _Handle_S_FPS_SCORED);
+            Handlers.Add(218, _Handle_S_FPS_START);
+            Handlers.Add(219, _Handle_S_FPS_FINISH);
+            Handlers.Add(220, _Handle_S_FPS_ANNOUNCE);
+            Handlers.Add(221, _Handle_S_FPS_SPAWN_ITEM);
+            Handlers.Add(222, _Handle_S_FPS_SPAWN_DESTINATION);
+            Handlers.Add(223, _Handle_S_FPS_DESTROY_DESTINATION);
+            Handlers.Add(224, _Handle_S_FPS_ITEM_OCCUPY_PROGRESS_STATE);
+            Handlers.Add(225, _Handle_S_FPS_ITEM_OCCUPIED);
+            Handlers.Add(226, _Handle_S_FPS_SCORED);
         }
         public void AddHandler( Action<Protocol.S_ENTER> handler )
         {
