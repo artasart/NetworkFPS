@@ -15,7 +15,7 @@ public class Panel_Network : Panel_Base
     private Button btn_Ready;
     private Button btn_UnReady;
 
-    private Button btn_Start;
+    private Button btn_Replay;
 
     protected override void Awake()
     {
@@ -30,7 +30,7 @@ public class Panel_Network : Panel_Base
         btn_Ready = GetUI_Button(nameof(btn_Ready), OnClick_Ready);
         btn_UnReady = GetUI_Button(nameof(btn_UnReady), OnClick_UnReady);
 
-        btn_Start = GetUI_Button(nameof(btn_Start), OnClick_Start);
+        btn_Replay = GetUI_Button(nameof(btn_Replay), OnClick_Replay);
     }
 
     private void Start()
@@ -67,7 +67,7 @@ public class Panel_Network : Panel_Base
 
     public void SetStartButtonState( bool state )
     {
-        btn_Start.interactable = state;
+        btn_Replay.interactable = state;
     }
 
     override public void OnOpen()
@@ -139,9 +139,9 @@ public class Panel_Network : Panel_Base
         SetReadyButtonState(true);
     }
 
-    private void OnClick_Start()
+    private void OnClick_Replay()
     {
-        Protocol.C_FPS_START start = new Protocol.C_FPS_START();
-        NetworkManager.Instance.Client.Send(PacketManager.MakeSendBuffer(start));
+        GameManager.Scene.Fade(true);
+        GameManager.Scene.LoadScene(SceneName.Replay);
     }
 }

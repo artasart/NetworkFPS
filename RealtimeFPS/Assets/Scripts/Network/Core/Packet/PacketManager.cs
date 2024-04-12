@@ -65,6 +65,8 @@ namespace Framework.Network
         PKT_S_FPS_ITEM_OCCUPY_PROGRESS_STATE = 224,
         PKT_S_FPS_ITEM_OCCUPIED = 225,
         PKT_S_FPS_SCORED = 226,
+        PKT_S_FPS_REPLAY = 300,
+        PKT_C_FPS_REPLAY = 301,
     }
 
     public static class PacketManager
@@ -107,6 +109,7 @@ namespace Framework.Network
             onRecv.Add((ushort)MsgId.PKT_S_FPS_ITEM_OCCUPY_PROGRESS_STATE, MakePacket<S_FPS_ITEM_OCCUPY_PROGRESS_STATE>);
             onRecv.Add((ushort)MsgId.PKT_S_FPS_ITEM_OCCUPIED, MakePacket<S_FPS_ITEM_OCCUPIED>);
             onRecv.Add((ushort)MsgId.PKT_S_FPS_SCORED, MakePacket<S_FPS_SCORED>);
+            onRecv.Add((ushort)MsgId.PKT_S_FPS_REPLAY, MakePacket<S_FPS_REPLAY>);
         }
 
         public static void OnRecv( ArraySegment<byte> buffer, Connection connection )
@@ -167,6 +170,7 @@ namespace Framework.Network
         public static ArraySegment<byte> MakeSendBuffer( Protocol.C_FPS_READY pkt ) { return MakeSendBuffer(pkt, 214); }
         public static ArraySegment<byte> MakeSendBuffer( Protocol.C_FPS_LOAD_COMPLETE pkt ) { return MakeSendBuffer(pkt, 216); }
         public static ArraySegment<byte> MakeSendBuffer( Protocol.C_FPS_START pkt ) { return MakeSendBuffer(pkt, 217); }
+        public static ArraySegment<byte> MakeSendBuffer( Protocol.C_FPS_REPLAY pkt ) { return MakeSendBuffer(pkt, 301); }
 
         private static ArraySegment<byte> MakeSendBuffer( IMessage pkt, ushort pktId )
         {

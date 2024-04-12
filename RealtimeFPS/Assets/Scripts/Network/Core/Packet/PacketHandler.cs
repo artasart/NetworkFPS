@@ -41,6 +41,7 @@ namespace Framework.Network
         private Action<Protocol.S_FPS_ITEM_OCCUPY_PROGRESS_STATE> S_FPS_ITEM_OCCUPY_PROGRESS_STATE_Handler;
         private Action<Protocol.S_FPS_ITEM_OCCUPIED> S_FPS_ITEM_OCCUPIED_Handler;
         private Action<Protocol.S_FPS_SCORED> S_FPS_SCORED_Handler;
+        private Action<Protocol.S_FPS_REPLAY> S_FPS_REPLAY_Handler;
 
         public PacketHandler()
         {
@@ -78,6 +79,7 @@ namespace Framework.Network
             Handlers.Add(224, _Handle_S_FPS_ITEM_OCCUPY_PROGRESS_STATE);
             Handlers.Add(225, _Handle_S_FPS_ITEM_OCCUPIED);
             Handlers.Add(226, _Handle_S_FPS_SCORED);
+            Handlers.Add(300, _Handle_S_FPS_REPLAY);
         }
         public void AddHandler( Action<Protocol.S_ENTER> handler )
         {
@@ -486,6 +488,18 @@ namespace Framework.Network
         private void _Handle_S_FPS_SCORED( IMessage message )
         {
             S_FPS_SCORED_Handler?.Invoke((Protocol.S_FPS_SCORED)message);
+        }
+        public void AddHandler( Action<Protocol.S_FPS_REPLAY> handler )
+        {
+            S_FPS_REPLAY_Handler += handler;
+        }
+        public void RemoveHandler( Action<Protocol.S_FPS_REPLAY> handler )
+        {
+            S_FPS_REPLAY_Handler -= handler;
+        }
+        private void _Handle_S_FPS_REPLAY( IMessage message )
+        {
+            S_FPS_REPLAY_Handler?.Invoke((Protocol.S_FPS_REPLAY)message);
         }
     }
 }

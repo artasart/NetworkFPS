@@ -9,7 +9,8 @@ public enum SceneName
 	Title,
 	Login,
 	Main,
-	Lobby
+	Lobby,
+	Replay
 }
 
 public class GameSceneManager : SingletonManager<GameSceneManager>
@@ -147,6 +148,9 @@ public class GameSceneManager : SingletonManager<GameSceneManager>
 				sceneName = _sceneName.ToString();
 				break;
             case SceneName.Lobby:
+                sceneName = _sceneName.ToString();
+				break;
+            case SceneName.Replay:
                 sceneName = _sceneName.ToString();
                 break;
         }
